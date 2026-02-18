@@ -3,51 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - Sistema Integral</title>
+    <title>Refaccionaria Millán - V4 (Catálogo Visual)</title>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #ffd700; --dark: #111; --light: #eee; --danger: #ff4444; --success: #00cc66; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
+        :root { --primary: #ffd700; --dark: #111; --light: #eee; --danger: #ff4444; --success: #00cc66; --info: #00d2ff; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f5; color: #333; }
         
-        /* HEADER NAVEGACIÓN */
-        header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        .logo { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; color: #fff; }
+        /* HEADER */
+        header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .logo { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .logo i { color: var(--primary); font-size: 1.5rem; }
         .logo span { color: var(--primary); }
-        nav button { background: none; border: none; color: #aaa; font-size: 1.2rem; margin-left: 15px; cursor: pointer; transition: 0.3s; }
-        nav button.active { color: var(--primary); }
+        nav button { background: none; border: none; color: #aaa; font-size: 1.3rem; margin-left: 15px; cursor: pointer; transition: 0.3s; }
+        nav button.active { color: var(--primary); transform: scale(1.1); }
 
         /* SECCIONES */
-        .page { display: none; padding: 20px; max-width: 800px; margin: 0 auto; animation: fade 0.3s; }
+        .page { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; animation: fade 0.3s; }
         .page.active { display: block; }
         @keyframes fade { from{opacity:0} to{opacity:1} }
 
-        /* --- PÁGINA PÚBLICA (PUBLICIDAD) --- */
-        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center; color: white; text-align: center; padding: 60px 20px; border-radius: 0 0 20px 20px; }
-        .hero h1 { font-size: 2.5rem; margin: 0; text-transform: uppercase; }
-        .hero p { font-size: 1.2rem; color: var(--primary); }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
-        .service-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid var(--primary); }
-        .service-card i { font-size: 2.5rem; color: var(--dark); margin-bottom: 15px; }
-
-        /* --- ADMIN INVENTARIO --- */
-        .form-group { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        input, select { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .btn-main { background: var(--primary); color: var(--dark); border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; }
-        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        /* ESTILOS CATÁLOGO (GRID) */
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
+        .product-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; border: 1px solid #ddd; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-color: var(--primary); }
         
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        th { background: #333; color: white; }
+        .prod-img { width: 100%; height: 140px; object-fit: contain; background: #fff; border-bottom: 1px solid #eee; padding: 10px; box-sizing: border-box; }
+        .prod-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .prod-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; line-height: 1.2; color: #333; }
+        .prod-compat { font-size: 0.75rem; color: #777; margin-bottom: 5px; height: 30px; overflow: hidden; }
+        .prod-price { font-size: 1.1rem; font-weight: 900; color: var(--success); text-align: right; }
+        
+        .btn-add { background: var(--dark); color: white; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 5px; }
+        .btn-add:active { background: var(--primary); color: black; }
+        
+        .btn-google { background: #4285F4; color: white; border: none; padding: 8px; border-radius: 5px; width: 100%; margin-top: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
 
-        /* --- PUNTO DE VENTA (POS) --- */
-        .scanner-container { background: black; border-radius: 10px; overflow: hidden; margin-bottom: 15px; position: relative; }
-        #reader { width: 100%; }
+        /* FORMULARIOS */
+        .form-group { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .margin-control { background: #222; color: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--primary); }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: var(--dark); border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .btn-info { background: var(--info); color: #000; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+
+        /* TICKET & POS */
         .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 20px 0; color: var(--dark); }
         .ticket-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; background: white; }
-        
-        /* IMPRESIÓN (TICKET) */
+
         @media print {
             body * { visibility: hidden; }
             #ticket-print-area, #ticket-print-area * { visibility: visible; }
@@ -59,64 +64,33 @@
 <body>
 
 <header>
-    <div class="logo">REFACCIONARIA <span>MILLÁN</span></div>
+    <div class="logo"><i class="fas fa-bolt"></i> REFACCIONARIA <span>MILLÁN</span></div>
     <nav>
-        <button onclick="irA('public')" id="nav-public" class="active"><i class="fas fa-home"></i></button>
-        <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-cash-register"></i></button>
+        <button onclick="irA('catalog')" id="nav-catalog" class="active"><i class="fas fa-search"></i></button>
+        <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-shopping-cart"></i></button>
         <button onclick="irA('admin')" id="nav-admin"><i class="fas fa-cog"></i></button>
     </nav>
 </header>
 
-<div id="public" class="page active">
-    <div class="hero">
-        <h1>Refaccionaria Millán</h1>
-        <p>Especialistas en Diagnóstico y Electrónica</p>
-        <div style="margin-top:20px;">
-            <a href="tel:+521234567890" class="btn-main" style="display:inline-block; width:auto; text-decoration:none;">📞 CONTÁCTANOS</a>
-        </div>
-    </div>
-
-    <h2 style="text-align:center; margin-top:40px;">NUESTROS SERVICIOS</h2>
-    <div class="services-grid">
-        <div class="service-card">
-            <i class="fas fa-car-battery"></i>
-            <h3>Diagnóstico Eléctrico</h3>
-            <p>Solución a fallas de encendido, alternadores, marchas y fugas de corriente.</p>
-        </div>
-        <div class="service-card">
-            <i class="fas fa-microchip"></i>
-            <h3>Módulos y Sensores</h3>
-            <p>Venta y programación de computadoras, sensores de oxígeno, cigüeñal y más.</p>
-        </div>
-        <div class="service-card">
-            <i class="fas fa-wrench"></i>
-            <h3>Técnico Automotriz</h3>
-            <p>Servicio profesional especializado. Escaneo por computadora y osciloscopio.</p>
-        </div>
-        <div class="service-card">
-            <i class="fas fa-box-open"></i>
-            <h3>Refacciones</h3>
-            <p>Amplio surtido en partes eléctricas, iluminación LED y accesorios.</p>
-        </div>
-    </div>
-</div>
-
-<div id="pos" class="page">
-    <h2>Punto de Venta</h2>
-    
-    <div class="form-group" style="text-align:center;">
-        <button class="btn-main" onclick="iniciarEscaner()" id="btn-scan-toggle"><i class="fas fa-barcode"></i> ACTIVAR CÁMARA / ESCÁNER</button>
-        <div id="reader" style="display:none; margin-top:10px;"></div>
-        <p id="scan-result" style="color:green; font-weight:bold; margin-top:5px;"></p>
+<div id="catalog" class="page active">
+    <div style="text-align:center; margin-bottom:20px;">
+        <h2 style="margin:0;">Catálogo de Partes</h2>
+        <p style="color:#666; font-size:0.9rem;">Busca por pieza, coche o año (Ej: "Bobina Clio 2008")</p>
     </div>
 
     <div class="form-group" style="display:flex; gap:10px;">
-        <input type="text" id="pos-search" placeholder="Buscar por nombre o código..." onkeyup="filtrarVenta()">
+        <input type="text" id="catalog-search" placeholder="🔍 Escribe pieza o vehículo..." onkeyup="renderCatalog()" style="margin:0;">
+        <button class="btn-main" onclick="buscarEnGoogleExterno()" style="width:60px;"><i class="fab fa-google"></i></button>
     </div>
-    <div id="pos-results" style="background:white; max-height:150px; overflow-y:auto; margin-bottom:15px; display:none;"></div>
 
-    <h3>🛒 Carrito de Compra</h3>
-    <div id="cart-list">
+    <div id="catalog-container" class="catalog-grid">
+        </div>
+</div>
+
+<div id="pos" class="page">
+    <h2><i class="fas fa-cash-register"></i> Caja / Ticket</h2>
+    
+    <div id="cart-list" style="background:white; border-radius:5px; min-height:100px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
         <div style="text-align:center; color:#999; padding:20px;">Carrito vacío</div>
     </div>
 
@@ -124,36 +98,49 @@
         TOTAL: $<span id="total-amount">0.00</span>
     </div>
 
-    <button class="btn-main" style="background:var(--success); color:white;" onclick="imprimirTicket()">🖨️ COBRAR E IMPRIMIR TICKET</button>
+    <button class="btn-main" style="background:var(--success); color:white;" onclick="imprimirTicket()">🖨️ IMPRIMIR TICKET</button>
+    <br><br>
+    <button class="btn-main" onclick="irA('catalog')">⬅️ VOLVER AL CATÁLOGO</button>
 </div>
 
 <div id="admin" class="page">
-    <h2>Administrar Inventario</h2>
+    <h2>Administración</h2>
     
-    <div class="form-group">
-        <h3>Agregar / Editar Producto</h3>
-        <input type="text" id="prod-code" placeholder="Código de Barras / Clave">
-        <input type="text" id="prod-name" placeholder="Nombre del Producto">
-        <input type="number" id="prod-price" placeholder="Precio Venta ($)">
-        <input type="number" id="prod-stock" placeholder="Cantidad en Stock">
-        <button class="btn-main" onclick="guardarProducto()">GUARDAR PRODUCTO</button>
+    <div class="margin-control">
+        <h3><i class="fas fa-chart-line"></i> Ganancia Global (%)</h3>
+        <input type="number" id="global-margin" value="30" style="background:#333; color:#fff; border:1px solid #555;">
+        <button class="btn-info" onclick="actualizarPreciosMasivo()">🔄 RECALCULAR PRECIOS</button>
     </div>
 
-    <h3>Inventario Actual</h3>
-    <input type="text" id="admin-search" placeholder="🔍 Buscar producto..." onkeyup="renderAdminTable()">
-    <div style="overflow-x:auto;">
-        <table id="inventory-table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-body"></tbody>
-        </table>
+    <div class="form-group">
+        <h3>Alta de Producto</h3>
+        <input type="text" id="prod-code" placeholder="Código / Clave">
+        <input type="text" id="prod-name" placeholder="Nombre (Ej: Bobina Encendido)">
+        
+        <label style="font-size:0.8rem; font-weight:bold;">Compatibilidad (Palabras clave):</label>
+        <textarea id="prod-compat" placeholder="Ej: Nissan Tsuru III, Sentra B14, Tsubame 95-00..." rows="2"></textarea>
+        
+        <label style="font-size:0.8rem; font-weight:bold;">Link de Imagen (URL):</label>
+        <input type="text" id="prod-img" placeholder="https://..." onchange="previsualizarImagen()">
+        <img id="img-preview" src="" style="max-height:100px; display:none; margin:10px auto;">
+
+        <div style="display:flex; gap:10px;">
+            <div style="width:50%;">
+                <label>Costo ($)</label>
+                <input type="number" id="prod-cost" placeholder="0.00" onchange="calcularPrecioVista()">
+            </div>
+            <div style="width:50%;">
+                <label>Precio Venta ($)</label>
+                <input type="number" id="prod-price" placeholder="Calculado" disabled style="background:#eee;">
+            </div>
+        </div>
+        
+        <input type="number" id="prod-stock" placeholder="Cantidad Stock">
+        <button class="btn-main" onclick="guardarProducto()">GUARDAR</button>
+    </div>
+
+    <div style="margin-top:20px; text-align:center;">
+        <button class="btn-danger" onclick="resetearDB()">⚠️ Restaurar Base de Datos Original</button>
     </div>
 </div>
 
@@ -161,141 +148,178 @@
     <div style="text-align:center;">
         <h3>REFACCIONARIA MILLÁN</h3>
         <p>Especialistas en Diagnóstico</p>
-        <p>---------------------------</p>
         <div style="text-align:left;" id="ticket-date"></div>
     </div>
-    <div id="ticket-body" style="margin-top:10px;"></div>
+    <div id="ticket-body" style="margin-top:10px; font-size:0.9rem;"></div>
     <p>---------------------------</p>
     <div style="text-align:right; font-size:1.2rem; font-weight:bold;">
         TOTAL: $<span id="ticket-total">0.00</span>
     </div>
-    <div style="text-align:center; margin-top:20px;">
-        <p>¡Gracias por su compra!</p>
-        <small>No hay cambios en partes eléctricas.</small>
-    </div>
 </div>
 
 <script>
-    // --- 1. BASE DE DATOS LOCAL (LocalStorage) ---
-    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db')) || [];
+    // --- 1. DATOS ---
+    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db_v4')) || [];
+    let MARGEN_ACTUAL = localStorage.getItem('millan_margin') || 30;
     let CARRITO = [];
 
-    // Datos de ejemplo si está vacío
+    document.getElementById('global-margin').value = MARGEN_ACTUAL;
+
+    // CARGA INICIAL CON IMÁGENES DE EJEMPLO
     if(INVENTARIO.length === 0) {
         INVENTARIO = [
-            {code:"12345", name:"Aceite 5W-30", price:180, stock:10},
-            {code:"BUJ01", name:"Bujía Platino NGK", price:85, stock:50},
-            {code:"BOB03", name:"Bobina Golf A4", price:450, stock:5}
+            {code:"BOB-NS01", name:"Bobina Nissan 1.8L", compat:"Sentra, Tiida, Versa 2007-2012", cost:450, price:0, stock:4, img:"https://m.media-amazon.com/images/I/61+u-TjD+JL.jpg"},
+            {code:"BOB-VW04", name:"Bobina VW Cuadrada", compat:"Jetta A4, Golf A4, Beetle 2.0L", cost:550, price:0, stock:3, img:"https://m.media-amazon.com/images/I/61+yY5y9+SL.jpg"},
+            {code:"PC336246", name:"Porta Carbon Ford/Nissan", compat:"Marchas Sistema PMGR", cost:69, price:0, stock:5, img:"https://http2.mlstatic.com/D_NQ_NP_965039-MLM44304859664_122020-O.webp"},
+            {code:"BOM-TSURU", name:"Bomba Gasolina Bosch", compat:"Nissan Tsuru III, Tsubame", cost:330, price:0, stock:2, img:"https://m.media-amazon.com/images/I/51+Z1+yY5yL.jpg"}
         ];
+        recalcularPreciosInterno();
         guardarDB();
+    }
+
+    function recalcularPreciosInterno() {
+        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
+        INVENTARIO.forEach(prod => { if(prod.cost) prod.price = parseFloat((prod.cost * factor).toFixed(2)); });
     }
 
     function guardarDB() {
-        localStorage.setItem('millan_db', JSON.stringify(INVENTARIO));
-        renderAdminTable();
+        localStorage.setItem('millan_db_v4', JSON.stringify(INVENTARIO));
+        localStorage.setItem('millan_margin', MARGEN_ACTUAL);
+        renderCatalog();
+    }
+    
+    function resetearDB() {
+        if(confirm("¿Recargar base de datos con ejemplos?")) {
+            localStorage.removeItem('millan_db_v4');
+            location.reload();
+        }
     }
 
-    // --- 2. NAVEGACIÓN ---
-    function irA(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+id).classList.add('active');
-        if(id === 'pos') stopScanner(); // Detener si salimos
-        if(id === 'admin') renderAdminTable();
+    // --- 2. LOGICA CATÁLOGO VISUAL ---
+    function renderCatalog() {
+        let container = document.getElementById('catalog-container');
+        let filter = document.getElementById('catalog-search').value.toUpperCase();
+        container.innerHTML = "";
+
+        // FILTRO INTELIGENTE: Busca en NOMBRE, CÓDIGO y COMPATIBILIDAD
+        let resultados = INVENTARIO.filter(p => 
+            p.name.toUpperCase().includes(filter) || 
+            p.code.toUpperCase().includes(filter) || 
+            (p.compat && p.compat.toUpperCase().includes(filter))
+        );
+
+        if(resultados.length === 0) {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:20px;">
+                <p>No se encontró la pieza en local.</p>
+                <button class="btn-main" onclick="buscarEnGoogleExterno()">🔍 BUSCAR EN GOOGLE: "${filter}"</button>
+            </div>`;
+            return;
+        }
+
+        resultados.forEach(p => {
+            // Si no tiene imagen, poner una genérica
+            let imagen = p.img ? p.img : "https://via.placeholder.com/150?text=Sin+Foto";
+            let compat = p.compat ? p.compat : "Universal";
+
+            let card = `
+            <div class="product-card">
+                <img src="${imagen}" class="prod-img" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=Error+Img'">
+                <div class="prod-info">
+                    <div>
+                        <div class="prod-title">${p.name}</div>
+                        <div class="prod-compat"><i class="fas fa-car"></i> ${compat}</div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <div class="prod-price">$${p.price.toFixed(2)}</div>
+                        <button class="btn-add" onclick="agregarAlCarrito('${p.code}')">
+                            <i class="fas fa-cart-plus"></i> AGREGAR
+                        </button>
+                        <button class="btn-google" onclick="buscarGoogleItem('${p.name} ${compat}')" title="Verificar en Google">
+                            <i class="fab fa-google"></i> Info
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+            container.innerHTML += card;
+        });
     }
 
-    // --- 3. LÓGICA ADMIN (INVENTARIO) ---
+    function buscarEnGoogleExterno() {
+        let query = document.getElementById('catalog-search').value;
+        if(!query) return alert("Escribe algo para buscar");
+        window.open(`https://www.google.com/search?tbm=isch&q=Refaccion automotriz ${query}`, '_blank');
+    }
+
+    function buscarGoogleItem(texto) {
+        window.open(`https://www.google.com/search?q=refaccion ${texto}`, '_blank');
+    }
+
+    // --- 3. ADMIN ---
     function guardarProducto() {
         let code = document.getElementById('prod-code').value.toUpperCase();
-        let name = document.getElementById('prod-name').value.toUpperCase();
-        let price = parseFloat(document.getElementById('prod-price').value);
+        let name = document.getElementById('prod-name').value; // Respetar mayúsculas/minúsculas
+        let compat = document.getElementById('prod-compat').value;
+        let img = document.getElementById('prod-img').value;
+        let cost = parseFloat(document.getElementById('prod-cost').value);
         let stock = parseInt(document.getElementById('prod-stock').value);
 
-        if(!code || !name || !price) return alert("Faltan datos");
+        if(!code || !name || isNaN(cost)) return alert("Faltan datos obligatorios");
+
+        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
+        let price = parseFloat((cost * factor).toFixed(2));
 
         let index = INVENTARIO.findIndex(p => p.code === code);
+        let nuevoItem = {code, name, compat, img, cost, price, stock};
+
         if(index >= 0) {
-            if(confirm("El producto ya existe. ¿Actualizar datos?")) {
-                INVENTARIO[index] = {code, name, price, stock};
-            }
+            if(confirm("¿Actualizar producto?")) INVENTARIO[index] = nuevoItem;
         } else {
-            INVENTARIO.push({code, name, price, stock});
+            INVENTARIO.push(nuevoItem);
         }
-        
         guardarDB();
         alert("Producto Guardado");
+        // Limpiar
         document.getElementById('prod-code').value = "";
         document.getElementById('prod-name').value = "";
-        document.getElementById('prod-price').value = "";
-        document.getElementById('prod-stock').value = "";
-        renderAdminTable();
+        document.getElementById('prod-compat').value = "";
+        document.getElementById('prod-img').value = "";
+        document.getElementById('prod-cost').value = "";
+        document.getElementById('img-preview').style.display = "none";
     }
 
-    function borrarProducto(code) {
-        if(confirm("¿Eliminar producto?")) {
-            INVENTARIO = INVENTARIO.filter(p => p.code !== code);
-            guardarDB();
+    function previsualizarImagen() {
+        let url = document.getElementById('prod-img').value;
+        if(url) {
+            document.getElementById('img-preview').src = url;
+            document.getElementById('img-preview').style.display = "block";
         }
     }
-
-    function renderAdminTable() {
-        let tbody = document.getElementById('inventory-body');
-        let filter = document.getElementById('admin-search').value.toUpperCase();
-        tbody.innerHTML = "";
-        
-        INVENTARIO.forEach(p => {
-            if(p.name.includes(filter) || p.code.includes(filter)) {
-                let row = `<tr>
-                    <td>${p.code}</td>
-                    <td>${p.name}</td>
-                    <td>$${p.price}</td>
-                    <td>${p.stock}</td>
-                    <td><button class="btn-danger" onclick="borrarProducto('${p.code}')"><i class="fas fa-trash"></i></button></td>
-                </tr>`;
-                tbody.innerHTML += row;
-            }
-        });
+    
+    function actualizarPreciosMasivo() {
+        MARGEN_ACTUAL = parseFloat(document.getElementById('global-margin').value);
+        recalcularPreciosInterno();
+        guardarDB();
+        alert("Precios Actualizados");
     }
 
-    // --- 4. LÓGICA PUNTO DE VENTA (POS) ---
+    function calcularPrecioVista() {
+        let costo = parseFloat(document.getElementById('prod-cost').value);
+        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
+        document.getElementById('prod-price').value = (costo * factor).toFixed(2);
+    }
+
+    // --- 4. POS (CARRITO) ---
     function agregarAlCarrito(code) {
         let prod = INVENTARIO.find(p => p.code === code);
-        if(prod) {
-            CARRITO.push(prod);
-            actualizarCarrito();
-            alert(`Agregado: ${prod.name}`);
-        } else {
-            alert("Producto no encontrado");
-        }
-    }
-
-    function filtrarVenta() {
-        let input = document.getElementById('pos-search').value.toUpperCase();
-        let div = document.getElementById('pos-results');
-        div.innerHTML = "";
-        
-        if(input.length < 2) { div.style.display = 'none'; return; }
-        
-        div.style.display = 'block';
-        let matches = INVENTARIO.filter(p => p.name.includes(input) || p.code.includes(input));
-        
-        matches.forEach(p => {
-            let item = document.createElement('div');
-            item.style.padding = "10px";
-            item.style.borderBottom = "1px solid #eee";
-            item.style.cursor = "pointer";
-            item.innerHTML = `<b>${p.name}</b> - $${p.price}`;
-            item.onclick = () => { agregarAlCarrito(p.code); div.style.display='none'; document.getElementById('pos-search').value=""; };
-            div.appendChild(item);
-        });
+        CARRITO.push(prod);
+        alert(`Agregado: ${prod.name}`);
+        actualizarCarrito();
     }
 
     function actualizarCarrito() {
         let div = document.getElementById('cart-list');
         let total = 0;
         div.innerHTML = "";
-        
         if(CARRITO.length === 0) div.innerHTML = "<div style='text-align:center; padding:20px; color:#aaa'>Carrito vacío</div>";
 
         CARRITO.forEach((p, index) => {
@@ -303,91 +327,37 @@
             div.innerHTML += `
                 <div class="ticket-item">
                     <span>${p.name}</span>
-                    <span>$${p.price} <i class="fas fa-times" style="color:red; cursor:pointer; margin-left:10px;" onclick="quitarDelCarrito(${index})"></i></span>
+                    <span>$${p.price.toFixed(2)} <i class="fas fa-times" style="color:red; cursor:pointer; margin-left:10px;" onclick="quitarDelCarrito(${index})"></i></span>
                 </div>
             `;
         });
         document.getElementById('total-amount').innerText = total.toFixed(2);
     }
 
-    function quitarDelCarrito(index) {
-        CARRITO.splice(index, 1);
-        actualizarCarrito();
-    }
+    function quitarDelCarrito(index) { CARRITO.splice(index, 1); actualizarCarrito(); }
 
-    // --- 5. LÓGICA DE ESCÁNER (CÁMARA) ---
-    let html5QrcodeScanner;
-    
-    function iniciarEscaner() {
-        document.getElementById('reader').style.display = 'block';
-        if(html5QrcodeScanner) { stopScanner(); return; }
-
-        html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess);
-        document.getElementById('btn-scan-toggle').innerText = "DETENER ESCÁNER";
-        document.getElementById('btn-scan-toggle').style.background = "#333";
-        document.getElementById('btn-scan-toggle').style.color = "#fff";
-    }
-
-    function stopScanner() {
-        if(html5QrcodeScanner) {
-            html5QrcodeScanner.clear();
-            html5QrcodeScanner = null;
-            document.getElementById('reader').style.display = 'none';
-            document.getElementById('btn-scan-toggle').innerText = "ACTIVAR CÁMARA / ESCÁNER";
-            document.getElementById('btn-scan-toggle').style.background = "var(--primary)";
-            document.getElementById('btn-scan-toggle').style.color = "#000";
-        }
-    }
-
-    function onScanSuccess(decodedText, decodedResult) {
-        // Reproducir sonido beep
-        // Agregar producto
-        let prod = INVENTARIO.find(p => p.code === decodedText);
-        if(prod) {
-            document.getElementById('scan-result').innerText = "Detectado: " + prod.name;
-            agregarAlCarrito(decodedText);
-            // Pausa breve para no agregar mil veces el mismo
-            html5QrcodeScanner.pause();
-            setTimeout(() => html5QrcodeScanner.resume(), 1500);
-        } else {
-            if(confirm(`Código ${decodedText} no existe. ¿Ir a crearlo?`)) {
-                irA('admin');
-                document.getElementById('prod-code').value = decodedText;
-                stopScanner();
-            }
-        }
-    }
-
-    // --- 6. IMPRESIÓN ---
     function imprimirTicket() {
-        if(CARRITO.length === 0) return alert("Carrito vacío");
-        
-        let area = document.getElementById('ticket-print-area');
+        if(CARRITO.length === 0) return alert("Nada que cobrar");
         let body = document.getElementById('ticket-body');
-        let total = document.getElementById('total-amount').innerText;
-        
-        // Llenar ticket
         document.getElementById('ticket-date').innerText = new Date().toLocaleString();
         body.innerHTML = "";
         CARRITO.forEach(p => {
-            body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.name.substring(0,15)}</span><span>$${p.price}</span></div>`;
+            body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.name.substring(0,15)}</span><span>$${p.price.toFixed(2)}</span></div>`;
         });
-        document.getElementById('ticket-total').innerText = total;
-
-        // Imprimir
+        document.getElementById('ticket-total').innerText = document.getElementById('total-amount').innerText;
         window.print();
-        
-        // Limpiar venta
-        if(confirm("¿Limpiar venta actual?")) {
-            CARRITO = [];
-            actualizarCarrito();
-        }
+        if(confirm("¿Nueva venta?")) { CARRITO = []; actualizarCarrito(); }
     }
 
-    // Inicializar
-    renderAdminTable();
-</script>
+    function irA(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById('nav-'+id).classList.add('active');
+        if(id === 'catalog') renderCatalog();
+    }
 
+    renderCatalog();
+</script>
 </body>
 </html>
