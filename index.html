@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - V4 (Catálogo Visual)</title>
+    <title>Refaccionaria Millán - V4.1</title>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root { --primary: #ffd700; --dark: #111; --light: #eee; --danger: #ff4444; --success: #00cc66; --info: #00d2ff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f5; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f5; color: #333; padding-bottom: 80px; }
         
         /* HEADER */
         header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -17,7 +17,7 @@
         .logo i { color: var(--primary); font-size: 1.5rem; }
         .logo span { color: var(--primary); }
         nav button { background: none; border: none; color: #aaa; font-size: 1.3rem; margin-left: 15px; cursor: pointer; transition: 0.3s; }
-        nav button.active { color: var(--primary); transform: scale(1.1); }
+        nav button.active { color: var(--primary); transform: scale(1.1); border-bottom: 2px solid var(--primary); }
 
         /* SECCIONES */
         .page { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; animation: fade 0.3s; }
@@ -27,7 +27,6 @@
         /* ESTILOS CATÁLOGO (GRID) */
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
         .product-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; border: 1px solid #ddd; display: flex; flex-direction: column; }
-        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-color: var(--primary); }
         
         .prod-img { width: 100%; height: 140px; object-fit: contain; background: #fff; border-bottom: 1px solid #eee; padding: 10px; box-sizing: border-box; }
         .prod-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -36,23 +35,20 @@
         .prod-price { font-size: 1.1rem; font-weight: 900; color: var(--success); text-align: right; }
         
         .btn-add { background: var(--dark); color: white; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 5px; }
-        .btn-add:active { background: var(--primary); color: black; }
-        
         .btn-google { background: #4285F4; color: white; border: none; padding: 8px; border-radius: 5px; width: 100%; margin-top: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
 
-        /* FORMULARIOS */
+        /* ADMIN & POS */
         .form-group { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .margin-control { background: #222; color: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--primary); }
         
         input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .btn-main { background: var(--primary); color: var(--dark); border: none; padding: 12px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-danger { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight:bold; width: 100%; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(255,0,0,0.3); }
         .btn-info { background: var(--info); color: #000; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
 
-        /* TICKET & POS */
+        /* TICKET */
         .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 20px 0; color: var(--dark); }
         .ticket-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; background: white; }
-
         @media print {
             body * { visibility: hidden; }
             #ticket-print-area, #ticket-print-area * { visibility: visible; }
@@ -75,7 +71,7 @@
 <div id="catalog" class="page active">
     <div style="text-align:center; margin-bottom:20px;">
         <h2 style="margin:0;">Catálogo de Partes</h2>
-        <p style="color:#666; font-size:0.9rem;">Busca por pieza, coche o año (Ej: "Bobina Clio 2008")</p>
+        <p style="color:#666; font-size:0.9rem;">Busca por pieza, coche o año.</p>
     </div>
 
     <div class="form-group" style="display:flex; gap:10px;">
@@ -106,6 +102,8 @@
 <div id="admin" class="page">
     <h2>Administración</h2>
     
+    <button class="btn-danger" onclick="resetearDB()">⚠️ RESTAURAR BASE DE DATOS (PRIMER USO)</button>
+    
     <div class="margin-control">
         <h3><i class="fas fa-chart-line"></i> Ganancia Global (%)</h3>
         <input type="number" id="global-margin" value="30" style="background:#333; color:#fff; border:1px solid #555;">
@@ -116,12 +114,8 @@
         <h3>Alta de Producto</h3>
         <input type="text" id="prod-code" placeholder="Código / Clave">
         <input type="text" id="prod-name" placeholder="Nombre (Ej: Bobina Encendido)">
-        
-        <label style="font-size:0.8rem; font-weight:bold;">Compatibilidad (Palabras clave):</label>
-        <textarea id="prod-compat" placeholder="Ej: Nissan Tsuru III, Sentra B14, Tsubame 95-00..." rows="2"></textarea>
-        
-        <label style="font-size:0.8rem; font-weight:bold;">Link de Imagen (URL):</label>
-        <input type="text" id="prod-img" placeholder="https://..." onchange="previsualizarImagen()">
+        <textarea id="prod-compat" placeholder="Autos Compatibles (Ej: Nissan Tsuru III, Sentra...)" rows="2"></textarea>
+        <input type="text" id="prod-img" placeholder="Link de Imagen (URL Google)" onchange="previsualizarImagen()">
         <img id="img-preview" src="" style="max-height:100px; display:none; margin:10px auto;">
 
         <div style="display:flex; gap:10px;">
@@ -136,11 +130,7 @@
         </div>
         
         <input type="number" id="prod-stock" placeholder="Cantidad Stock">
-        <button class="btn-main" onclick="guardarProducto()">GUARDAR</button>
-    </div>
-
-    <div style="margin-top:20px; text-align:center;">
-        <button class="btn-danger" onclick="resetearDB()">⚠️ Restaurar Base de Datos Original</button>
+        <button class="btn-main" onclick="guardarProducto()">GUARDAR PRODUCTO</button>
     </div>
 </div>
 
@@ -165,43 +155,17 @@
 
     document.getElementById('global-margin').value = MARGEN_ACTUAL;
 
-    // CARGA INICIAL CON IMÁGENES DE EJEMPLO
-    if(INVENTARIO.length === 0) {
-        INVENTARIO = [
-            {code:"BOB-NS01", name:"Bobina Nissan 1.8L", compat:"Sentra, Tiida, Versa 2007-2012", cost:450, price:0, stock:4, img:"https://m.media-amazon.com/images/I/61+u-TjD+JL.jpg"},
-            {code:"BOB-VW04", name:"Bobina VW Cuadrada", compat:"Jetta A4, Golf A4, Beetle 2.0L", cost:550, price:0, stock:3, img:"https://m.media-amazon.com/images/I/61+yY5y9+SL.jpg"},
-            {code:"PC336246", name:"Porta Carbon Ford/Nissan", compat:"Marchas Sistema PMGR", cost:69, price:0, stock:5, img:"https://http2.mlstatic.com/D_NQ_NP_965039-MLM44304859664_122020-O.webp"},
-            {code:"BOM-TSURU", name:"Bomba Gasolina Bosch", compat:"Nissan Tsuru III, Tsubame", cost:330, price:0, stock:2, img:"https://m.media-amazon.com/images/I/51+Z1+yY5yL.jpg"}
-        ];
-        recalcularPreciosInterno();
-        guardarDB();
-    }
-
-    function recalcularPreciosInterno() {
-        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        INVENTARIO.forEach(prod => { if(prod.cost) prod.price = parseFloat((prod.cost * factor).toFixed(2)); });
-    }
-
-    function guardarDB() {
-        localStorage.setItem('millan_db_v4', JSON.stringify(INVENTARIO));
-        localStorage.setItem('millan_margin', MARGEN_ACTUAL);
-        renderCatalog();
-    }
-    
-    function resetearDB() {
-        if(confirm("¿Recargar base de datos con ejemplos?")) {
-            localStorage.removeItem('millan_db_v4');
-            location.reload();
-        }
-    }
-
     // --- 2. LOGICA CATÁLOGO VISUAL ---
     function renderCatalog() {
         let container = document.getElementById('catalog-container');
         let filter = document.getElementById('catalog-search').value.toUpperCase();
         container.innerHTML = "";
 
-        // FILTRO INTELIGENTE: Busca en NOMBRE, CÓDIGO y COMPATIBILIDAD
+        if(INVENTARIO.length === 0) {
+            container.innerHTML = "<p style='text-align:center'>Inventario vacío. Ve a Admin y dale al botón Rojo.</p>";
+            return;
+        }
+
         let resultados = INVENTARIO.filter(p => 
             p.name.toUpperCase().includes(filter) || 
             p.code.toUpperCase().includes(filter) || 
@@ -210,154 +174,10 @@
 
         if(resultados.length === 0) {
             container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:20px;">
-                <p>No se encontró la pieza en local.</p>
+                <p>No encontrado en local.</p>
                 <button class="btn-main" onclick="buscarEnGoogleExterno()">🔍 BUSCAR EN GOOGLE: "${filter}"</button>
             </div>`;
             return;
         }
 
-        resultados.forEach(p => {
-            // Si no tiene imagen, poner una genérica
-            let imagen = p.img ? p.img : "https://via.placeholder.com/150?text=Sin+Foto";
-            let compat = p.compat ? p.compat : "Universal";
-
-            let card = `
-            <div class="product-card">
-                <img src="${imagen}" class="prod-img" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150?text=Error+Img'">
-                <div class="prod-info">
-                    <div>
-                        <div class="prod-title">${p.name}</div>
-                        <div class="prod-compat"><i class="fas fa-car"></i> ${compat}</div>
-                    </div>
-                    <div style="margin-top:10px;">
-                        <div class="prod-price">$${p.price.toFixed(2)}</div>
-                        <button class="btn-add" onclick="agregarAlCarrito('${p.code}')">
-                            <i class="fas fa-cart-plus"></i> AGREGAR
-                        </button>
-                        <button class="btn-google" onclick="buscarGoogleItem('${p.name} ${compat}')" title="Verificar en Google">
-                            <i class="fab fa-google"></i> Info
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-            container.innerHTML += card;
-        });
-    }
-
-    function buscarEnGoogleExterno() {
-        let query = document.getElementById('catalog-search').value;
-        if(!query) return alert("Escribe algo para buscar");
-        window.open(`https://www.google.com/search?tbm=isch&q=Refaccion automotriz ${query}`, '_blank');
-    }
-
-    function buscarGoogleItem(texto) {
-        window.open(`https://www.google.com/search?q=refaccion ${texto}`, '_blank');
-    }
-
-    // --- 3. ADMIN ---
-    function guardarProducto() {
-        let code = document.getElementById('prod-code').value.toUpperCase();
-        let name = document.getElementById('prod-name').value; // Respetar mayúsculas/minúsculas
-        let compat = document.getElementById('prod-compat').value;
-        let img = document.getElementById('prod-img').value;
-        let cost = parseFloat(document.getElementById('prod-cost').value);
-        let stock = parseInt(document.getElementById('prod-stock').value);
-
-        if(!code || !name || isNaN(cost)) return alert("Faltan datos obligatorios");
-
-        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        let price = parseFloat((cost * factor).toFixed(2));
-
-        let index = INVENTARIO.findIndex(p => p.code === code);
-        let nuevoItem = {code, name, compat, img, cost, price, stock};
-
-        if(index >= 0) {
-            if(confirm("¿Actualizar producto?")) INVENTARIO[index] = nuevoItem;
-        } else {
-            INVENTARIO.push(nuevoItem);
-        }
-        guardarDB();
-        alert("Producto Guardado");
-        // Limpiar
-        document.getElementById('prod-code').value = "";
-        document.getElementById('prod-name').value = "";
-        document.getElementById('prod-compat').value = "";
-        document.getElementById('prod-img').value = "";
-        document.getElementById('prod-cost').value = "";
-        document.getElementById('img-preview').style.display = "none";
-    }
-
-    function previsualizarImagen() {
-        let url = document.getElementById('prod-img').value;
-        if(url) {
-            document.getElementById('img-preview').src = url;
-            document.getElementById('img-preview').style.display = "block";
-        }
-    }
-    
-    function actualizarPreciosMasivo() {
-        MARGEN_ACTUAL = parseFloat(document.getElementById('global-margin').value);
-        recalcularPreciosInterno();
-        guardarDB();
-        alert("Precios Actualizados");
-    }
-
-    function calcularPrecioVista() {
-        let costo = parseFloat(document.getElementById('prod-cost').value);
-        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        document.getElementById('prod-price').value = (costo * factor).toFixed(2);
-    }
-
-    // --- 4. POS (CARRITO) ---
-    function agregarAlCarrito(code) {
-        let prod = INVENTARIO.find(p => p.code === code);
-        CARRITO.push(prod);
-        alert(`Agregado: ${prod.name}`);
-        actualizarCarrito();
-    }
-
-    function actualizarCarrito() {
-        let div = document.getElementById('cart-list');
-        let total = 0;
-        div.innerHTML = "";
-        if(CARRITO.length === 0) div.innerHTML = "<div style='text-align:center; padding:20px; color:#aaa'>Carrito vacío</div>";
-
-        CARRITO.forEach((p, index) => {
-            total += p.price;
-            div.innerHTML += `
-                <div class="ticket-item">
-                    <span>${p.name}</span>
-                    <span>$${p.price.toFixed(2)} <i class="fas fa-times" style="color:red; cursor:pointer; margin-left:10px;" onclick="quitarDelCarrito(${index})"></i></span>
-                </div>
-            `;
-        });
-        document.getElementById('total-amount').innerText = total.toFixed(2);
-    }
-
-    function quitarDelCarrito(index) { CARRITO.splice(index, 1); actualizarCarrito(); }
-
-    function imprimirTicket() {
-        if(CARRITO.length === 0) return alert("Nada que cobrar");
-        let body = document.getElementById('ticket-body');
-        document.getElementById('ticket-date').innerText = new Date().toLocaleString();
-        body.innerHTML = "";
-        CARRITO.forEach(p => {
-            body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.name.substring(0,15)}</span><span>$${p.price.toFixed(2)}</span></div>`;
-        });
-        document.getElementById('ticket-total').innerText = document.getElementById('total-amount').innerText;
-        window.print();
-        if(confirm("¿Nueva venta?")) { CARRITO = []; actualizarCarrito(); }
-    }
-
-    function irA(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+id).classList.add('active');
-        if(id === 'catalog') renderCatalog();
-    }
-
-    renderCatalog();
-</script>
-</body>
-</html>
+        resultados.forEach
