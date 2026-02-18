@@ -3,41 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - V5.1 ESCÁNER</title>
+    <title>Refaccionaria Millán - V6 CLEAN</title>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root { --primary: #ffd700; --dark: #111; --light: #eee; --danger: #ff4444; --success: #00cc66; --info: #00d2ff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f5; color: #333; padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; padding-bottom: 80px; }
         
+        /* HEADER */
         header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .logo { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .logo i { color: var(--primary); font-size: 1.5rem; }
+        .logo-header { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .logo-header i { color: var(--primary); font-size: 1.5rem; }
+        
         nav button { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 20px; cursor: pointer; transition: 0.3s; }
-        nav button.active { color: var(--primary); transform: scale(1.2); }
+        nav button.active { color: var(--primary); transform: scale(1.2); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
 
         .page { display: none; padding: 15px; max-width: 1000px; margin: 0 auto; }
         .page.active { display: block; }
 
-        /* CATALOGO */
-        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 20px; }
+        /* --- PANTALLA PRINCIPAL (HERO) --- */
+        .hero-container { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 70vh; text-align: center; 
+        }
+        .big-logo { font-size: 3rem; color: var(--dark); margin-bottom: 10px; }
+        .big-logo span { color: var(--primary); }
+        .big-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
+        
+        /* INPUTS DE BÚSQUEDA */
+        .search-wrapper { width: 100%; max-width: 500px; position: relative; margin-bottom: 20px; }
+        .search-input { 
+            width: 100%; padding: 15px 20px; border-radius: 30px; border: 2px solid #ddd; 
+            font-size: 1.1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3); }
+        
+        .search-google-btn {
+            background: #fff; color: #4285F4; border: 1px solid #ddd; padding: 12px 20px; 
+            border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; 
+            align-items: center; gap: 10px; width: 100%; max-width: 500px; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .search-google-btn:hover { background: #f1f1f1; }
+
+        /* RESULTADOS (GRID) */
+        .results-area { display: none; margin-top: 20px; }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        
         .product-card { background: white; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; display: flex; flex-direction: column; }
         .prod-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .prod-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #333; min-height: 40px; }
-        .prod-code { font-size: 0.7rem; color: #666; font-family: monospace; background: #eee; padding: 2px 5px; border-radius: 4px; width: fit-content; margin-bottom: 5px; }
+        .prod-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #333; }
+        .prod-code { font-size: 0.7rem; color: #666; background: #eee; padding: 2px 5px; border-radius: 4px; width: fit-content; }
         .prod-price { font-size: 1.2rem; font-weight: 900; color: var(--success); text-align: right; margin: 5px 0; }
-        .btn-add { background: var(--dark); color: white; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 0.8rem; }
-        
-        .search-bar { position: sticky; top: 70px; z-index: 900; background: rgba(238, 242, 245, 0.95); padding: 10px 0; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-add { background: var(--dark); color: white; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; }
 
-        /* ESCÁNER Y TICKET */
+        /* POS & ADMIN STYLES */
+        .btn-main { background: var(--primary); color: var(--dark); border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 1rem; margin-top: 10px; }
+        input.admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        
         .scanner-box { background: #000; border-radius: 10px; padding: 10px; margin-bottom: 20px; text-align: center; display: none; }
         #reader { width: 100%; }
-        
         .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 20px 0; color: var(--dark); border-top: 2px solid #333; padding-top: 10px; }
         .ticket-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; background: white; }
+
+        /* BOTON FLOTANTE VOLVER */
+        #btn-clear-search { display: none; margin: 20px auto; background: #ccc; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
 
         @media print {
             body * { visibility: hidden; }
@@ -50,58 +81,72 @@
 <body>
 
 <header>
-    <div class="logo"><i class="fas fa-bolt"></i> MILLÁN <span>V5.1</span></div>
+    <div class="logo-header"><i class="fas fa-bolt"></i> MILLÁN <span>V6</span></div>
     <nav>
-        <button onclick="irA('catalog')" id="nav-catalog" class="active"><i class="fas fa-search"></i></button>
-        <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-barcode"></i></button>
+        <button onclick="irA('home')" id="nav-home" class="active"><i class="fas fa-search"></i></button>
+        <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-shopping-cart"></i></button>
         <button onclick="irA('admin')" id="nav-admin"><i class="fas fa-cog"></i></button>
     </nav>
 </header>
 
-<div id="catalog" class="page active">
-    <div class="search-bar">
-        <input type="text" id="catalog-search" placeholder="🔍 Buscar pieza, código o auto..." onkeyup="renderCatalog()">
+<div id="home" class="page active">
+    
+    <div id="hero-section" class="hero-container">
+        <i class="fas fa-car-battery big-icon"></i>
+        <div class="big-logo">REFACCIONARIA <span>MILLÁN</span></div>
+        <p style="color:#777; margin-bottom:30px;">Sistema de Búsqueda Inteligente</p>
+
+        <div class="search-wrapper">
+            <input type="text" id="local-search" class="search-input" placeholder="🔍 Buscar en Inventario..." onkeyup="buscarLocal()">
+        </div>
+
+        <div class="search-wrapper">
+            <input type="text" id="google-search-input" class="search-input" placeholder="🌎 Buscar en Google..." style="border-color:#4285F4; margin-bottom:10px;">
+            <button class="search-google-btn" onclick="buscarEnGoogle()">
+                <i class="fab fa-google" style="color:#4285F4;"></i> IR A GOOGLE
+            </button>
+        </div>
     </div>
-    <div id="catalog-container" class="catalog-grid"></div>
+
+    <div id="results-section" class="results-area">
+        <h3 style="border-bottom: 2px solid var(--primary); padding-bottom:10px;">Resultados en Existencia:</h3>
+        <div id="catalog-grid" class="catalog-grid"></div>
+        <button id="btn-clear-search" onclick="limpiarBusqueda()">⬅️ Nueva Búsqueda</button>
+    </div>
+
 </div>
 
 <div id="pos" class="page">
-    <h2><i class="fas fa-cash-register"></i> Caja / Escáner</h2>
-    
-    <button id="btn-cam" onclick="toggleScanner()" style="width:100%; padding:15px; background:#333; color:white; border:none; border-radius:8px; font-weight:bold; margin-bottom:10px;">
-        📸 ACTIVAR CÁMARA
-    </button>
+    <h2><i class="fas fa-cash-register"></i> Caja</h2>
+    <button id="btn-cam" class="btn-main" onclick="toggleScanner()" style="background:#333; margin-bottom:15px;">📸 ACTIVAR CÁMARA</button>
     
     <div id="scanner-area" class="scanner-box">
         <div id="reader"></div>
-        <button onclick="toggleScanner()" style="background:red; color:white; border:none; padding:5px 10px; margin-top:5px; border-radius:5px;">CERRAR CÁMARA</button>
+        <button onclick="toggleScanner()" style="background:red; color:white; border:none; padding:5px; margin-top:5px;">CERRAR</button>
     </div>
 
-    <div id="cart-list" style="background:white; border-radius:5px; min-height:100px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <div id="cart-list" style="background:white; border-radius:5px; min-height:100px; padding:10px;">
         <div style="text-align:center; color:#999; padding:20px;">Carrito Vacío</div>
     </div>
-    
     <div class="cart-total">Total: $<span id="total-amount">0.00</span></div>
-    <button onclick="imprimirTicket()" style="background:var(--success); color:white; width:100%; padding:15px; border:none; font-weight:bold; border-radius:8px; font-size:1.1rem;">COBRAR</button>
+    <button class="btn-main" style="background:var(--success); color:white;" onclick="imprimirTicket()">COBRAR</button>
 </div>
 
 <div id="admin" class="page">
     <h2>Configuración</h2>
     <div style="background:#222; color:white; padding:15px; border-radius:10px;">
         <label>Ganancia Global (%):</label>
-        <input type="number" id="global-margin" value="30" style="background:#444; color:#white; border:none; margin-top:5px; width:100%; padding:10px;">
-        <button onclick="actualizarPrecios()" style="background:var(--info); width:100%; padding:10px; border:none; margin-top:10px; font-weight:bold; cursor:pointer;">ACTUALIZAR PRECIOS</button>
+        <input type="number" id="global-margin" class="admin-input" value="30" style="background:#444; color:#fff; border:none;">
+        <button class="btn-main" style="background:var(--info); color:black;" onclick="actualizarPrecios()">ACTUALIZAR PRECIOS</button>
     </div>
     <br>
+    <button class="btn-main" style="background:var(--danger);" onclick="forceReset()">⚠️ RECARGAR INVENTARIO ORIGINAL</button>
     
-    <h3>Agregar Producto Manual</h3>
-    <input type="text" id="new-code" placeholder="Código Barras">
-    <input type="text" id="new-name" placeholder="Nombre">
-    <input type="number" id="new-cost" placeholder="Costo Compra ($)">
-    <button onclick="guardarManual()" style="width:100%; padding:10px; background:var(--primary); border:none; font-weight:bold;">GUARDAR</button>
-    
-    <br><br>
-    <button onclick="forceReset()" style="background:var(--danger); color:white; width:100%; padding:15px; border:none; border-radius:8px;">⚠️ RESTAURAR BASE DE DATOS ORIGINAL</button>
+    <h3>Agregar Manual</h3>
+    <input type="text" id="new-code" class="admin-input" placeholder="Código">
+    <input type="text" id="new-name" class="admin-input" placeholder="Nombre">
+    <input type="number" id="new-cost" class="admin-input" placeholder="Costo ($)">
+    <button class="btn-main" onclick="guardarManual()">GUARDAR</button>
 </div>
 
 <div id="ticket-print-area" style="display:none; width:300px; font-family:monospace; padding:10px;">
@@ -116,79 +161,24 @@
 </div>
 
 <script>
-    // --- DATOS REALES (DE TUS FOTOS) ---
+    // DATOS DE TUS FOTOS
     const DB_MASTER = [
-        {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30},
-        {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
-        {c:"EM4", n:"Engrane Marcha Nissan (4) y Chevy", cost:29},
-        {c:"EM5", n:"Engrane Marcha VW Golf Jetta (5)", cost:29},
-        {c:"A618114ASS", n:"Armadura Nissan Hitachi PMGR 114", cost:264},
-        {c:"A011097E", n:"Armadura Nissan Chevy 619130", cost:264},
-        {c:"A011086AU", n:"Armadura VW Jetta 086 Automotive", cost:264},
-        {c:"ART75010", n:"Armadura Ford Motorcraft Bolsa", cost:220},
-        {c:"PC10530941", n:"Porta Carbon GM Aveo Usatech", cost:75},
-        {c:"PC698309", n:"Porta Carbon Mitsubishi Grande", cost:75},
-        {c:"PC698308", n:"Porta Carbon Mitsubishi Chico", cost:58},
-        {c:"PC36441", n:"Porta Carbon Platina VW Chevy Valeo", cost:69},
-        {c:"PC336246", n:"Porta Carbon Ford Nissan 336 246", cost:69},
-        {c:"PC336716", n:"Porta Carbon Bosch Automotive", cost:72},
-        {c:"PC336200", n:"Porta Carbon VW Jetta Eco", cost:69},
-        {c:"PC336245", n:"Porta Carbon Nissan Chevy Tipo Bosch", cost:69},
-        {c:"PC698104", n:"Porta Carbon Nissan Colec. Hueco", cost:81},
-        {c:"PC698330", n:"Porta Carbon Mitsubishi Urvan 2.5", cost:81},
-        {c:"PC69201", n:"Porta Carbon Ford 69201 Value", cost:52},
-        {c:"PC698318", n:"Porta Carbon Nissan Urvan 2.4", cost:75},
-        {c:"PC69119", n:"Porta Carbon Delco PMGR", cost:75},
-        {c:"PC698117", n:"Porta Carbon Nissan Hitachi", cost:64},
-        {c:"PC042176", n:"Porta Carbon Ford Automotive", cost:58},
-        {c:"SLDSS1750", n:"Automatico Ford Sistema Bosch", cost:220},
-        {c:"1219", n:"Automatico Nissan Hitachi Sin Cable", cost:215},
-        {c:"11840", n:"Automatico VW Sedan", cost:248},
-        {c:"66205", n:"Automatico Ford Motorcraft Guia", cost:204},
-        {c:"B55", n:"Modulo Encendido Nissan Tsuru 16V", cost:543},
-        {c:"MHZ2030A", n:"Modulo Encendido Nissan", cost:543},
-        {c:"BOM-TSURU", n:"Bomba Gasolina Bosch Tsuru III", cost:330},
-        {c:"RIH738TP", n:"Regulador Nissan RIH 738 Hitachi", cost:317},
-        {c:"RIH744", n:"Regulador Nissan RIH 744 Hitachi", cost:223},
-        {c:"RF784TR", n:"Regulador Ford F784 Negro", cost:116},
-        {c:"RF794TP", n:"Regulador Ford F794 Gris", cost:135},
-        {c:"R3258804", n:"Regulador GM Delco D411 Cutlas", cost:143},
-        {c:"RE140X", n:"Regulador GM E-140XR", cost:114},
-        {c:"RE141XR", n:"Regulador Ford E-141XR", cost:114},
-        {c:"RIB501", n:"Regulador Nissan Tsuru Chueco", cost:145},
-        {c:"RD702TP", n:"Regulador GM RD702", cost:126},
-        {c:"RLE5001", n:"Regulador Nissan Barco Bosch", cost:248},
-        {c:"F9007LED", n:"Foco 9007 LED 4 Caras Juego", cost:253},
-        {c:"F9005LED", n:"Foco 9005 LED 4 Caras Baja", cost:220},
-        {c:"F9004LED", n:"Foco 9004 LED 4 Caras Juego", cost:275},
-        {c:"FH7LED", n:"Foco H7 LED 4 Caras Juego", cost:220},
-        {c:"FH11LED", n:"Foco H11 LED 4 Caras Juego", cost:220},
-        {c:"FH4LED", n:"Foco H4 LED 4 Caras Juego", cost:253},
-        {c:"HX10", n:"Foco 3157 Hella (Caja 10)", cost:116},
-        {c:"HXC", n:"Foco 7443 Hella (Caja 10)", cost:157},
-        {c:"SH9006", n:"Foco 9006 Hella Baja", cost:47},
-        {c:"SH9005", n:"Foco 9005 Hella Alta", cost:49},
-        {c:"H13", n:"Foco H13 Hella", cost:156},
-        {c:"H4", n:"Foco H4 Hella", cost:31},
-        {c:"BM70582", n:"Bulbo Motovent VW Caribe 82/68", cost:98},
-        {c:"BM740", n:"Bulbo Motovent GM Chevy", cost:154},
-        {c:"BM71795", n:"Bulbo Motovent VW Combi", cost:149},
-        {c:"M110881", n:"Marcador Aceite Veethree", cost:176},
-        {c:"M37011", n:"Marcador Temperatura VDO", cost:386},
-        {c:"CP1830M", n:"Cable Plastico 18 (30m)", cost:121},
-        {c:"CP1630", n:"Cable Plastico 16 (30m)", cost:176},
-        {c:"CP1430M", n:"Cable Plastico 14 (30m)", cost:270},
-        {c:"952011", n:"Bocina Claxon VW Hella", cost:121},
-        {c:"01200", n:"Bocina Caracol Seger Doble", cost:174},
-        {c:"SPPS100", n:"Switch 75 Amp Arrow", cost:101}
+        {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30}, {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
+        {c:"EM4", n:"Engrane Marcha Nissan (4) y Chevy", cost:29}, {c:"EM5", n:"Engrane Marcha VW Golf Jetta (5)", cost:29},
+        {c:"A618114ASS", n:"Armadura Nissan Hitachi PMGR 114", cost:264}, {c:"A011097E", n:"Armadura Nissan Chevy 619130", cost:264},
+        {c:"PC10530941", n:"Porta Carbon GM Aveo Usatech", cost:75}, {c:"PC698309", n:"Porta Carbon Mitsubishi Grande", cost:75},
+        {c:"PC336246", n:"Porta Carbon Ford Nissan 336 246", cost:69}, {c:"PC336245", n:"Porta Carbon Nissan Chevy Tipo Bosch", cost:69},
+        {c:"B55", n:"Modulo Encendido Nissan Tsuru 16V", cost:543}, {c:"BOM-TSURU", n:"Bomba Gasolina Bosch Tsuru III", cost:330},
+        {c:"RIH738TP", n:"Regulador Nissan RIH 738 Hitachi", cost:317}, {c:"CP1830M", n:"Cable Plastico 18 (30m)", cost:121},
+        {c:"F9004LED", n:"Foco 9004 LED 4 Caras Juego", cost:275}, {c:"HX10", n:"Foco 3157 Hella (Caja 10)", cost:116},
+        {c:"H4", n:"Foco H4 Hella", cost:31}, {c:"BM70582", n:"Bulbo Motovent VW Caribe 82/68", cost:98}
     ];
 
-    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db_v5_1')) || [];
+    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db_v6')) || [];
     let MARGEN_ACTUAL = localStorage.getItem('millan_margin') || 30;
     let CARRITO = [];
     let scannerObj = null;
 
-    // AUTO-INICIAR SI ESTÁ VACÍO
     if(INVENTARIO.length === 0) {
         INVENTARIO = JSON.parse(JSON.stringify(DB_MASTER));
         recalcularPreciosInterno();
@@ -196,83 +186,76 @@
     }
     document.getElementById('global-margin').value = MARGEN_ACTUAL;
 
-    // --- FUNCIONES CORE ---
+    // --- LÓGICA DE BÚSQUEDA ---
+    function buscarLocal() {
+        let input = document.getElementById('local-search').value.toUpperCase();
+        let hero = document.getElementById('hero-section');
+        let results = document.getElementById('results-section');
+        let grid = document.getElementById('catalog-grid');
+        
+        if(input.length > 1) {
+            hero.style.display = 'none'; // Ocultar logo grande
+            results.style.display = 'block'; // Mostrar resultados
+            document.getElementById('btn-clear-search').style.display = 'block';
+            
+            grid.innerHTML = "";
+            let encontrados = INVENTARIO.filter(p => p.n.toUpperCase().includes(input) || p.c.toUpperCase().includes(input));
+            
+            if(encontrados.length === 0) {
+                grid.innerHTML = "<p>No encontrado en existencia.</p>";
+            } else {
+                encontrados.forEach(p => {
+                    grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="prod-info">
+                            <div class="prod-code">${p.c}</div>
+                            <div class="prod-title">${p.n}</div>
+                            <div class="prod-price">$${p.price.toFixed(2)}</div>
+                            <button class="btn-add" onclick="addCart('${p.c}')">AGREGAR AL TICKET</button>
+                        </div>
+                    </div>`;
+                });
+            }
+        } else {
+            limpiarBusqueda();
+        }
+    }
+
+    function limpiarBusqueda() {
+        document.getElementById('local-search').value = "";
+        document.getElementById('hero-section').style.display = 'flex';
+        document.getElementById('results-section').style.display = 'none';
+    }
+
+    function buscarEnGoogle() {
+        let txt = document.getElementById('google-search-input').value;
+        if(txt) window.open('https://www.google.com/search?q=refaccion automotriz ' + txt, '_blank');
+        else alert("Escribe qué buscas en Google");
+    }
+
+    // --- FUNCIONES COMUNES ---
     function recalcularPreciosInterno() {
         let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        INVENTARIO.forEach(p => { 
-            if(p.cost) p.price = parseFloat((p.cost * factor).toFixed(2)); 
-        });
+        INVENTARIO.forEach(p => { if(p.cost) p.price = parseFloat((p.cost * factor).toFixed(2)); });
     }
-
-    function guardarDB() {
-        localStorage.setItem('millan_db_v5_1', JSON.stringify(INVENTARIO));
-        localStorage.setItem('millan_margin', MARGEN_ACTUAL);
-        renderCatalog();
-    }
-
-    function actualizarPrecios() {
-        MARGEN_ACTUAL = parseFloat(document.getElementById('global-margin').value);
-        recalcularPreciosInterno();
-        guardarDB();
-        alert("Precios actualizados al " + MARGEN_ACTUAL + "%");
-    }
-
-    function forceReset() {
-        if(confirm("¿BORRAR TODO y cargar lista original?")) {
-            localStorage.removeItem('millan_db_v5_1');
-            location.reload();
-        }
-    }
-
-    function renderCatalog() {
-        let container = document.getElementById('catalog-container');
-        let filter = document.getElementById('catalog-search').value.toUpperCase();
-        container.innerHTML = "";
-
-        let results = INVENTARIO.filter(p => p.n.toUpperCase().includes(filter) || p.c.toUpperCase().includes(filter));
-
-        if(results.length === 0) {
-            container.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>No encontrado.</p>";
-            return;
-        }
-
-        results.forEach(p => {
-            container.innerHTML += `
-            <div class="product-card">
-                <div class="prod-info">
-                    <div class="prod-code">${p.c}</div>
-                    <div class="prod-title">${p.n}</div>
-                    <div class="prod-price">$${p.price.toFixed(2)}</div>
-                    <button class="btn-add" onclick="addCart('${p.c}')">AGREGAR</button>
-                </div>
-            </div>`;
-        });
-    }
-
+    function guardarDB() { localStorage.setItem('millan_db_v6', JSON.stringify(INVENTARIO)); localStorage.setItem('millan_margin', MARGEN_ACTUAL); }
+    
     function addCart(code) {
         let item = INVENTARIO.find(p => p.c === code);
         CARRITO.push(item);
-        // Sonido beep opcional
-        // let audio = new Audio('beep.mp3'); audio.play();
+        alert("Agregado: " + item.n);
         renderCart();
     }
-
+    
     function renderCart() {
         let div = document.getElementById('cart-list');
-        let total = 0;
-        div.innerHTML = "";
-        
+        let total = 0; div.innerHTML = "";
         CARRITO.forEach((p, idx) => {
             total += p.price;
-            div.innerHTML += `
-            <div class="ticket-item">
-                <span>${p.n.substring(0,15)}</span>
-                <span>$${p.price.toFixed(2)} <i class="fas fa-times" style="color:red" onclick="remCart(${idx})"></i></span>
-            </div>`;
+            div.innerHTML += `<div class="ticket-item"><span>${p.n.substring(0,15)}</span><span>$${p.price.toFixed(2)} <i class="fas fa-times" style="color:red" onclick="remCart(${idx})"></i></span></div>`;
         });
         document.getElementById('total-amount').innerText = total.toFixed(2);
     }
-
     function remCart(idx) { CARRITO.splice(idx,1); renderCart(); }
 
     function imprimirTicket() {
@@ -280,60 +263,43 @@
         let body = document.getElementById('ticket-body');
         document.getElementById('ticket-date').innerText = new Date().toLocaleString();
         body.innerHTML = "";
-        CARRITO.forEach(p => {
-            body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.n.substring(0,20)}</span><span>$${p.price.toFixed(2)}</span></div>`;
-        });
+        CARRITO.forEach(p => { body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.n.substring(0,20)}</span><span>$${p.price.toFixed(2)}</span></div>`; });
         document.getElementById('ticket-total').innerText = document.getElementById('total-amount').innerText;
         window.print();
         if(confirm("¿Limpiar?")) { CARRITO=[]; renderCart(); }
     }
 
-    // --- ESCÁNER ---
-    function toggleScanner() {
-        let area = document.getElementById('scanner-area');
-        if(area.style.display === 'block') {
-            if(scannerObj) scannerObj.clear();
-            area.style.display = 'none';
-        } else {
-            area.style.display = 'block';
-            scannerObj = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-            scannerObj.render(onScanSuccess);
-        }
+    // --- ADMIN ---
+    function actualizarPrecios() {
+        MARGEN_ACTUAL = parseFloat(document.getElementById('global-margin').value);
+        recalcularPreciosInterno();
+        guardarDB();
+        alert("Actualizado al " + MARGEN_ACTUAL + "%");
     }
-
-    function onScanSuccess(decodedText) {
-        let prod = INVENTARIO.find(p => p.c === decodedText);
-        if(prod) {
-            addCart(decodedText);
-            alert("Detectado: " + prod.n);
-            // Pausar para no leer mil veces
-            scannerObj.pause();
-            setTimeout(() => scannerObj.resume(), 1500);
-        } else {
-            if(confirm("Código " + decodedText + " no existe. ¿Agregarlo?")) {
-                scannerObj.clear();
-                document.getElementById('scanner-area').style.display = 'none';
-                irA('admin');
-                document.getElementById('new-code').value = decodedText;
-            }
-        }
-    }
-
+    function forceReset() { if(confirm("¿Restaurar inventario original?")) { localStorage.removeItem('millan_db_v6'); location.reload(); } }
+    
     function guardarManual() {
         let c = document.getElementById('new-code').value.toUpperCase();
         let n = document.getElementById('new-name').value.toUpperCase();
         let cost = parseFloat(document.getElementById('new-cost').value);
-        if(!c || !n || !cost) return alert("Faltan datos");
-
+        if(!c || !n || !cost) return alert("Datos incompletos");
         let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
         let price = parseFloat((cost * factor).toFixed(2));
-        
         INVENTARIO.push({c, n, cost, price});
         guardarDB();
         alert("Guardado");
-        document.getElementById('new-code').value = "";
-        document.getElementById('new-name').value = "";
-        document.getElementById('new-cost').value = "";
+    }
+
+    // --- ESCÁNER ---
+    function toggleScanner() {
+        let area = document.getElementById('scanner-area');
+        if(area.style.display === 'block') { if(scannerObj) scannerObj.clear(); area.style.display = 'none'; } 
+        else { area.style.display = 'block'; scannerObj = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }); scannerObj.render(onScanSuccess); }
+    }
+    function onScanSuccess(decodedText) {
+        let prod = INVENTARIO.find(p => p.c === decodedText);
+        if(prod) { addCart(decodedText); alert("Encontrado: " + prod.n); scannerObj.pause(); setTimeout(()=>scannerObj.resume(),1500); }
+        else if(confirm("Código nuevo. ¿Agregar?")) { scannerObj.clear(); document.getElementById('scanner-area').style.display='none'; irA('admin'); document.getElementById('new-code').value=decodedText; }
     }
 
     function irA(id) {
@@ -342,10 +308,7 @@
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+id).classList.add('active');
         if(id !== 'pos' && scannerObj) { scannerObj.clear(); document.getElementById('scanner-area').style.display='none'; }
-        if(id === 'catalog') renderCatalog();
     }
-
-    renderCatalog();
 </script>
 </body>
 </html>
