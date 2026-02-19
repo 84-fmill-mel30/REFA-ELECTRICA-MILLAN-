@@ -3,156 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - V6 CLEAN</title>
+    <title>Refaccionaria Millán - V10 EL COMPITA</title>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root { --primary: #ffd700; --dark: #111; --light: #eee; --danger: #ff4444; --success: #00cc66; --info: #00d2ff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #eef2f5; color: #333; padding-bottom: 100px; }
         
         /* HEADER */
         header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .logo-header { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .logo-header i { color: var(--primary); font-size: 1.5rem; }
-        
-        nav button { background: none; border: none; color: #aaa; font-size: 1.5rem; margin-left: 20px; cursor: pointer; transition: 0.3s; }
-        nav button.active { color: var(--primary); transform: scale(1.2); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .logo { font-size: 1.1rem; font-weight: 900; text-transform: uppercase; color: #fff; }
+        .logo i { color: var(--primary); font-size: 1.5rem; margin-right: 5px; }
+        nav button { background: none; border: none; color: #aaa; font-size: 1.4rem; margin-left: 15px; cursor: pointer; transition: 0.3s; }
+        nav button.active { color: var(--primary); transform: scale(1.2); }
 
         .page { display: none; padding: 15px; max-width: 1000px; margin: 0 auto; }
-        .page.active { display: block; }
+        .page.active { display: block; animation: fade 0.3s; }
+        @keyframes fade { from{opacity:0} to{opacity:1} }
 
-        /* --- PANTALLA PRINCIPAL (HERO) --- */
-        .hero-container { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 70vh; text-align: center; 
+        /* --- EL COMPITA (BOTÓN FLOTANTE) --- */
+        #compita-btn {
+            position: fixed; bottom: 20px; right: 20px; width: 75px; height: 75px;
+            background: linear-gradient(135deg, #222, #444); /* Color más rudo */
+            border: 2px solid var(--primary);
+            border-radius: 50%; color: var(--primary); font-size: 2rem; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); cursor: pointer; z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
         }
-        .big-logo { font-size: 3rem; color: var(--dark); margin-bottom: 10px; }
-        .big-logo span { color: var(--primary); }
-        .big-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
-        
-        /* INPUTS DE BÚSQUEDA */
-        .search-wrapper { width: 100%; max-width: 500px; position: relative; margin-bottom: 20px; }
-        .search-input { 
-            width: 100%; padding: 15px 20px; border-radius: 30px; border: 2px solid #ddd; 
-            font-size: 1.1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); outline: none; transition: 0.3s;
-        }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3); }
-        
-        .search-google-btn {
-            background: #fff; color: #4285F4; border: 1px solid #ddd; padding: 12px 20px; 
-            border-radius: 30px; font-weight: bold; cursor: pointer; display: flex; 
-            align-items: center; gap: 10px; width: 100%; max-width: 500px; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .search-google-btn:hover { background: #f1f1f1; }
+        #compita-btn.listening { background: #ff4444; border-color: white; color: white; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
 
-        /* RESULTADOS (GRID) */
-        .results-area { display: none; margin-top: 20px; }
-        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-        
-        .product-card { background: white; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; display: flex; flex-direction: column; }
-        .prod-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .prod-title { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #333; }
-        .prod-code { font-size: 0.7rem; color: #666; background: #eee; padding: 2px 5px; border-radius: 4px; width: fit-content; }
-        .prod-price { font-size: 1.2rem; font-weight: 900; color: var(--success); text-align: right; margin: 5px 0; }
-        .btn-add { background: var(--dark); color: white; border: none; padding: 8px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        /* HOME */
+        .hero-container { text-align: center; margin-top: 20px; }
+        .search-wrapper { margin-bottom: 15px; position: sticky; top: 70px; z-index: 900; }
+        .search-input { width: 100%; padding: 15px; border-radius: 30px; border: 1px solid #ccc; font-size: 1.1rem; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 15px; }
+        .product-card { background: white; border-radius: 10px; overflow: hidden; border: 1px solid #ddd; display: flex; flex-direction: column; }
+        .prod-info { padding: 10px; }
+        .prod-title { font-size: 0.85rem; font-weight: bold; min-height: 40px; }
+        .prod-price { font-size: 1.2rem; font-weight: 900; color: var(--success); text-align: right; }
+        .btn-add { background: var(--dark); color: white; width: 100%; padding: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
 
-        /* POS & ADMIN STYLES */
-        .btn-main { background: var(--primary); color: var(--dark); border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; font-size: 1rem; margin-top: 10px; }
-        input.admin-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        
-        .scanner-box { background: #000; border-radius: 10px; padding: 10px; margin-bottom: 20px; text-align: center; display: none; }
+        /* POS & ADMIN */
+        .btn-main { background: var(--primary); color: var(--dark); padding: 12px; width: 100%; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        .scanner-box { background: black; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: none; }
         #reader { width: 100%; }
-        .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 20px 0; color: var(--dark); border-top: 2px solid #333; padding-top: 10px; }
+        
+        /* LOGIN */
+        #login-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; }
+        .pin-input { font-size: 2rem; padding: 10px; width: 150px; text-align: center; letter-spacing: 10px; border: 2px solid var(--primary); border-radius: 10px; }
+
+        /* TICKET */
+        .cart-total { font-size: 1.5rem; font-weight: bold; text-align: right; margin: 20px 0; border-top: 2px solid #333; padding-top: 10px; }
         .ticket-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px dashed #ccc; background: white; }
 
-        /* BOTON FLOTANTE VOLVER */
-        #btn-clear-search { display: none; margin: 20px auto; background: #ccc; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        /* LISTA FALTANTES */
+        .missing-item { background: #fff3cd; color: #856404; padding: 10px; margin-bottom: 5px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; }
+        
+        /* KPIS */
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .kpi-card { background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        @media print {
-            body * { visibility: hidden; }
-            #ticket-print-area, #ticket-print-area * { visibility: visible; }
-            #ticket-print-area { position: absolute; left: 0; top: 0; width: 100%; }
-            header, nav, .btn-main { display: none; }
-        }
+        @media print { body * { visibility: hidden; } #ticket-print-area, #ticket-print-area * { visibility: visible; } #ticket-print-area { position: absolute; left: 0; top: 0; width: 100%; } header, nav, #compita-btn { display: none; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo-header"><i class="fas fa-bolt"></i> MILLÁN <span>V6</span></div>
+    <div class="logo"><i class="fas fa-bolt"></i> MILLÁN <span>V10</span></div>
     <nav>
         <button onclick="irA('home')" id="nav-home" class="active"><i class="fas fa-search"></i></button>
         <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-shopping-cart"></i></button>
-        <button onclick="irA('admin')" id="nav-admin"><i class="fas fa-cog"></i></button>
+        <button onclick="checkAuth('reports')" id="nav-reports"><i class="fas fa-chart-line"></i></button>
+        <button onclick="checkAuth('admin')" id="nav-admin"><i class="fas fa-cog"></i></button>
     </nav>
 </header>
 
+<button id="compita-btn" onclick="activarCompita()"><i class="fas fa-headset"></i></button>
+
 <div id="home" class="page active">
-    
-    <div id="hero-section" class="hero-container">
-        <i class="fas fa-car-battery big-icon"></i>
-        <div class="big-logo">REFACCIONARIA <span>MILLÁN</span></div>
-        <p style="color:#777; margin-bottom:30px;">Sistema de Búsqueda Inteligente</p>
-
-        <div class="search-wrapper">
-            <input type="text" id="local-search" class="search-input" placeholder="🔍 Buscar en Inventario..." onkeyup="buscarLocal()">
-        </div>
-
-        <div class="search-wrapper">
-            <input type="text" id="google-search-input" class="search-input" placeholder="🌎 Buscar en Google..." style="border-color:#4285F4; margin-bottom:10px;">
-            <button class="search-google-btn" onclick="buscarEnGoogle()">
-                <i class="fab fa-google" style="color:#4285F4;"></i> IR A GOOGLE
-            </button>
-        </div>
+    <div class="hero-container">
+        <h2 style="margin:0;">REFACCIONARIA <span style="color:var(--primary)">MILLÁN</span></h2>
+        <p>Pícale al Compita para preguntar</p>
     </div>
-
-    <div id="results-section" class="results-area">
-        <h3 style="border-bottom: 2px solid var(--primary); padding-bottom:10px;">Resultados en Existencia:</h3>
-        <div id="catalog-grid" class="catalog-grid"></div>
-        <button id="btn-clear-search" onclick="limpiarBusqueda()">⬅️ Nueva Búsqueda</button>
+    <div class="search-wrapper">
+        <input type="text" id="local-search" class="search-input" placeholder="🔍 Buscar pieza manual..." onkeyup="buscarLocal()">
     </div>
-
+    <button onclick="buscarGoogle()" style="width:100%; padding:10px; background:white; border:1px solid #4285F4; color:#4285F4; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:20px;">
+        <i class="fab fa-google"></i> BUSCAR EN GOOGLE
+    </button>
+    <div id="catalog-grid" class="catalog-grid"></div>
 </div>
 
 <div id="pos" class="page">
     <h2><i class="fas fa-cash-register"></i> Caja</h2>
-    <button id="btn-cam" class="btn-main" onclick="toggleScanner()" style="background:#333; margin-bottom:15px;">📸 ACTIVAR CÁMARA</button>
-    
-    <div id="scanner-area" class="scanner-box">
-        <div id="reader"></div>
-        <button onclick="toggleScanner()" style="background:red; color:white; border:none; padding:5px; margin-top:5px;">CERRAR</button>
-    </div>
-
-    <div id="cart-list" style="background:white; border-radius:5px; min-height:100px; padding:10px;">
-        <div style="text-align:center; color:#999; padding:20px;">Carrito Vacío</div>
-    </div>
+    <button class="btn-main" style="background:#333; color:white; margin-bottom:10px;" onclick="toggleScanner()">📸 ESCANEAR</button>
+    <div id="scanner-area" class="scanner-box"><div id="reader"></div></div>
+    <div id="cart-list" style="background:white; min-height:100px; padding:10px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div>
     <div class="cart-total">Total: $<span id="total-amount">0.00</span></div>
-    <button class="btn-main" style="background:var(--success); color:white;" onclick="imprimirTicket()">COBRAR</button>
+    <button class="btn-main" style="background:var(--success); color:white;" onclick="cobrar()">COBRAR TICKET</button>
+</div>
+
+<div id="reports" class="page">
+    <h2><i class="fas fa-chart-pie"></i> Reporte del Patrón</h2>
+    <div class="kpi-grid">
+        <div class="kpi-card"><div>Venta HOY</div><h2 id="sales-today">$0</h2></div>
+        <div class="kpi-card" style="color:green;"><div>Utilidad HOY</div><h2 id="profit-today">$0</h2></div>
+    </div>
+    <div style="background:white; padding:10px; border-radius:10px;">
+        <canvas id="salesChart"></canvas>
+    </div>
+    <h3>Historial Reciente</h3>
+    <div id="history-list" style="background:white; padding:10px; max-height:150px; overflow-y:auto; border-radius:10px;"></div>
 </div>
 
 <div id="admin" class="page">
     <h2>Configuración</h2>
     <div style="background:#222; color:white; padding:15px; border-radius:10px;">
         <label>Ganancia Global (%):</label>
-        <input type="number" id="global-margin" class="admin-input" value="30" style="background:#444; color:#fff; border:none;">
-        <button class="btn-main" style="background:var(--info); color:black;" onclick="actualizarPrecios()">ACTUALIZAR PRECIOS</button>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="global-margin" value="30" style="background:#444; color:white; border:none; width:80px; padding:5px;">
+            <button onclick="actualizarPrecios()" style="background:var(--info); border:none; border-radius:5px; font-weight:bold; padding:0 15px;">APLICAR</button>
+        </div>
     </div>
-    <br>
-    <button class="btn-main" style="background:var(--danger);" onclick="forceReset()">⚠️ RECARGAR INVENTARIO ORIGINAL</button>
     
-    <h3>Agregar Manual</h3>
-    <input type="text" id="new-code" class="admin-input" placeholder="Código">
-    <input type="text" id="new-name" class="admin-input" placeholder="Nombre">
-    <input type="number" id="new-cost" class="admin-input" placeholder="Costo ($)">
+    <h3>📋 Lista de Faltantes (Pedidos)</h3>
+    <div id="missing-list"></div>
+    <button onclick="borrarFaltantes()" style="font-size:0.8rem; color:red; border:none; background:none;">Borrar Lista</button>
+
+    <h3>Agregar Producto</h3>
+    <input type="text" id="new-code" placeholder="Código" style="width:100%; padding:10px; margin-bottom:5px;">
+    <input type="text" id="new-name" placeholder="Nombre" style="width:100%; padding:10px; margin-bottom:5px;">
+    <input type="number" id="new-cost" placeholder="Costo Compra ($)" style="width:100%; padding:10px; margin-bottom:5px;">
     <button class="btn-main" onclick="guardarManual()">GUARDAR</button>
+</div>
+
+<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); z-index:2000; display:none;">
+    <div style="margin-top:30vh; text-align:center;">
+        <i class="fas fa-lock" style="font-size:3rem; color:var(--dark);"></i>
+        <h3>SOLO PERSONAL</h3>
+        <input type="password" id="pin-input" class="pin-input" maxlength="4" placeholder="****">
+        <br><br>
+        <button class="btn-main" style="width:150px;" onclick="validarPin()">ENTRAR</button>
+        <button onclick="cerrarLogin()" style="background:none; border:none; margin-top:20px; text-decoration:underline;">Cancelar</button>
+    </div>
 </div>
 
 <div id="ticket-print-area" style="display:none; width:300px; font-family:monospace; padding:10px;">
     <div style="text-align:center;">
         <h3>REFACCIONARIA MILLÁN</h3>
-        <p>Servicio a Domicilio</p>
         <div style="text-align:left;" id="ticket-date"></div>
     </div>
     <div id="ticket-body" style="margin-top:10px; font-size:0.9rem;"></div>
@@ -161,24 +163,26 @@
 </div>
 
 <script>
-    // DATOS DE TUS FOTOS
+    // --- DATOS MAESTROS ---
     const DB_MASTER = [
         {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30}, {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
         {c:"EM4", n:"Engrane Marcha Nissan (4) y Chevy", cost:29}, {c:"EM5", n:"Engrane Marcha VW Golf Jetta (5)", cost:29},
         {c:"A618114ASS", n:"Armadura Nissan Hitachi PMGR 114", cost:264}, {c:"A011097E", n:"Armadura Nissan Chevy 619130", cost:264},
         {c:"PC10530941", n:"Porta Carbon GM Aveo Usatech", cost:75}, {c:"PC698309", n:"Porta Carbon Mitsubishi Grande", cost:75},
-        {c:"PC336246", n:"Porta Carbon Ford Nissan 336 246", cost:69}, {c:"PC336245", n:"Porta Carbon Nissan Chevy Tipo Bosch", cost:69},
-        {c:"B55", n:"Modulo Encendido Nissan Tsuru 16V", cost:543}, {c:"BOM-TSURU", n:"Bomba Gasolina Bosch Tsuru III", cost:330},
-        {c:"RIH738TP", n:"Regulador Nissan RIH 738 Hitachi", cost:317}, {c:"CP1830M", n:"Cable Plastico 18 (30m)", cost:121},
-        {c:"F9004LED", n:"Foco 9004 LED 4 Caras Juego", cost:275}, {c:"HX10", n:"Foco 3157 Hella (Caja 10)", cost:116},
-        {c:"H4", n:"Foco H4 Hella", cost:31}, {c:"BM70582", n:"Bulbo Motovent VW Caribe 82/68", cost:98}
+        {c:"PC336246", n:"Porta Carbon Ford Nissan 336 246", cost:69}, {c:"B55", n:"Modulo Encendido Nissan Tsuru 16V", cost:543},
+        {c:"BOM-TSURU", n:"Bomba Gasolina Bosch Tsuru III", cost:330}, {c:"RIH738TP", n:"Regulador Nissan RIH 738 Hitachi", cost:317},
+        {c:"CP1830M", n:"Cable Plastico 18 (30m)", cost:121}, {c:"F9004LED", n:"Foco 9004 LED 4 Caras Juego", cost:275}
     ];
 
-    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db_v6')) || [];
+    let INVENTARIO = JSON.parse(localStorage.getItem('millan_db_v10')) || [];
+    let VENTAS = JSON.parse(localStorage.getItem('millan_sales')) || [];
+    let FALTANTES = JSON.parse(localStorage.getItem('millan_missing')) || [];
     let MARGEN_ACTUAL = localStorage.getItem('millan_margin') || 30;
     let CARRITO = [];
     let scannerObj = null;
+    let targetPage = "";
 
+    // INICIO
     if(INVENTARIO.length === 0) {
         INVENTARIO = JSON.parse(JSON.stringify(DB_MASTER));
         recalcularPreciosInterno();
@@ -186,129 +190,86 @@
     }
     document.getElementById('global-margin').value = MARGEN_ACTUAL;
 
-    // --- LÓGICA DE BÚSQUEDA ---
-    function buscarLocal() {
-        let input = document.getElementById('local-search').value.toUpperCase();
-        let hero = document.getElementById('hero-section');
-        let results = document.getElementById('results-section');
-        let grid = document.getElementById('catalog-grid');
+    // --- EL COMPITA: ASISTENTE ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let synth = window.speechSynthesis;
+    let isListening = false;
+    let lastSearchTerm = "";
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'es-MX';
+        recognition.continuous = false;
         
-        if(input.length > 1) {
-            hero.style.display = 'none'; // Ocultar logo grande
-            results.style.display = 'block'; // Mostrar resultados
-            document.getElementById('btn-clear-search').style.display = 'block';
-            
-            grid.innerHTML = "";
-            let encontrados = INVENTARIO.filter(p => p.n.toUpperCase().includes(input) || p.c.toUpperCase().includes(input));
-            
-            if(encontrados.length === 0) {
-                grid.innerHTML = "<p>No encontrado en existencia.</p>";
-            } else {
-                encontrados.forEach(p => {
-                    grid.innerHTML += `
-                    <div class="product-card">
-                        <div class="prod-info">
-                            <div class="prod-code">${p.c}</div>
-                            <div class="prod-title">${p.n}</div>
-                            <div class="prod-price">$${p.price.toFixed(2)}</div>
-                            <button class="btn-add" onclick="addCart('${p.c}')">AGREGAR AL TICKET</button>
-                        </div>
-                    </div>`;
-                });
-            }
-        } else {
-            limpiarBusqueda();
+        recognition.onstart = () => { isListening = true; document.getElementById('compita-btn').classList.add('listening'); };
+        recognition.onend = () => { isListening = false; document.getElementById('compita-btn').classList.remove('listening'); };
+        recognition.onresult = (event) => { procesarVoz(event.results[0][0].transcript.toLowerCase()); };
+    } else {
+        document.getElementById('compita-btn').style.display = 'none';
+    }
+
+    function activarCompita() {
+        if(isListening) recognition.stop();
+        else {
+            hablar("Qué pasó patrón, dígame.");
+            recognition.start();
         }
     }
 
-    function limpiarBusqueda() {
-        document.getElementById('local-search').value = "";
-        document.getElementById('hero-section').style.display = 'flex';
-        document.getElementById('results-section').style.display = 'none';
+    function hablar(texto) {
+        if(synth.speaking) synth.cancel();
+        let utter = new SpeechSynthesisUtterance(texto);
+        utter.lang = 'es-MX';
+        utter.rate = 1.1; // Un poco más rápido
+        utter.pitch = 0.9; // Voz un poco más grave
+        synth.speak(utter);
     }
 
-    function buscarEnGoogle() {
-        let txt = document.getElementById('google-search-input').value;
-        if(txt) window.open('https://www.google.com/search?q=refaccion automotriz ' + txt, '_blank');
-        else alert("Escribe qué buscas en Google");
+    function procesarVoz(texto) {
+        // CONFIRMAR FALTANTE
+        if(lastSearchTerm && (texto.includes("sí") || texto.includes("simón") || texto.includes("anota"))) {
+            FALTANTES.push(lastSearchTerm);
+            localStorage.setItem('millan_missing', JSON.stringify(FALTANTES));
+            renderFaltantes();
+            hablar("Ya estás, anotado en los pedidos.");
+            lastSearchTerm = "";
+            return;
+        }
+
+        // BUSQUEDA
+        let termino = texto.replace("busca", "").replace("tienes", "").replace("hay", "").replace("compita", "").trim();
+        document.getElementById('local-search').value = termino;
+        buscarLocal();
+
+        let encontrados = INVENTARIO.filter(p => p.n.toLowerCase().includes(termino));
+        
+        if(encontrados.length > 0) {
+            let p = encontrados[0];
+            hablar(`Simón carnal, sí hay. Tengo ${p.n}. Cuesta ${Math.round(p.price)} varos.`);
+            lastSearchTerm = "";
+        } else {
+            lastSearchTerm = termino;
+            hablar(`Híjole, no lo topo. ¿Lo anoto en la lista de faltantes?`);
+        }
     }
 
-    // --- FUNCIONES COMUNES ---
-    function recalcularPreciosInterno() {
-        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        INVENTARIO.forEach(p => { if(p.cost) p.price = parseFloat((p.cost * factor).toFixed(2)); });
-    }
-    function guardarDB() { localStorage.setItem('millan_db_v6', JSON.stringify(INVENTARIO)); localStorage.setItem('millan_margin', MARGEN_ACTUAL); }
-    
-    function addCart(code) {
-        let item = INVENTARIO.find(p => p.c === code);
-        CARRITO.push(item);
-        alert("Agregado: " + item.n);
-        renderCart();
-    }
-    
-    function renderCart() {
-        let div = document.getElementById('cart-list');
-        let total = 0; div.innerHTML = "";
-        CARRITO.forEach((p, idx) => {
-            total += p.price;
-            div.innerHTML += `<div class="ticket-item"><span>${p.n.substring(0,15)}</span><span>$${p.price.toFixed(2)} <i class="fas fa-times" style="color:red" onclick="remCart(${idx})"></i></span></div>`;
-        });
-        document.getElementById('total-amount').innerText = total.toFixed(2);
-    }
-    function remCart(idx) { CARRITO.splice(idx,1); renderCart(); }
+    // --- FINANZAS ---
+    function renderReports() {
+        let hoy = new Date().toLocaleDateString();
+        let ventasHoy = VENTAS.filter(v => new Date(v.date).toLocaleDateString() === hoy);
+        let totalHoy = ventasHoy.reduce((s,v)=>s+v.total,0);
+        let utilHoy = totalHoy - ventasHoy.reduce((s,v)=>s+v.costTotal,0);
 
-    function imprimirTicket() {
-        if(CARRITO.length === 0) return alert("Nada");
-        let body = document.getElementById('ticket-body');
-        document.getElementById('ticket-date').innerText = new Date().toLocaleString();
-        body.innerHTML = "";
-        CARRITO.forEach(p => { body.innerHTML += `<div style="display:flex; justify-content:space-between;"><span>${p.n.substring(0,20)}</span><span>$${p.price.toFixed(2)}</span></div>`; });
-        document.getElementById('ticket-total').innerText = document.getElementById('total-amount').innerText;
-        window.print();
-        if(confirm("¿Limpiar?")) { CARRITO=[]; renderCart(); }
-    }
+        document.getElementById('sales-today').innerText = "$"+totalHoy.toFixed(0);
+        document.getElementById('profit-today').innerText = "$"+utilHoy.toFixed(0);
 
-    // --- ADMIN ---
-    function actualizarPrecios() {
-        MARGEN_ACTUAL = parseFloat(document.getElementById('global-margin').value);
-        recalcularPreciosInterno();
-        guardarDB();
-        alert("Actualizado al " + MARGEN_ACTUAL + "%");
-    }
-    function forceReset() { if(confirm("¿Restaurar inventario original?")) { localStorage.removeItem('millan_db_v6'); location.reload(); } }
-    
-    function guardarManual() {
-        let c = document.getElementById('new-code').value.toUpperCase();
-        let n = document.getElementById('new-name').value.toUpperCase();
-        let cost = parseFloat(document.getElementById('new-cost').value);
-        if(!c || !n || !cost) return alert("Datos incompletos");
-        let factor = 1 + (parseFloat(MARGEN_ACTUAL) / 100);
-        let price = parseFloat((cost * factor).toFixed(2));
-        INVENTARIO.push({c, n, cost, price});
-        guardarDB();
-        alert("Guardado");
-    }
-
-    // --- ESCÁNER ---
-    function toggleScanner() {
-        let area = document.getElementById('scanner-area');
-        if(area.style.display === 'block') { if(scannerObj) scannerObj.clear(); area.style.display = 'none'; } 
-        else { area.style.display = 'block'; scannerObj = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }); scannerObj.render(onScanSuccess); }
-    }
-    function onScanSuccess(decodedText) {
-        let prod = INVENTARIO.find(p => p.c === decodedText);
-        if(prod) { addCart(decodedText); alert("Encontrado: " + prod.n); scannerObj.pause(); setTimeout(()=>scannerObj.resume(),1500); }
-        else if(confirm("Código nuevo. ¿Agregar?")) { scannerObj.clear(); document.getElementById('scanner-area').style.display='none'; irA('admin'); document.getElementById('new-code').value=decodedText; }
-    }
-
-    function irA(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById('nav-'+id).classList.add('active');
-        if(id !== 'pos' && scannerObj) { scannerObj.clear(); document.getElementById('scanner-area').style.display='none'; }
-    }
-</script>
-</body>
-</html>
+        // Grafica
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        if(window.myChart) window.myChart.destroy();
+        
+        let labels=[], data=[];
+        for(let i=4;i>=0;i--){
+            let d=new Date(); d.setDate(d.getDate()-i);
+            labels.push(d.toLocaleDateString().substr(0,5));
+            data
