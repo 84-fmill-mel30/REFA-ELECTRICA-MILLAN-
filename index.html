@@ -3,409 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - V16 UNITARIOS</title>
+    <title>Refaccionaria Millán - V17 VISIBLE</title>
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #ffd700; --dark: #111; --bg: #f4f4f4; --danger: #ff4444; --success: #00c851; --info: #33b5e5; }
-        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background: var(--bg); color: #333; padding-bottom: 80px; user-select: none; }
+        :root { --primary: #ffd700; --dark: #111; --bg: #f4f4f4; --success: #00c851; }
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background: var(--bg); color: #333; padding-bottom: 80px; }
         
         /* HEADER */
-        header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.2rem; font-weight: 900; }
         .logo span { color: var(--primary); }
-        .nav-btn { background: none; border: none; color: #888; font-size: 1.6rem; margin-left: 20px; cursor: pointer; transition: 0.2s; }
-        .nav-btn.active { color: var(--primary); transform: scale(1.2); }
+        nav button { background: none; border: none; color: #888; font-size: 1.5rem; margin-left: 20px; }
+        nav button.active { color: var(--primary); transform: scale(1.2); }
 
         /* PÁGINAS */
-        .page { display: none; padding: 15px; max-width: 800px; margin: 0 auto; }
+        .page { display: none; padding: 10px; max-width: 800px; margin: 0 auto; }
         .page.active { display: block; }
 
         /* HOME */
-        .hero-box { text-align: center; margin-top: 40px; margin-bottom: 30px; }
-        .big-title { font-size: 2.5rem; font-weight: 900; color: var(--dark); margin: 0; }
-        .big-title span { color: var(--primary); }
-        .search-container { position: sticky; top: 70px; z-index: 900; background: rgba(244,244,244,0.95); padding: 10px 0; }
-        .main-input { width: 100%; padding: 15px; border-radius: 30px; border: 1px solid #ccc; font-size: 1.1rem; outline: none; box-shadow: 0 3px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .google-btn-large { background: white; color: #4285F4; border: 1px solid #4285F4; padding: 12px; width: 100%; border-radius: 30px; font-weight: bold; margin-top: 15px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .search-container { position: sticky; top: 60px; z-index: 900; background: var(--bg); padding: 10px 0; }
+        .main-input { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #ddd; font-size: 1.1rem; outline: none; box-sizing: border-box; }
+        
+        /* LISTA DE PRODUCTOS (SIEMPRE VISIBLE) */
+        .catalog-list { display: flex; flex-direction: column; gap: 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; border-bottom: 3px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .card-info { flex-grow: 1; }
+        .card-title { font-weight: bold; font-size: 1rem; color: #333; }
+        .card-code { font-size: 0.8rem; color: #666; background: #eee; padding: 2px 5px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        .card-price { font-size: 1.4rem; font-weight: 900; color: var(--success); text-align: right; min-width: 90px; }
+        .btn-add { background: var(--dark); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; margin-top: 5px; cursor: pointer; width: 100%; }
 
-        /* RESULTADOS */
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .card-info { flex-grow: 1; padding-right: 10px; }
-        .card-title { font-weight: bold; font-size: 0.95rem; color: #333; }
-        .card-code { font-size: 0.75rem; color: #777; background: #eee; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 5px; }
-        .card-price { font-size: 1.3rem; font-weight: 900; color: var(--success); text-align: right; min-width: 90px; }
-        .btn-add { background: var(--dark); color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; margin-top: 5px; cursor: pointer; width: 100%; }
+        /* CAJA */
+        #cart-box { background: white; min-height: 100px; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-top: 20px; }
+        .btn-primary { background: var(--primary); color: #000; width: 100%; padding: 15px; font-weight: bold; border: none; border-radius: 8px; margin-top: 10px; font-size: 1.1rem; }
+
+        /* ADMIN */
+        input.form-control { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        table { width: 100%; background: white; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #333; color: white; }
 
         /* EL COMPITA */
-        #compita-btn { position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; background: #222; border: 2px solid var(--primary); border-radius: 50%; color: var(--primary); font-size: 2rem; z-index: 9999; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); cursor: pointer; }
-        #compita-btn.listening { background: #ff4444; color: white; animation: pulse 1s infinite; border-color: white; }
+        #compita-btn { position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; background: #222; border: 2px solid var(--primary); border-radius: 50%; color: var(--primary); font-size: 2rem; z-index: 9999; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #compita-btn.listening { background: #ff4444; color: white; animation: pulse 1s infinite; }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
-
-        /* ADMIN TABLE */
-        .table-wrap { overflow-x: auto; background: white; border-radius: 8px; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { background: #333; color: white; padding: 10px; text-align: left; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-
-        /* GENERALES */
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn-primary { background: var(--primary); color: #000; }
-        .btn-danger { background: var(--danger); color: white; }
-        input.form-control { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
-        #reader { width: 100%; background: black; display: none; margin-bottom: 10px; }
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.98); z-index:5000; display:none; flex-direction:column; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">MILLÁN <span>V16</span></div>
+    <div class="logo">MILLÁN <span>V17</span></div>
     <nav>
-        <button onclick="irA('home')" id="nav-home" class="nav-btn active"><i class="fas fa-search"></i></button>
-        <button onclick="irA('pos')" id="nav-pos" class="nav-btn"><i class="fas fa-shopping-cart"></i></button>
-        <button onclick="checkAdmin()" id="nav-admin" class="nav-btn"><i class="fas fa-lock"></i></button>
+        <button onclick="irA('home')" id="nav-home" class="active"><i class="fas fa-list"></i></button>
+        <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-shopping-cart"></i></button>
+        <button onclick="irA('admin')" id="nav-admin"><i class="fas fa-cog"></i></button>
     </nav>
 </header>
 
 <div id="compita-btn" onclick="usarCompita()"><i class="fas fa-microphone"></i></div>
 
 <div id="home" class="page active">
-    <div id="hero" class="hero-box">
-        <div class="big-title">REFACCIONARIA <span>MILLÁN</span></div>
-        <p style="color:#666;">Buscador de Existencias</p>
-    </div>
     <div class="search-container">
-        <input type="text" id="main-search" class="main-input" placeholder="🔍 Escribe pieza o código..." onkeyup="buscarRefaccion()">
+        <input type="text" id="main-search" class="main-input" placeholder="🔍 Buscar pieza..." onkeyup="renderCatalog()">
     </div>
-    <div id="results-area"></div>
-    <button class="google-btn-large" onclick="buscarGoogle()">
-        <i class="fab fa-google"></i> BUSCAR EN GOOGLE
+    <button onclick="buscarGoogle()" style="width:100%; padding:10px; background:white; border:1px solid #4285F4; color:#4285F4; border-radius:10px; margin-bottom:15px; font-weight:bold;">
+        <i class="fab fa-google"></i> ¿No está? Buscar en Google
     </button>
+    <div id="catalog-area" class="catalog-list">
+        </div>
 </div>
 
 <div id="pos" class="page">
-    <h2>CAJA</h2>
-    <button class="btn" style="background:#333; color:white;" onclick="activarCamara()">📸 CÁMARA</button>
-    <div id="reader"></div>
-    <div id="cart-box" style="background:white; min-height:100px; padding:15px; border-radius:10px; margin-top:15px; border:1px solid #ddd;">
-        <div style="text-align:center; color:#aaa;">(Carrito Vacío)</div>
+    <h2>Caja Registradora</h2>
+    <div id="reader" style="width:100%; display:none;"></div>
+    <button onclick="toggleCam()" style="width:100%; padding:10px; background:#333; color:white; border:none; border-radius:5px;">📸 CÁMARA</button>
+    
+    <div id="cart-box">
+        <div style="text-align:center; color:#aaa;">Carrito vacío</div>
     </div>
-    <h1 style="text-align:right; margin:10px 0;">Total: $<span id="total-amount">0</span></h1>
-    <button class="btn btn-primary" onclick="cobrar()">COBRAR TICKET</button>
+    <h1 style="text-align:right;">Total: $<span id="total-amount">0</span></h1>
+    <button class="btn-primary" onclick="cobrar()">COBRAR</button>
 </div>
 
 <div id="admin" class="page">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2>ADMINISTRACIÓN</h2>
-        <button onclick="irA('home')" style="border:none; background:none; color:red; font-weight:bold;">SALIR</button>
+    <h2>Configuración</h2>
+    <div style="background:white; padding:15px; border-radius:8px; margin-bottom:20px;">
+        <label>Ganancia (%):</label> 
+        <input type="number" id="margin-input" value="30" style="width:60px;">
+        <button onclick="updatePrices()">Actualizar</button>
     </div>
-    <div style="background:white; padding:15px; border-radius:10px; margin-bottom:20px;">
-        <label>Ganancia (%):</label>
-        <div style="display:flex; gap:10px;">
-            <input type="number" id="margin-input" value="30" class="form-control" style="width:80px; margin:0;">
-            <button onclick="guardarMargen()" style="background:var(--info); border:none; color:white; border-radius:5px; padding:0 15px;">APLICAR</button>
-        </div>
-    </div>
-    <h3>Inventario Completo</h3>
-    <input type="text" id="admin-search" class="form-control" placeholder="Filtrar..." onkeyup="renderAdminTable()">
-    <div class="table-wrap">
-        <table id="inv-table">
-            <thead><tr><th>Cód</th><th>Desc</th><th>Costo</th><th>Venta</th><th>X</th></tr></thead>
-            <tbody id="inv-body"></tbody>
+
+    <h3>Inventario Total</h3>
+    <div style="overflow-x:auto;">
+        <table id="admin-table">
+            <thead><tr><th>Cód</th><th>Desc</th><th>$$</th><th>X</th></tr></thead>
+            <tbody id="admin-body"></tbody>
         </table>
     </div>
     <br>
-    <button class="btn btn-danger" onclick="borrarTodo()">⚠️ RESETEAR FÁBRICA</button>
-</div>
-
-<div id="login-overlay">
-    <i class="fas fa-user-lock" style="font-size:4rem; color:#333; margin-bottom:20px;"></i>
-    <h3>PASSWORD</h3>
-    <input type="number" id="pin-code" style="font-size:2rem; width:150px; text-align:center; padding:10px; border-radius:10px; border:2px solid #333;" placeholder="****">
-    <br><br>
-    <button class="btn btn-primary" style="width:150px;" onclick="validar()">ENTRAR</button>
-    <button onclick="document.getElementById('login-overlay').style.display='none'" style="margin-top:20px; border:none; background:none; text-decoration:underline;">Cancelar</button>
+    <button onclick="resetDB()" style="background:red; color:white; border:none; padding:10px; width:100%;">⚠️ RECARGAR DATOS</button>
 </div>
 
 <script>
-    // --- 1. BASE DE DATOS REAL (CON PRECIOS UNITARIOS) ---
-    const DEFAULT_DATA = [
-        // ENGRANES Y BENDIX
-        {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30},
-        {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
-        {c:"EM4", n:"Engrane Marcha Nissan (4) y Chevy", cost:29},
-        {c:"EM5", n:"Engrane Marcha VW Golf Jetta (5)", cost:29},
-        {c:"1224", n:"Bendix Zen Ford Motorcraft 10D", cost:114},
-        
-        // ARMADURAS
-        {c:"A618114ASS", n:"Armadura Nissan Hitachi PMGR 114", cost:264},
-        {c:"A011097E", n:"Armadura Nissan Chevy 619130", cost:264},
-        {c:"A011086AU", n:"Armadura VW Jetta 086 Automotive", cost:264},
-        {c:"ART75010", n:"Armadura Ford Motorcraft Bolsa", cost:220},
-
-        // PORTA CARBONES
-        {c:"PC10530941", n:"Porta Carbon GM Aveo Usatech", cost:75},
-        {c:"PC698309", n:"Porta Carbon Mitsubishi Grande", cost:75},
-        {c:"PC698308", n:"Porta Carbon Mitsubishi Chico", cost:58},
-        {c:"PC36441", n:"Porta Carbon Platina VW Chevy Valeo", cost:69},
-        {c:"PC336246", n:"Porta Carbon Ford Nissan 336 246", cost:69},
-        {c:"PC336716", n:"Porta Carbon Bosch Automotive", cost:72},
-        {c:"PC336200", n:"Porta Carbon VW Jetta Eco", cost:69},
-        {c:"PC336245", n:"Porta Carbon Nissan Chevy Tipo Bosch", cost:69},
-        {c:"PC698104", n:"Porta Carbon Nissan Colec. Hueco", cost:81},
-        {c:"PC698330", n:"Porta Carbon Mitsubishi Urvan 2.5", cost:81},
-        {c:"PC69201", n:"Porta Carbon Ford 69201 Value", cost:52},
-        {c:"PC698318", n:"Porta Carbon Nissan Urvan 2.4", cost:75},
-        {c:"PC69119", n:"Porta Carbon Delco PMGR", cost:75},
-        {c:"PC698117", n:"Porta Carbon Nissan Hitachi", cost:64},
-        {c:"PC042176", n:"Porta Carbon Ford Automotive", cost:58},
-        
-        // ALTERNADOR (PORTA CARBONES)
-        {c:"39106", n:"Porta Carbon Alternador Cutlas", cost:29},
-        {c:"39207", n:"Porta Carbon Alternador Ford Gris", cost:26},
-        {c:"21SI", n:"Porta Carbon Alternador Delco", cost:35},
-
-        // AUTOMATICOS Y SOLENOIDES
-        {c:"SLDSS1750", n:"Automatico Ford Sistema Bosch", cost:220},
-        {c:"1219", n:"Automatico Nissan Hitachi Sin Cable", cost:215},
-        {c:"11840", n:"Automatico VW Sedan", cost:248},
-        {c:"66205", n:"Automatico Ford Motorcraft Guia", cost:204},
-        {c:"S71025", n:"Solenoide Universal Acurat", cost:182},
-        {c:"SF492", n:"Solenoide Pared Acurat", cost:195},
-
-        // MODULOS Y ENCENDIDO
-        {c:"B55", n:"Modulo Encendido Nissan Tsuru 16V", cost:543},
-        {c:"MHZ2030A", n:"Modulo Encendido Nissan", cost:543},
-        {c:"PASCHEVY", n:"Pastilla Ignicion Chevy 2 Tipos", cost:75},
-        {c:"P905855", n:"Pastilla Ignicion VW Vocho", cost:61},
-        {c:"P905865", n:"Pastilla Ignicion VW Jetta A3", cost:92},
-
-        // BOMBAS GASOLINA
-        {c:"BOM-TSURU", n:"Bomba Gasolina Bosch Tsuru III", cost:330},
-        {c:"BOM-TECNO", n:"Bomba Gasolina Tecnofuel Universal", cost:253},
-
-        // REGULADORES
-        {c:"RIH738TP", n:"Regulador Nissan RIH 738 Hitachi", cost:317},
-        {c:"RIH744", n:"Regulador Nissan RIH 744 Hitachi", cost:223},
-        {c:"RF784TR", n:"Regulador Ford F784 Negro", cost:116},
-        {c:"RF794TP", n:"Regulador Ford F794 Gris", cost:135},
-        {c:"R3258804", n:"Regulador GM Delco D411 Cutlas", cost:143},
-        {c:"RE140X", n:"Regulador GM E-140XR", cost:114},
-        {c:"RE141XR", n:"Regulador Ford E-141XR", cost:114},
-        {c:"RIB501", n:"Regulador Nissan Tsuru Chueco", cost:145},
-        {c:"RD702TP", n:"Regulador GM RD702", cost:126},
-        {c:"RLE5001", n:"Regulador Nissan Barco Bosch", cost:248},
-
-        // --- FOCOS (AQUÍ ESTÁ LA CORRECCIÓN UNITARIA) ---
-        // Precios divididos entre 10 para venta por pieza
-        {c:"67HELLA", n:"Foco 67 Hella (Suelto)", cost:3.30}, 
-        {c:"158HELLA", n:"Foco 158 Pellizco (Suelto)", cost:2.40},
-        {c:"1034HELLA", n:"Foco 1034 (Suelto)", cost:3.50},
-        {c:"1176HELLA", n:"Foco 1176 Pata Dispareja (Suelto)", cost:3.70},
-        {c:"1141HELLA", n:"Foco 1141 Pata Pareja (Suelto)", cost:3.50},
-        {c:"HX10", n:"Foco 3157 Hella (Suelto)", cost:11.60},
-        {c:"HXC", n:"Foco 7443 Hella (Suelto)", cost:15.70},
-        
-        // Focos grandes (estos sí parecen precio unitario en lista)
-        {c:"SH9006", n:"Foco 9006 Hella Baja", cost:47},
-        {c:"SH9005", n:"Foco 9005 Hella Alta", cost:49},
-        {c:"H13", n:"Foco H13 Hella", cost:156},
-        {c:"H4", n:"Foco H4 Hella", cost:31},
-        {c:"H3HELLA", n:"Foco H3 Hella", cost:23},
-        {c:"H7HELLA", n:"Foco H7 Hella", cost:43},
-
-        // FOCOS LED (Precios altos, parecen pares o kits)
-        {c:"F9007LED", n:"Foco 9007 LED 4 Caras Juego", cost:253},
-        {c:"F9005LED", n:"Foco 9005 LED 4 Caras Baja", cost:220},
-        {c:"F9004LED", n:"Foco 9004 LED 4 Caras Juego", cost:275},
-        {c:"FH7LED", n:"Foco H7 LED 4 Caras Juego", cost:220},
-        {c:"FH11LED", n:"Foco H11 LED 4 Caras Juego", cost:220},
-        {c:"FH4LED", n:"Foco H4 LED 4 Caras Juego", cost:253},
-
-        // VARIOS Y ELÉCTRICO
-        {c:"BM70582", n:"Bulbo Motovent VW Caribe 82/68", cost:98},
-        {c:"BM740", n:"Bulbo Motovent GM Chevy", cost:154},
-        {c:"BM71795", n:"Bulbo Motovent VW Combi", cost:149},
-        {c:"M110881", n:"Marcador Aceite Veethree", cost:176},
-        {c:"M37011", n:"Marcador Temperatura VDO", cost:386},
-        {c:"CP1830M", n:"Cable Plastico 18 (30m)", cost:88},
-        {c:"CP1630", n:"Cable Plastico 16 (30m)", cost:121},
-        {c:"CP1430M", n:"Cable Plastico 14 (30m)", cost:176},
-        {c:"CP1230", n:"Cable Plastico 12 (30m)", cost:270},
-        {c:"952011", n:"Bocina Claxon VW Hella", cost:121},
-        {c:"01200", n:"Bocina Caracol Seger Doble", cost:174},
-        {c:"SPPS100", n:"Switch 75 Amp Arrow", cost:101},
-        {c:"SPPS200", n:"Switch Luz Universal Arrow", cost:136},
-        {c:"F552", n:"Flasher 552 Wagner", cost:16},
-        {c:"F01211", n:"Flasher HD12 Tridon Reforzado", cost:64},
-        {c:"SARA1P", n:"Soquet Precion Araña 1 Polo", cost:12},
-        {c:"SARA2P", n:"Soquet Precion Araña 2 Polos", cost:12},
-        {c:"PF706", n:"Porta Fusible Clavija", cost:7},
-        {c:"FC15A", n:"Fusible Clavija 15 Amp x100", cost:85},
-        {c:"A91020", n:"Antisulfatante Caja 30 pzas", cost:43},
-        {c:"CINTAC", n:"Cinta Plastica Cooper x10", cost:239.80},
-        {c:"S82602", n:"Switch 2 Pasos Arrow", cost:89},
-        {c:"S82600", n:"Switch 1 Paso Arrow", cost:68},
-        {c:"EU9004", n:"Enchufe Unidad Foco 9004", cost:13},
-        {c:"EUVW", n:"Enchufe Unidad Foco H4 VW", cost:12},
-        {c:"T10P", n:"Terminal Bateria Placa 4 Tornillos", cost:33},
-        {c:"T5L", n:"Terminal Bateria Placa T5L", cost:17.50},
-
-        // BALEROS
-        {c:"B6305", n:"Balero 6305 NTN", cost:109},
-        {c:"B6304", n:"Balero 6304 NTN", cost:83},
-        {c:"B6303", n:"Balero 6303 NTN", cost:65},
-        {c:"B6301", n:"Balero 6301 NTN", cost:44},
-        {c:"B6000", n:"Balero 6000 NTN", cost:49},
-        {c:"B6003", n:"Balero 6003 NTN", cost:46},
-        {c:"B6204", n:"Balero 6204 NTN", cost:56},
-        {c:"B6203", n:"Balero 6203 NTN", cost:34},
-        {c:"B6201", n:"Balero 6201 NTN", cost:35},
-        {c:"B6202", n:"Balero 6202 NTN", cost:45},
-        {c:"B6002", n:"Balero 6002 NTN", cost:41},
-        {c:"B6001", n:"Balero 6001 NTN", cost:43},
-        {c:"BR109", n:"Balero Rodillo Delco 130 Amp", cost:39}
+    // --- DATOS REALES (COPIA DE SEGURIDAD) ---
+    const DB_REAL = [
+        {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30}, {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
+        {c:"EM4", n:"Engrane Marcha Nissan (4)", cost:29}, {c:"EM5", n:"Engrane Marcha VW Golf (5)", cost:29},
+        {c:"1224", n:"Bendix Zen Ford", cost:114}, {c:"A618114ASS", n:"Armadura Nissan Hitachi", cost:264},
+        {c:"A011097E", n:"Armadura Nissan Chevy", cost:264}, {c:"PC10530941", n:"Porta Carbon GM Aveo", cost:75},
+        {c:"PC336246", n:"Porta Carbon Ford Nissan", cost:69}, {c:"PC336245", n:"Porta Carbon Nissan Chevy", cost:69},
+        {c:"B55", n:"Modulo Encendido Tsuru 16V", cost:543}, {c:"BOM-TSURU", n:"Bomba Gasolina Tsuru III", cost:330},
+        {c:"RIH738TP", n:"Regulador Nissan Hitachi", cost:317}, {c:"F9004LED", n:"Foco 9004 LED 4 Caras", cost:275},
+        {c:"67HELLA", n:"Foco 67 Hella (Suelto)", cost:3.30}, {c:"158HELLA", n:"Foco 158 Pellizco (Suelto)", cost:2.40},
+        {c:"1034HELLA", n:"Foco 1034 (Suelto)", cost:3.50}, {c:"BM70582", n:"Bulbo Motovent VW Caribe", cost:98},
+        {c:"CP1830M", n:"Cable Plastico 18 30mts", cost:88}, {c:"952011", n:"Bocina Claxon VW Hella", cost:121}
     ];
 
-    // Variables Globales
     let INVENTARIO = [];
     let MARGEN = 30;
     let CART = [];
     let scanner = null;
 
-    // --- 2. INICIALIZACIÓN ---
-    function initApp() {
-        try {
-            let storedDB = localStorage.getItem('millan_v16_db');
-            let storedMargin = localStorage.getItem('millan_v16_margin');
-
-            if (storedDB) {
-                INVENTARIO = JSON.parse(storedDB);
-                if(INVENTARIO.length === 0) INVENTARIO = JSON.parse(JSON.stringify(DEFAULT_DATA));
-            } else {
-                INVENTARIO = JSON.parse(JSON.stringify(DEFAULT_DATA));
-            }
-
-            if (storedMargin) MARGEN = parseFloat(storedMargin);
-
-            document.getElementById('margin-input').value = MARGEN;
-            calcularPrecios(); // Recalcular siempre al inicio
-            
-        } catch (error) {
-            console.error(error);
-            borrarTodo();
-        }
+    // --- ARRANQUE AUTOMÁTICO ---
+    // Usamos una clave nueva "v17" para que no cargue basura vieja
+    let stored = localStorage.getItem('millan_v17_db');
+    if(stored) {
+        INVENTARIO = JSON.parse(stored);
+    } else {
+        // SI ESTÁ VACÍO, CARGAMOS LOS DATOS REALES AHORA MISMO
+        INVENTARIO = JSON.parse(JSON.stringify(DB_REAL));
+        // Calculamos precio inicial
+        INVENTARIO.forEach(p => p.price = Math.ceil(p.cost * 1.30));
+        localStorage.setItem('millan_v17_db', JSON.stringify(INVENTARIO));
     }
 
-    // --- 3. LÓGICA ---
-    function calcularPrecios() {
-        let factor = 1 + (MARGEN / 100);
-        INVENTARIO.forEach(p => {
-            if (p.cost) {
-                p.price = Math.ceil(p.cost * factor);
-            }
+    renderCatalog(); // PINTAR LA LISTA INMEDIATAMENTE
+
+    // --- FUNCIONES ---
+    function renderCatalog() {
+        let q = document.getElementById('main-search').value.toUpperCase();
+        let div = document.getElementById('catalog-area');
+        div.innerHTML = "";
+
+        // Si el buscador está vacío, MUESTRA TODO. Si escribes, filtra.
+        let list = q ? INVENTARIO.filter(p => p.n.toUpperCase().includes(q) || p.c.includes(q)) : INVENTARIO;
+
+        if(list.length === 0) div.innerHTML = "<p style='text-align:center'>No encontrado.</p>";
+
+        list.forEach(p => {
+            div.innerHTML += `
+            <div class="card">
+                <div class="card-info">
+                    <div class="card-title">${p.n}</div>
+                    <div class="card-code">${p.c}</div>
+                </div>
+                <div>
+                    <div class="card-price">$${p.price}</div>
+                    <button class="btn-add" onclick="addCart('${p.c}')">AGREGAR</button>
+                </div>
+            </div>`;
         });
-        localStorage.setItem('millan_v16_db', JSON.stringify(INVENTARIO));
-        localStorage.setItem('millan_v16_margin', MARGEN);
     }
 
-    // --- 4. INTERFAZ ---
-    function irA(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('nav-'+id).classList.add('active');
-        
-        if (id === 'pos') renderCart();
-        if (id !== 'pos' && scanner) { scanner.clear(); document.getElementById('reader').style.display = 'none'; }
-    }
-
-    // BUSCADOR
-    function buscarRefaccion() {
-        let texto = document.getElementById('main-search').value.toUpperCase();
-        let area = document.getElementById('results-area');
-        let hero = document.getElementById('hero');
-
-        if (texto.length < 2) {
-            area.innerHTML = "";
-            hero.style.display = 'block';
-            return;
-        }
-
-        hero.style.display = 'none';
-        let resultados = INVENTARIO.filter(p => p.n.toUpperCase().includes(texto) || p.c.toUpperCase().includes(texto));
-        
-        area.innerHTML = "";
-        
-        if (resultados.length === 0) {
-            area.innerHTML = "<div style='text-align:center; padding:20px; color:#666;'>No lo encuentro en inventario.</div>";
-        } else {
-            resultados.forEach(p => {
-                area.innerHTML += `
-                <div class="card">
-                    <div class="card-info">
-                        <div class="card-title">${p.n}</div>
-                        <div class="card-code">${p.c}</div>
-                    </div>
-                    <div>
-                        <div class="card-price">$${p.price}</div>
-                        <button class="btn-add" onclick="addCart('${p.c}')">AGREGAR</button>
-                    </div>
-                </div>`;
-            });
-        }
-    }
-
-    function buscarGoogle() {
-        let texto = document.getElementById('main-search').value;
-        if (!texto) texto = "Refacciones Automotrices";
-        window.open('https://www.google.com/search?tbm=isch&q=refaccion ' + texto, '_blank');
-    }
-
-    // CAJA
-    function addCart(codigo) {
-        let prod = INVENTARIO.find(p => p.c === codigo);
-        if (prod) {
-            CART.push(prod);
-            alert("Agregado: " + prod.n);
-        }
+    function addCart(c) {
+        let p = INVENTARIO.find(x => x.c === c);
+        CART.push(p);
+        alert("Agregado: " + p.n);
     }
 
     function renderCart() {
         let div = document.getElementById('cart-box');
-        let totalSpan = document.getElementById('total-amount');
-        
-        if (CART.length === 0) {
-            div.innerHTML = "<div style='text-align:center; color:#aaa;'>(Carrito Vacío)</div>";
-            totalSpan.innerText = "0";
-            return;
-        }
-
-        let html = "";
-        let total = 0;
-        CART.forEach((p, index) => {
-            total += p.price;
-            html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:10px 0;"><div>${p.n}</div><div style="font-weight:bold;">$${p.price} <span style="color:red; margin-left:10px; cursor:pointer;" onclick="delCart(${index})">X</span></div></div>`;
+        let tot = 0; div.innerHTML = "";
+        CART.forEach((p,i) => {
+            tot += p.price;
+            div.innerHTML += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px;"><span>${p.n}</span><span>$${p.price} <b onclick="delCart(${i})" style="color:red">X</b></span></div>`;
         });
-        div.innerHTML = html;
-        totalSpan.innerText = total;
+        document.getElementById('total-amount').innerText = tot;
+        if(CART.length===0) div.innerHTML="Vacío";
+    }
+    function delCart(i) { CART.splice(i,1); renderCart(); }
+    
+    function cobrar() { if(CART.length>0) { window.print(); CART=[]; renderCart(); } }
+
+    function updatePrices() {
+        MARGEN = parseFloat(document.getElementById('margin-input').value);
+        let f = 1 + (MARGEN/100);
+        INVENTARIO.forEach(p => { if(p.cost) p.price = Math.ceil(p.cost * f); });
+        localStorage.setItem('millan_v17_db', JSON.stringify(INVENTARIO));
+        renderCatalog(); renderAdmin(); alert("Precios actualizados");
     }
 
-    function delCart(index) { CART.splice(index, 1); renderCart(); }
-    function cobrar() { if (CART.length > 0 && confirm("¿Confirmar cobro?")) { window.print(); CART = []; renderCart(); } else alert("Nada que cobrar"); }
+    function renderAdmin() {
+        let b = document.getElementById('admin-body'); b.innerHTML="";
+        INVENTARIO.forEach(p => {
+            b.innerHTML += `<tr><td>${p.c}</td><td>${p.n}</td><td>$${p.cost}</td><td>$${p.price}</td><td><button onclick="delProd('${p.c}')" style="color:red">X</button></td></tr>`;
+        });
+    }
+    function delProd(c) {
+        if(confirm("Borrar?")) { INVENTARIO=INVENTARIO.filter(p=>p.c!==c); localStorage.setItem('millan_v17_db', JSON.stringify(INVENTARIO)); renderAdmin(); renderCatalog(); }
+    }
 
-    // ADMIN
-    function checkAdmin() {
-        document.getElementById('login-overlay').style.display = 'flex';
-        document.getElementById('pin-code').value = "";
+    function resetDB() {
+        localStorage.removeItem('millan_v17_db'); location.reload();
     }
-    function validate() {
-        if (document.getElementById('pin-code').value === "1234") {
-            document.getElementById('login-overlay').style.display = 'none';
-            irA('admin'); renderAdminTable();
-        } else alert("PIN Incorrecto");
+
+    function irA(id) {
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('nav-'+id).classList.add('active');
+        if(id==='pos') renderCart();
+        if(id==='admin') renderAdmin();
     }
-    function
+
+    // VOZ
+    function usarCompita() {
+        if(!window.webkitSpeechRecognition) return alert("Usa Chrome");
+        let btn=document.getElementById('compita-btn'); btn.classList.add('listening');
+        let r = new webkitSpeechRecognition(); r.lang="es-MX";
+        r.onend = () => btn.classList.remove('listening');
+        r.onresult = (e) => {
+            let t = e.results[0][0].transcript.toLowerCase().replace("busca","").trim();
+            document.getElementById('main-search').value = t;
+            renderCatalog();
+            let p
