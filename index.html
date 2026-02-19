@@ -3,62 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refaccionaria Millán - V11 BLINDADA</title>
+    <title>Refaccionaria Millán - V13 FINAL</title>
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #ffd700; --dark: #111; --bg: #f0f2f5; --danger: #ff4444; --success: #00c851; }
-        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--bg); color: #333; padding-bottom: 100px; user-select: none; }
+        :root { --primary: #ffd700; --dark: #111; --bg: #f4f4f4; --danger: #ff4444; --success: #00c851; --info: #33b5e5; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: #333; padding-bottom: 80px; user-select: none; }
         
         /* HEADER */
         header { background: var(--dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .logo { font-size: 1.2rem; font-weight: 900; }
         .logo span { color: var(--primary); }
-        
-        nav button { background: none; border: none; color: #888; font-size: 1.5rem; margin-left: 20px; }
+        nav button { background: none; border: none; color: #888; font-size: 1.5rem; margin-left: 20px; transition: 0.3s; cursor: pointer; }
         nav button.active { color: var(--primary); transform: scale(1.2); }
 
         /* PÁGINAS */
-        .page { display: none; padding: 15px; }
-        .page.active { display: block; }
+        .page { display: none; padding: 15px; max-width: 1000px; margin: 0 auto; }
+        .page.active { display: block; animation: fade 0.3s; }
+        @keyframes fade { from{opacity:0} to{opacity:1} }
 
-        /* EL COMPITA (VISIBILIDAD FORZADA) */
+        /* --- HOME (BUSCADOR FIJO) --- */
+        .search-container-fixed {
+            background: white; padding: 15px; border-radius: 0 0 15px 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+            position: sticky; top: 60px; z-index: 900;
+        }
+        .input-group { display: flex; gap: 10px; }
+        .main-search { width: 100%; padding: 12px 15px; border-radius: 30px; border: 1px solid #ccc; font-size: 1.1rem; outline: none; }
+        .btn-google-icon {
+            background: white; border: 1px solid #4285F4; color: #4285F4; 
+            border-radius: 50%; width: 50px; height: 46px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+
+        /* HERO LOGO (SOLO VISIBLE CUANDO NO BUSCAS) */
+        #hero { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 40vh; text-align: center; opacity: 0.5; }
+        .big-logo { font-size: 3rem; font-weight: 900; color: var(--dark); }
+        .big-logo span { color: var(--primary); }
+
+        /* RESULTADOS */
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+        .card { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; display: flex; flex-direction: column; justify-content: space-between; }
+        .price-tag { font-size: 1.3rem; font-weight: 900; color: var(--success); text-align: right; }
+        
+        /* MENSAJE NO ENCONTRADO */
+        .not-found-box { text-align: center; background: white; padding: 20px; border-radius: 10px; margin-top: 20px; }
+        
+        /* --- ADMIN (TABLA) --- */
+        .admin-table-wrapper { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: var(--dark); color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        /* EL COMPITA */
         #compita-btn {
             position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px;
             background: #222; border: 2px solid var(--primary); border-radius: 50%;
             color: var(--primary); font-size: 2rem; z-index: 9999;
-            display: flex !important; /* FORZAR VISIBILIDAD */
-            align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); cursor: pointer;
         }
         #compita-btn.listening { background: #ff4444; color: white; animation: pulse 1s infinite; }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
 
-        /* ESTILOS GENERALES */
-        .card { background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        /* POS & GENERAL */
         .btn { padding: 12px; border: none; border-radius: 5px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 5px; }
         .btn-primary { background: var(--primary); color: #000; }
         .btn-danger { background: var(--danger); color: white; }
+        .btn-info { background: var(--info); color: white; }
+        input.form-control { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        
-        /* ESCANER */
-        #reader { width: 100%; background: black; display: none; margin-bottom: 10px; }
-
         /* LOGIN */
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; display:none; flex-direction:column; justify-content:center; align-items:center; }
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.98); z-index:5000; display:none; flex-direction:column; justify-content:center; align-items:center; }
+        
+        /* ESCÁNER */
+        #reader { width: 100%; background: black; display: none; margin-bottom: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">MILLÁN <span>V11</span></div>
+    <div class="logo">MILLÁN <span>V13</span></div>
     <nav>
         <button onclick="irA('home')" id="nav-home" class="active"><i class="fas fa-search"></i></button>
         <button onclick="irA('pos')" id="nav-pos"><i class="fas fa-shopping-cart"></i></button>
-        <button onclick="checkAdmin()" id="nav-admin"><i class="fas fa-cog"></i></button>
+        <button onclick="checkAdmin()" id="nav-admin"><i class="fas fa-lock"></i></button>
     </nav>
 </header>
 
@@ -67,219 +98,295 @@
 </div>
 
 <div id="home" class="page active">
-    <div style="text-align:center; margin: 20px 0;">
-        <h2>CATÁLOGO</h2>
-        <input type="text" id="search" placeholder="🔍 Buscar pieza..." onkeyup="renderCatalog()">
+    
+    <div class="search-container-fixed">
+        <div class="input-group">
+            <input type="text" id="main-search" class="main-search" placeholder="🔍 Escribe pieza o código..." onkeyup="buscarRefaccion()">
+            <button class="btn-google-icon" onclick="buscarGoogleDirecto()" title="Buscar en Google">
+                <i class="fab fa-google"></i>
+            </button>
+        </div>
     </div>
-    <div id="catalog-list"></div>
+
+    <div id="hero" class="hero-container">
+        <div class="big-logo">REFACCIONARIA <span>MILLÁN</span></div>
+        <p>Sistema de Inventario</p>
+    </div>
+
+    <div id="catalog-list" class="results-grid"></div>
+    
+    <div id="not-found-msg" class="not-found-box" style="display:none;">
+        <h3 style="color:#666;">No lo topo en inventario, patrón.</h3>
+        <p>¿Quieres buscarlo en internet?</p>
+        <button class="btn btn-info" onclick="buscarGoogleDirecto()">
+            <i class="fab fa-google"></i> BUSCAR EN GOOGLE AHORA
+        </button>
+    </div>
 </div>
 
 <div id="pos" class="page">
-    <h2>CAJA</h2>
-    <button class="btn" style="background:#333; color:white;" onclick="toggleCam()">📸 CÁMARA</button>
+    <h2>CAJA REGISTRADORA</h2>
+    <button class="btn" style="background:#333; color:white;" onclick="toggleCam()">📸 ESCANEAR CÓDIGO</button>
     <div id="reader"></div>
     
-    <div id="cart-items" style="margin-top:20px; background:white; min-height:100px; padding:10px;"></div>
-    <h1 style="text-align:right;">Total: $<span id="total">0</span></h1>
-    <button class="btn btn-primary" onclick="cobrar()">COBRAR</button>
+    <div id="cart-items" style="margin-top:20px; background:white; min-height:100px; padding:10px; border-radius:8px; border:1px solid #ddd;">
+        <div style="text-align:center; color:#aaa; padding:20px;">Carrito vacío</div>
+    </div>
+    <h1 style="text-align:right;">Total: $<span id="total">0.00</span></h1>
+    <button class="btn btn-primary" onclick="cobrar()">COBRAR TICKET</button>
 </div>
 
 <div id="admin" class="page">
-    <h2>ADMINISTRACIÓN</h2>
-    <div style="background:white; padding:15px; border-radius:10px;">
-        <label>Ganancia Global (%):</label>
-        <input type="number" id="margin" value="30">
-        <button class="btn btn-primary" onclick="updatePrices()">APLICAR %</button>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>ADMINISTRACIÓN</h2>
+        <button onclick="cerrarSesion()" style="background:none; border:none; color:red; cursor:pointer;">Salir</button>
     </div>
-    <br>
-    <h3>FALTANTES</h3>
-    <div id="missing-list" style="background:#fff3cd; padding:10px;"></div>
-    <button class="btn btn-danger" onclick="clearMissing()">Borrar Faltantes</button>
+
+    <div style="background:white; padding:15px; border-radius:10px; margin-bottom:20px;">
+        <label><b>Ganancia Global (%):</b></label>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="margin" value="30" class="form-control" style="width:80px; margin:0;">
+            <button class="btn btn-info" onclick="updatePrices()" style="margin:0; width:auto;">APLICAR</button>
+        </div>
+    </div>
+
+    <h3>INVENTARIO COMPLETO</h3>
+    <input type="text" id="admin-search" class="form-control" placeholder="🔍 Filtrar lista..." onkeyup="renderAdminTable()">
+    
+    <div class="admin-table-wrapper">
+        <table id="inv-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Costo</th>
+                    <th>Precio</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="inv-body"></tbody>
+        </table>
+    </div>
+
     <br><br>
-    <button class="btn" style="background:#000; color:fff;" onclick="resetDB()">⚠️ RESET DE FÁBRICA</button>
+    <h3>Agregar Manualmente</h3>
+    <input type="text" id="new-c" class="form-control" placeholder="Código">
+    <input type="text" id="new-n" class="form-control" placeholder="Nombre">
+    <input type="number" id="new-cost" class="form-control" placeholder="Costo ($)">
+    <button class="btn btn-primary" onclick="addManual()">GUARDAR</button>
+
+    <br><br>
+    <button class="btn" style="background:#000; color:#fff;" onclick="resetDB()">⚠️ REINICIAR SISTEMA DE FÁBRICA</button>
 </div>
 
 <div id="login-overlay">
-    <h2>PASSWORD</h2>
-    <input type="password" id="pin" style="width:150px; font-size:2rem; text-align:center;" placeholder="****">
+    <i class="fas fa-lock" style="font-size:3rem; color:#333; margin-bottom:20px;"></i>
+    <h3>ACCESO ADMINISTRADOR</h3>
+    <input type="password" id="pin" style="width:150px; font-size:2rem; text-align:center; letter-spacing:5px;" placeholder="****">
+    <br>
     <button class="btn btn-primary" style="width:150px;" onclick="validate()">ENTRAR</button>
     <button class="btn" onclick="closeLogin()" style="background:none;">Cancelar</button>
 </div>
 
 <script>
-    // --- DATOS SEGUROS ---
+    // --- DATOS INICIALES ---
     const DB_DEFAULT = [
         {c:"E7691809", n:"Engrane Marcha Dodge (2)", cost:30}, {c:"E7691810", n:"Engrane Marcha Ford Bosch (1)", cost:30},
         {c:"EM4", n:"Engrane Marcha Nissan (4)", cost:29}, {c:"PC10530941", n:"Porta Carbon GM Aveo", cost:75},
         {c:"PC336246", n:"Porta Carbon Ford Nissan", cost:69}, {c:"A618114ASS", n:"Armadura Nissan Hitachi", cost:264},
         {c:"B55", n:"Modulo Encendido Tsuru 16V", cost:543}, {c:"BOM-TSURU", n:"Bomba Gasolina Tsuru III", cost:330},
-        {c:"F9004LED", n:"Foco 9004 LED 4 Caras", cost:275}, {c:"BM70582", n:"Bulbo Motovent VW Caribe", cost:98}
+        {c:"F9004LED", n:"Foco 9004 LED 4 Caras", cost:275}, {c:"BM70582", n:"Bulbo Motovent VW Caribe", cost:98},
+        {c:"CP1830M", n:"Cable Plastico 18 30mts", cost:121}, {c:"1224", n:"Bendix Zen Ford", cost:114}
     ];
 
-    let INVENTARIO = JSON.parse(localStorage.getItem('millan_v11_db')) || [];
-    let FALTANTES = JSON.parse(localStorage.getItem('millan_v11_missing')) || [];
-    let MARGEN = localStorage.getItem('millan_v11_margin') || 30;
+    let INVENTARIO = JSON.parse(localStorage.getItem('millan_v13_db')) || [];
+    let MARGEN = localStorage.getItem('millan_v13_margin') || 30;
     let CART = [];
     let scanner = null;
 
-    // INICIALIZACIÓN SEGURA
-    try {
-        if (INVENTARIO.length === 0) {
-            INVENTARIO = JSON.parse(JSON.stringify(DB_DEFAULT));
-            recalc();
-            save();
-        }
-        document.getElementById('margin').value = MARGEN;
-        renderCatalog();
-    } catch (e) {
-        alert("Error de carga. Reiniciando...");
-        resetDB();
+    // INICIALIZACIÓN
+    if (INVENTARIO.length === 0) {
+        INVENTARIO = JSON.parse(JSON.stringify(DB_DEFAULT));
+        recalc(); save();
     }
+    document.getElementById('margin').value = MARGEN;
 
-    // --- FUNCIONES CORE ---
-    function recalc() {
-        let f = 1 + (parseFloat(MARGEN)/100);
-        INVENTARIO.forEach(p => { if(p.cost) p.price = Math.ceil(p.cost * f); });
-    }
-    function save() {
-        localStorage.setItem('millan_v11_db', JSON.stringify(INVENTARIO));
-        localStorage.setItem('millan_v11_margin', MARGEN);
-        localStorage.setItem('millan_v11_missing', JSON.stringify(FALTANTES));
-    }
-    function updatePrices() {
-        MARGEN = document.getElementById('margin').value;
-        recalc(); save(); renderCatalog(); alert("Precios Actualizados");
-    }
-    function resetDB() {
-        localStorage.removeItem('millan_v11_db');
-        location.reload();
-    }
+    // --- BÚSQUEDA ---
+    function buscarRefaccion() {
+        let q = document.getElementById('main-search').value.toUpperCase();
+        let hero = document.getElementById('hero');
+        let grid = document.getElementById('catalog-list');
+        let notFound = document.getElementById('not-found-msg');
 
-    // --- COMPITA (VOZ) ---
-    function usarCompita() {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert("Tu celular no soporta voz. Usa Chrome.");
-            return;
-        }
-        
-        let btn = document.getElementById('compita-btn');
-        btn.classList.add('listening');
-        
-        let rec = new webkitSpeechRecognition();
-        rec.lang = "es-MX";
-        rec.onend = () => btn.classList.remove('listening');
-        
-        rec.onresult = (e) => {
-            let txt = e.results[0][0].transcript.toLowerCase();
-            procesar(txt);
-        };
-        rec.start();
-    }
-
-    function procesar(txt) {
-        // Lógica simple para que no falle
-        if(txt.includes("anota") || txt.includes("pide")) {
-            FALTANTES.push(txt); save(); renderMissing();
-            hablar("Anotado patrón.");
+        // Si el cuadro está vacío, muestra el logo y limpia todo
+        if(q.length === 0) {
+            hero.style.display = 'flex';
+            grid.innerHTML = "";
+            notFound.style.display = 'none';
             return;
         }
 
-        let term = txt.replace("busca","").replace("precio","").trim();
-        document.getElementById('search').value = term;
-        renderCatalog();
-        
-        let found = INVENTARIO.find(p => p.n.toLowerCase().includes(term));
-        if(found) hablar("Simón, cuesta " + found.price + " pesos.");
-        else hablar("No lo topo. ¿Lo anoto?");
-    }
-
-    function hablar(msg) {
-        window.speechSynthesis.cancel();
-        let u = new SpeechSynthesisUtterance(msg);
-        u.lang = "es-MX";
-        window.speechSynthesis.speak(u);
-    }
-
-    // --- CATALOGO ---
-    function renderCatalog() {
-        let q = document.getElementById('search').value.toUpperCase();
-        let div = document.getElementById('catalog-list');
-        div.innerHTML = "";
+        // Si escribe, oculta el logo
+        hero.style.display = 'none';
+        grid.innerHTML = "";
         
         let list = INVENTARIO.filter(p => p.n.toUpperCase().includes(q) || p.c.toUpperCase().includes(q));
         
-        list.forEach(p => {
-            div.innerHTML += `
-            <div class="card">
-                <div>
-                    <div style="font-weight:bold;">${p.n}</div>
-                    <div style="color:#666; font-size:0.8rem;">${p.c}</div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="color:green; font-weight:900; font-size:1.2rem;">$${p.price}</div>
-                    <button class="btn btn-primary" style="padding:5px; width:auto;" onclick="addCart('${p.c}')">+</button>
-                </div>
-            </div>`;
+        if(list.length === 0) {
+            // NO ENCONTRADO
+            notFound.style.display = 'block';
+        } else {
+            // ENCONTRADO
+            notFound.style.display = 'none';
+            list.forEach(p => {
+                grid.innerHTML += `
+                <div class="card">
+                    <div>
+                        <div style="font-weight:bold;">${p.n}</div>
+                        <div style="color:#666; font-size:0.8rem;">${p.c}</div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <div class="price-tag">$${p.price.toFixed(2)}</div>
+                        <button class="btn btn-primary" style="padding:5px;" onclick="addCart('${p.c}')">AGREGAR</button>
+                    </div>
+                </div>`;
+            });
+        }
+    }
+
+    // --- FUNCIÓN GOOGLE ARREGLADA ---
+    function buscarGoogleDirecto() {
+        let txt = document.getElementById('main-search').value;
+        if(!txt) return alert("Escribe qué pieza buscas primero.");
+        
+        // Abre Google Imágenes en otra pestaña
+        window.open('https://www.google.com/search?tbm=isch&q=refaccion automotriz ' + encodeURIComponent(txt), '_blank');
+    }
+
+    // --- ADMIN ---
+    function renderAdminTable() {
+        let tbody = document.getElementById('inv-body');
+        let filter = document.getElementById('admin-search').value.toUpperCase();
+        tbody.innerHTML = "";
+
+        INVENTARIO.forEach(p => {
+            if(p.n.toUpperCase().includes(filter) || p.c.toUpperCase().includes(filter)) {
+                tbody.innerHTML += `
+                <tr>
+                    <td>${p.c}</td>
+                    <td>${p.n}</td>
+                    <td style="color:#666">$${p.cost}</td>
+                    <td style="font-weight:bold">$${p.price.toFixed(2)}</td>
+                    <td><button class="btn btn-danger" style="padding:5px; margin:0;" onclick="delProd('${p.c}')">X</button></td>
+                </tr>`;
+            }
         });
+    }
+
+    function addManual() {
+        let c = document.getElementById('new-c').value.toUpperCase();
+        let n = document.getElementById('new-n').value.toUpperCase();
+        let cost = parseFloat(document.getElementById('new-cost').value);
+        if(!c || !n || !cost) return alert("Faltan datos");
+        
+        let f = 1 + (parseFloat(MARGEN)/100);
+        let price = cost * f;
+        
+        INVENTARIO.push({c, n, cost, price});
+        save();
+        renderAdminTable();
+        alert("Guardado");
+        document.getElementById('new-c').value="";
+        document.getElementById('new-n').value="";
+        document.getElementById('new-cost').value="";
+    }
+
+    function delProd(code) {
+        if(confirm("¿Eliminar?")) {
+            INVENTARIO = INVENTARIO.filter(p => p.c !== code);
+            save(); renderAdminTable();
+        }
     }
 
     // --- POS ---
     function addCart(c) {
         let p = INVENTARIO.find(x => x.c === c);
         CART.push(p);
-        renderCart();
-        alert("Agregado");
+        alert("Agregado: " + p.n);
+        // Opcional: Ir al carrito automáticamente
+        // irA('pos'); renderCart();
     }
     function renderCart() {
         let div = document.getElementById('cart-items');
         let tot = 0; div.innerHTML = "";
+        if(CART.length===0) div.innerHTML = "<div style='text-align:center; color:#aaa; padding:20px;'>Carrito vacío</div>";
+        
         CART.forEach((p, i) => {
             tot += p.price;
-            div.innerHTML += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px;"><span>${p.n}</span><span>$${p.price} <b style="color:red" onclick="delCart(${i})">X</b></span></div>`;
+            div.innerHTML += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:5px;"><span>${p.n}</span><span>$${p.price.toFixed(2)} <b style="color:red; cursor:pointer;" onclick="delCart(${i})">X</b></span></div>`;
         });
-        document.getElementById('total').innerText = tot;
+        document.getElementById('total').innerText = tot.toFixed(2);
     }
     function delCart(i) { CART.splice(i,1); renderCart(); }
-    function cobrar() { if(CART.length>0 && confirm("Cobrar?")) { CART=[]; renderCart(); } }
-
-    // --- ADMIN ---
-    function checkAdmin() { document.getElementById('login-overlay').style.display='flex'; }
-    function validate() { 
-        if(document.getElementById('pin').value === '1234') { 
-            closeLogin(); irA('admin'); renderMissing();
-        } else alert("Error"); 
+    function cobrar() { 
+        if(CART.length>0) { 
+            window.print();
+            if(confirm("¿Cobrado?")) { CART=[]; renderCart(); } 
+        } else alert("Nada que cobrar");
     }
-    function closeLogin() { document.getElementById('login-overlay').style.display='none'; }
-    
-    function renderMissing() {
-        let d = document.getElementById('missing-list'); d.innerHTML="";
-        FALTANTES.forEach(x => d.innerHTML += `<div>• ${x}</div>`);
-    }
-    function clearMissing() { FALTANTES=[]; save(); renderMissing(); }
 
-    // --- CAMARA ---
-    function toggleCam() {
-        let d = document.getElementById('reader');
-        if(d.style.display==='block') {
-            d.style.display='none'; if(scanner) scanner.clear();
-        } else {
-            d.style.display='block';
-            scanner = new Html5QrcodeScanner("reader", {fps:10, qrbox:250});
-            scanner.render((txt)=>{
-                let p = INVENTARIO.find(x=>x.c===txt);
-                if(p) { addCart(txt); scanner.pause(); setTimeout(()=>scanner.resume(), 1000); }
-                else alert("No existe: " + txt);
-            });
+    // --- CORE ---
+    function recalc() {
+        let f = 1 + (parseFloat(MARGEN)/100);
+        INVENTARIO.forEach(p => { if(p.cost) p.price = p.cost * f; });
+    }
+    function save() {
+        localStorage.setItem('millan_v13_db', JSON.stringify(INVENTARIO));
+        localStorage.setItem('millan_v13_margin', MARGEN);
+    }
+    function updatePrices() {
+        MARGEN = document.getElementById('margin').value;
+        recalc(); save(); renderAdminTable(); alert("Precios Actualizados");
+    }
+    function resetDB() {
+        if(confirm("¿BORRAR TODO?")) {
+            localStorage.removeItem('millan_v13_db');
+            location.reload();
         }
     }
 
-    // --- NAV ---
+    // --- COMPITA ---
+    function usarCompita() {
+        if (!('webkitSpeechRecognition' in window)) return alert("Usa Chrome para hablar.");
+        let btn = document.getElementById('compita-btn');
+        btn.classList.add('listening');
+        let rec = new webkitSpeechRecognition();
+        rec.lang = "es-MX";
+        rec.onend = () => btn.classList.remove('listening');
+        rec.onresult = (e) => {
+            let txt = e.results[0][0].transcript.toLowerCase();
+            let term = txt.replace("busca","").replace("precio","").trim();
+            document.getElementById('main-search').value = term;
+            buscarRefaccion();
+            let found = INVENTARIO.find(p => p.n.toLowerCase().includes(term));
+            if(found) speak("Simón, cuesta " + found.price.toFixed(0) + " pesos.");
+            else speak("No lo topo patrón.");
+        };
+        rec.start();
+    }
+    function speak(msg) {
+        window.speechSynthesis.cancel();
+        let u = new SpeechSynthesisUtterance(msg); u.lang = "es-MX";
+        window.speechSynthesis.speak(u);
+    }
+
+    // --- NAV & AUTH ---
     function irA(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById('nav-'+id).classList.add('active');
+        if(id==='pos') renderCart();
     }
-</script>
-</body>
-</html>
+    function checkAdmin() { document.getElementById('login-overlay').style.display='flex'; }
+    function
