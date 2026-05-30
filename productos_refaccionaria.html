@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo - Refaccionaria Millán</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f4f4f4}header{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;padding:2rem;text-align:center}nav{background:#333;padding:1rem;text-align:center}nav a{color:#fff;text-decoration:none;padding:0.5rem 1rem;margin:0 0.5rem}nav a:hover{background:#555}.container{max-width:1200px;margin:2rem auto;padding:2rem}.filter-bar{background:#fff;padding:1.5rem;border-radius:8px;margin-bottom:2rem;box-shadow:0 2px 4px rgba(0,0,0,0.1)}.filter-bar input,.filter-bar select{padding:0.8rem;border:1px solid #ddd;border-radius:4px;margin-right:0.5rem;font-size:1rem}.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}.product-card{background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);border-left:4px solid #2a5298}.product-code{color:#2a5298;font-weight:bold;font-size:1.1rem;margin-bottom:0.5rem}.product-desc{color:#333;margin-bottom:1rem}.product-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:1px solid #eee}.price{color:#e74c3c;font-weight:bold;font-size:1.2rem}.stock{color:#27ae60;font-size:0.9rem}
+</style>
+</head>
+<body>
+<header><h1>📦 Catálogo Completo de Productos</h1><p>Refaccionaria de Partes Eléctricas Millán</p></header>
+<nav><a href="index_refaccionaria.html">Inicio</a><a href="productos_refaccionaria.html">Catálogo</a><a href="admin_refaccionaria.html">Admin</a></nav>
+<div class="container">
+<div class="filter-bar">
+<input type="text" id="searchFilter" placeholder="Buscar productos..." style="width:60%;" onkeyup="filtrarProductos()">
+<select id="catFilter" onchange="filtrarProductos()" style="width:35%;">
+<option value="">Todas las categorías</option>
+<option value="Focos">Focos</option>
+<option value="Reguladores">Reguladores</option>
+<option value="Bobinas">Bobinas</option>
+<option value="Bombas">Bombas</option>
+<option value="Switches">Switches</option>
+<option value="Solenoides">Solenoides</option>
+<option value="Otros">Otros</option>
+</select>
+</div>
+<div id="productCount" style="margin-bottom:1rem;font-weight:bold;color:#666;"></div>
+<div class="products-grid" id="productsGrid"></div>
+</div>
+<script src="productos_db.js"></script>
+<script>
+let productosFiltrados=productos;
+function mostrarProductos(){let g=document.getElementById('productsGrid');g.innerHTML=productosFiltrados.map(p=>`<div class="product-card"><div class="product-code">${p.codigo}</div><div class="product-desc">${p.descripcion}</div><div style="background:#f9f9f9;padding:0.5rem;border-radius:4px;margin:0.5rem 0"><small>Categoría: ${p.categoria}</small></div><div class="product-footer"><span class="price">$${p.precio}</span><span class="stock">Stock: ${p.stock} pzas</span></div></div>`).join('');document.getElementById('productCount').textContent=`Mostrando ${productosFiltrados.length} de ${productos.length} productos`}
+function filtrarProductos(){let sq=document.getElementById('searchFilter').value.toLowerCase();let cat=document.getElementById('catFilter').value;productosFiltrados=productos.filter(p=>{let matchSearch=p.codigo.toLowerCase().includes(sq)||p.descripcion.toLowerCase().includes(sq);let matchCat=!cat||p.categoria===cat;return matchSearch&&matchCat});mostrarProductos()}
+mostrarProductos();
+</script>
+</body>
+</html>
