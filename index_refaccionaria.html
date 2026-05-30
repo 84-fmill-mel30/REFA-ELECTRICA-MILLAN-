@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refaccionaria Millán - Partes Eléctricas</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;line-height:1.6}header{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);color:#fff;padding:2rem;text-align:center}h1{font-size:2rem;margin-bottom:0.5rem}nav{background:#333;padding:1rem;text-align:center}nav a{color:#fff;text-decoration:none;padding:0.5rem 1rem;margin:0 0.5rem;display:inline-block}nav a:hover{background:#555}.hero{background:#f4f4f4;padding:3rem 2rem;text-align:center}.search-box{max-width:600px;margin:2rem auto;display:flex;gap:0.5rem}.search-box input{flex:1;padding:1rem;font-size:1rem;border:2px solid #ddd;border-radius:8px}.voice-btn{background:#e74c3c;color:#fff;border:none;padding:1rem 1.5rem;border-radius:8px;cursor:pointer;font-size:1.2rem}.search-btn{background:#2a5298;color:#fff;border:none;padding:1rem 2rem;border-radius:8px;cursor:pointer}.container{max-width:1200px;margin:0 auto;padding:2rem}.categories{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:2rem;margin:2rem 0}.category-card{background:#fff;padding:2rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);text-align:center}.category-icon{font-size:3rem;margin-bottom:1rem}.contact{background:#f9f9f9;padding:3rem 2rem}.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem}footer{background:#333;color:#fff;text-align:center;padding:2rem}.btn{display:inline-block;background:#2a5298;color:#fff;padding:1rem 2rem;text-decoration:none;border-radius:8px;margin-top:1rem}#searchResults{margin-top:2rem;padding:1rem}.product-result{background:#fff;padding:1rem;margin:0.5rem 0;border-radius:8px;border-left:4px solid #2a5298;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+</style>
+</head>
+<body>
+<header>
+<h1>🔧 Refaccionaria de Partes Eléctricas Millán</h1>
+<p>Especialistas en Autopartes Eléctricas - Fernando Millán Melchor</p>
+</header>
+<nav>
+<a href="#inicio">Inicio</a>
+<a href="productos_refaccionaria.html">Catálogo</a>
+<a href="#contacto">Contacto</a>
+<a href="admin_refaccionaria.html">👤 Admin</a>
+</nav>
+<div class="hero">
+<h2>Encuentra Todas las Partes Eléctricas para Tu Vehículo</h2>
+<p>Más de 80 productos en inventario</p>
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Busca por código, marca o descripción...">
+<button class="voice-btn" id="voiceBtn">🎤</button>
+<button class="search-btn" onclick="buscarProducto()">Buscar</button>
+</div>
+<p style="font-size:0.9rem;color:#666;margin-top:1rem">💡 Di: "¿Tienes bobina para Jetta?" o "Foco H4"</p>
+<div id="voiceStatus" style="margin-top:1rem;color:#e74c3c;font-weight:bold"></div>
+<div id="searchResults"></div>
+</div>
+<div class="container">
+<h2 style="text-align:center;margin-bottom:2rem">Categorías de Productos</h2>
+<div class="categories">
+<div class="category-card"><div class="category-icon">💡</div><h3>Focos y Lámparas</h3><p>H4, H7, H13, LED, Hella</p></div>
+<div class="category-card"><div class="category-icon">⚡</div><h3>Reguladores</h3><p>Nissan, Ford, GM, VW</p></div>
+<div class="category-card"><div class="category-icon">🔌</div><h3>Bobinas</h3><p>Claxon, Universal</p></div>
+<div class="category-card"><div class="category-icon">🔋</div><h3>Bombas</h3><p>Gasolina, Módulos</p></div>
+</div>
+<div style="text-align:center"><a href="productos_refaccionaria.html" class="btn">Ver Catálogo Completo</a></div>
+</div>
+<div class="contact" id="contacto">
+<div class="container">
+<h2 style="text-align:center;margin-bottom:2rem">Contáctanos</h2>
+<div class="contact-grid">
+<div><h3>Fernando Millán Melchor</h3>
+<p style="margin-top:1rem">📞 <a href="tel:7776838196" style="color:#2a5298">777-683-8196</a></p>
+<p>📞 <a href="tel:2219567392" style="color:#2a5298">221-956-7392</a></p>
+<p style="margin-top:1rem">📧 <a href="mailto:FM095329@gmail.com" style="color:#2a5298">FM095329@gmail.com</a></p>
+<p style="margin-top:1rem">📍 Av. Vicente Guerrero s/n<br>Col. Centro, Alpuyeca<br>Xochitepec, Morelos<br>C.P. 62790</p>
+</div>
+</div>
+</div>
+</div>
+<footer><p>&copy; 2026 Refaccionaria de Partes Eléctricas Millán - Todos los derechos reservados</p></footer>
+<script src="productos_db.js"></script>
+<script src="voz_asistente.js"></script>
+<script>
+function buscarProducto(){let q=document.getElementById('searchInput').value.toLowerCase();if(!q){alert('Escribe algo para buscar');return}let r=productos.filter(p=>p.codigo.toLowerCase().includes(q)||p.descripcion.toLowerCase().includes(q)||p.categoria.toLowerCase().includes(q));mostrarResultados(r)}
+function mostrarResultados(r){let d=document.getElementById('searchResults');if(r.length===0){d.innerHTML='<p style="color:#e74c3c">No se encontraron productos</p>';return}d.innerHTML=r.map(p=>`<div class="product-result"><strong>${p.codigo}</strong> - ${p.descripcion}<br><small>Precio: $${p.precio} | Stock: ${p.stock} pzas</small></div>`).join('')}
+</script>
+</body>
+</html>
