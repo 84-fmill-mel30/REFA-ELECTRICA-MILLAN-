@@ -1,4 +1,4 @@
-const productos = [ .
+const productos = [ 
 {"codigo":"SF492","descripcion":"SOLENOIDE PARED ACURAT","precio":195,"stock":5,"categoria":"Solenoides"},
 {"codigo":"A91020","descripcion":"ANTISULFATANTE CAJA CON 30 PZAS","precio":239.80,"stock":2,"categoria":"Accesorios"},
 {"codigo":"CINTAC","descripcion":"CINTA PLASTICA COOPER X10","precio":101,"stock":2,"categoria":"Accesorios"},
