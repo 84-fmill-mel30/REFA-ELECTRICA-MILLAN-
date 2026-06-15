@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>OilMaster — DATESEG MX</title>
+<!-- Leaflet se carga dinámicamente al abrir el mapa -->
+<style>
+:root{
+    --bg:#050a13;--bg2:#0a1422;--bg3:#0f1c32;
+    --red:#c8102e;--green:#006847;--orange:#ff6b00;
+    --txt:#d0e4f5;--txtD:#6880a0;--bdr:#1e3058;
+    --yellow:#ffd700;--cyan:#00d4ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:Arial,sans-serif;overflow:hidden;}
+.app{display:flex;flex-direction:column;height:100vh;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#001a0a,var(--green));padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,104,71,0.4);}
+.om-logo{font-size:28px;}
+.header-info{flex:1;}
+.header-name{font-size:16px;font-weight:800;color:#fff;}
+.header-slogan{font-size:10px;color:rgba(255,255,255,0.7);}
+.sos-fab{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--red),#ff4d6a);border:none;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(200,16,46,0.5);animation:sos-pulse 2s infinite;}
+@keyframes sos-pulse{50%{box-shadow:0 4px 20px rgba(200,16,46,0.8);transform:scale(1.05);}}
+
+/* TABS */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bdr);}
+.tab{flex:1;padding:11px 4px;border:none;background:transparent;color:var(--txtD);cursor:pointer;font-size:9px;font-weight:700;text-transform:uppercase;border-bottom:2px solid transparent;}
+.tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.panel.active{display:flex;}
+
+/* ── MAPA ── */
+#mapContainer{flex:1;position:relative;}
+#map{width:100%;height:100%;}
+.map-overlay{position:absolute;top:10px;left:10px;right:10px;z-index:1000;display:flex;gap:8px;}
+.map-search{flex:1;padding:10px 14px;border-radius:20px;border:none;background:rgba(5,10,19,0.9);color:var(--txt);font-size:13px;backdrop-filter:blur(10px);}
+.map-filter{background:rgba(5,10,19,0.9);border:none;color:var(--green);padding:10px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:700;}
+.map-legend{position:absolute;bottom:16px;left:10px;right:10px;z-index:1000;background:rgba(5,10,19,0.9);border-radius:12px;padding:10px 14px;display:flex;gap:12px;justify-content:center;backdrop-filter:blur(10px);}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--txtD);}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+
+/* ── SOS ── */
+.sos-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px 20px;text-align:center;background:var(--bg);}
+.sos-ring{width:160px;height:160px;border-radius:50%;border:4px solid var(--red);background:radial-gradient(circle,#1a0000,#050a13);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;box-shadow:0 0 40px rgba(200,16,46,0.3);}
+.sos-ring.active{background:radial-gradient(circle,#3a0000,#1a0000);animation:sos-active 1s infinite;box-shadow:0 0 0 20px rgba(200,16,46,0.15),0 0 0 40px rgba(200,16,46,0.08);}
+@keyframes sos-active{50%{transform:scale(1.08);}}
+.sos-icon{font-size:60px;}
+.sos-title{font-size:22px;font-weight:800;}
+.sos-sub{font-size:12px;color:var(--txtD);max-width:260px;line-height:1.5;}
+.sos-status{font-size:14px;font-weight:700;min-height:24px;}
+.sos-status.sending{color:var(--orange);}
+.sos-status.sent{color:var(--green);}
+.sos-contacts{width:100%;max-width:340px;}
+.contact-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.contact-icon{font-size:24px;}
+.contact-info{flex:1;}
+.contact-name{font-size:13px;font-weight:700;}
+.contact-phone{font-size:11px;color:var(--txtD);}
+.btn-call{background:var(--green);border:none;color:#fff;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
+.folio-box{background:rgba(0,104,71,0.1);border:1px solid rgba(0,104,71,0.3);border-radius:8px;padding:12px;text-align:center;display:none;}
+.folio-box.show{display:block;}
+.folio-num{font-size:24px;font-weight:800;color:var(--green);font-family:monospace;}
+
+/* ── DIAGNÓSTICO ── */
+.diag-wrap{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.diag-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:14px;}
+.diag-title{font-size:13px;font-weight:800;margin-bottom:12px;}
+.diag-title.sound{color:var(--orange);}
+.diag-title.cam{color:var(--cyan);}
+.diag-btn{padding:13px;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:800;cursor:pointer;width:100%;margin-bottom:10px;}
+.btn-sound{background:linear-gradient(135deg,var(--orange),#ff9500);}
+.btn-cam{background:linear-gradient(135deg,var(--cyan),#0099cc);}
+.btn-stop{background:rgba(200,16,46,0.3);border:1px solid var(--red);color:var(--red);}
+.diag-result{background:var(--bg3);border-radius:8px;padding:14px;font-size:12px;line-height:1.6;display:none;}
+.diag-result.show{display:block;}
+.result-ok{color:#34d399;border-left:3px solid #34d399;padding-left:10px;margin-bottom:8px;}
+.result-warn{color:var(--orange);border-left:3px solid var(--orange);padding-left:10px;margin-bottom:8px;}
+.result-danger{color:#ff6b7a;border-left:3px solid var(--red);padding-left:10px;margin-bottom:8px;}
+#camPreview{width:100%;border-radius:8px;display:none;margin-bottom:10px;}
+.rec-indicator{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--red);display:none;}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1s infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* ── PROVEEDORES ── */
+.prov-wrap{flex:1;padding:14px;overflow-y:auto;}
+.prov-hero{background:linear-gradient(135deg,var(--green),#00a86b);border-radius:12px;padding:20px;text-align:center;margin-bottom:14px;}
+.prov-hero h2{font-size:18px;font-weight:800;color:#fff;margin-bottom:6px;}
+.prov-hero p{font-size:12px;color:rgba(255,255,255,0.8);}
+.form-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:14px;margin-bottom:12px;}
+.form-title{font-size:13px;font-weight:800;color:var(--green);margin-bottom:12px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:10px;color:var(--txtD);text-transform:uppercase;font-weight:700;}
+input,select,textarea{padding:10px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg3);color:var(--txt);font-size:13px;width:100%;font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);}
+.btn-submit{padding:14px;background:linear-gradient(135deg,var(--green),#00a86b);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;width:100%;margin-top:6px;}
+.prov-msg{text-align:center;font-size:12px;margin-top:8px;height:18px;}
+.prov-msg.ok{color:var(--green);}
+.prov-msg.err{color:var(--red);}
+
+/* ── PERFIL ── */
+.perfil-wrap{flex:1;padding:14px;overflow-y:auto;}
+.perfil-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:14px;margin-bottom:12px;}
+.perfil-title{font-size:13px;font-weight:800;color:var(--green);margin-bottom:12px;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat-box{background:var(--bg3);border-radius:8px;padding:12px;text-align:center;}
+.stat-val{font-size:20px;font-weight:800;color:var(--green);}
+.stat-lbl{font-size:9px;color:var(--txtD);text-transform:uppercase;}
+.btn-perfil{padding:12px;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px;border:none;}
+.btn-green2{background:linear-gradient(135deg,var(--green),#00a86b);}
+.btn-red2{background:linear-gradient(135deg,var(--red),#ff4d6a);}
+
+/* MODAL SOS ACTIVO */
+.sos-modal{display:none;position:fixed;inset:0;background:rgba(200,16,46,0.95);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:30px;}
+.sos-modal.active{display:flex;animation:sos-flash 1s infinite;}
+@keyframes sos-flash{50%{background:rgba(150,10,20,0.95);}}
+.sos-modal h1{font-size:48px;font-weight:900;color:#fff;letter-spacing:4px;}
+.sos-modal p{font-size:16px;color:rgba(255,255,255,0.9);}
+.sos-folio{font-size:32px;font-weight:800;font-family:monospace;color:#fff;background:rgba(0,0,0,0.3);padding:12px 24px;border-radius:12px;}
+.btn-cancel-sos{padding:16px 40px;background:#fff;border:none;border-radius:12px;color:var(--red);font-size:16px;font-weight:800;cursor:pointer;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <div class="om-logo">🛢️</div>
+        <div class="header-info">
+            <div class="header-name">OilMaster</div>
+            <div class="header-slogan">CONDUCE CON PRECAUCIÓN • TU FAMILIA TE ESPERA</div>
+        </div>
+        <button class="sos-fab" onclick="activarSOS()">🆘</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('mapa',this)">🗺️ Mapa</button>
+        <button class="tab" onclick="switchTab('sos',this)">🆘 SOS</button>
+        <button class="tab" onclick="switchTab('diag',this)">🔊 Diagnóstico</button>
+        <button class="tab" onclick="switchTab('prov',this)">🔧 Proveedores</button>
+        <button class="tab" onclick="switchTab('perfil',this)">👤 Perfil</button>
+    </div>
+
+    <div class="content">
+
+        <!-- MAPA -->
+        <div class="panel active" id="mapaPanel">
+            <div id="mapContainer">
+                <div class="map-overlay">
+                    <input class="map-search" type="text" placeholder="🔍 Buscar mecánico, grúa...">
+                    <button class="map-filter" onclick="filtrarMapa()">⚙️</button>
+                </div>
+                <div id="map"></div>
+                <div class="map-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#c8102e"></div> Grúas</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff6b00"></div> Mecánicos</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#006847"></div> Refaccionarias</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#00d4ff"></div> Yo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOS -->
+        <div class="panel" id="sosPanel">
+            <div class="sos-screen">
+                <div class="sos-ring" id="sosRing" onclick="activarSOS()">
+                    <div class="sos-icon">🆘</div>
+                </div>
+                <div class="sos-title">Emergencia Vial</div>
+                <div class="sos-sub">Presiona para alertar a tus contactos y servicios cercanos</div>
+                <div class="sos-status" id="sosStatus"></div>
+                <div class="folio-box" id="folioBox">
+                    <div style="font-size:11px;color:var(--txtD);margin-bottom:4px">FOLIO DE EMERGENCIA</div>
+                    <div class="folio-num" id="folioNum">#0000</div>
+                </div>
+                <div class="sos-contacts" id="sosContacts"></div>
+            </div>
+        </div>
+
+        <!-- DIAGNÓSTICO -->
+        <div class="panel" id="diagPanel">
+            <div class="diag-wrap">
+                <!-- Sonido -->
+                <div class="diag-card">
+                    <div class="diag-title sound">🔊 Diagnóstico por Sonido</div>
+                    <p style="font-size:12px;color:var(--txtD);margin-bottom:12px">Graba el sonido de tu motor y JULS lo analiza</p>
+                    <div class="rec-indicator" id="recIndicator">
+                        <div class="rec-dot"></div> Grabando...
+                    </div>
+                    <button class="diag-btn btn-sound" id="btnSound" onclick="toggleSound()">🎙️ GRABAR SONIDO DEL MOTOR</button>
+                    <div class="diag-result" id="soundResult"></div>
+                </div>
+
+                <!-- Cámara -->
+                <div class="diag-card">
+                    <div class="diag-title cam">📷 Diagnóstico por Cámara</div>
+                    <p style="font-size:12px;color:var(--txtD);margin-bottom:12px">Apunta la cámara al componente y JULS te dice si está bien</p>
+                    <video id="camPreview" autoplay playsinline></video>
+                    <button class="diag-btn btn-cam" id="btnCam" onclick="toggleCam()">📷 ABRIR CÁMARA</button>
+                    <button class="diag-btn" id="btnCapture" style="display:none;background:linear-gradient(135deg,var(--green),#00a86b)" onclick="capturarFoto()">📸 ANALIZAR COMPONENTE</button>
+                    <canvas id="camCanvas" style="display:none"></canvas>
+                    <div class="diag-result" id="camResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROVEEDORES -->
+        <div class="panel" id="provPanel">
+            <div class="prov-wrap">
+                <div class="prov-hero">
+                    <h2>🔧 Anúnciate en OilMaster</h2>
+                    <p>Llega a conductores que necesitan tu servicio ahora mismo</p>
+                </div>
+                <div class="form-card">
+                    <div class="form-title">📝 Registro de Proveedor</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre / Negocio</label>
+                            <input id="pNombre" placeholder="Taller Eléctrico Fer">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Servicio</label>
+                            <select id="pTipo">
+                                <option value="mecanico">🔧 Mecánico</option>
+                                <option value="grua">🚛 Grúa</option>
+                                <option value="refaccionaria">🏪 Refaccionaria</option>
+                                <option value="electrico">⚡ Eléctrico</option>
+                                <option value="llanteria">🔘 Llantería</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input id="pTel" type="tel" placeholder="7771234567">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <input id="pWA" type="tel" placeholder="7771234567">
+                        </div>
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Dirección / Zona de Servicio</label>
+                        <input id="pDir" placeholder="Alpuyeca, Xochitepec, Morelos">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Descripción del Servicio</label>
+                        <textarea id="pDesc" rows="3" placeholder="Servicio a domicilio, 24hrs, grúa plataforma..."></textarea>
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Correo (opcional)</label>
+                        <input id="pEmail" type="email" placeholder="correo@ejemplo.com">
+                    </div>
+                    <button class="btn-submit" onclick="registrarProveedor()">📨 ENVIAR SOLICITUD A DATESEG MX</button>
+                    <div class="prov-msg" id="provMsg"></div>
+                </div>
+                <div class="form-card" style="background:rgba(0,104,71,0.05);border-color:rgba(0,104,71,0.3)">
+                    <div style="font-size:12px;color:var(--txtD);line-height:1.6">
+                        ✅ Tu solicitud llega directo al panel admin de DATESEG MX<br>
+                        ✅ En 24-48hrs te contactamos para activarte<br>
+                        ✅ Apareces en el mapa para todos los conductores<br>
+                        📞 También puedes llamar: <strong style="color:var(--green)">2219567392</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFIL -->
+        <div class="panel" id="perfilPanel">
+            <div class="perfil-wrap">
+                <div class="perfil-card">
+                    <div class="perfil-title">👤 Mi Perfil</div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Mi Nombre</label>
+                        <input id="uNombre" placeholder="Fernando Millán">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Mi Teléfono</label>
+                        <input id="uTel" type="tel" placeholder="7771234567">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Placa del Vehículo</label>
+                        <input id="uPlaca" placeholder="ABC-123-D">
+                    </div>
+                    <button class="btn-perfil btn-green2" onclick="guardarPerfil()">💾 GUARDAR PERFIL</button>
+                </div>
+
+                <div class="perfil-card">
+                    <div class="perfil-title">📞 Contactos de Emergencia SOS</div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Contacto 1 — Nombre</label>
+                        <input id="c1Nombre" placeholder="Nombre familiar">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Contacto 1 — Teléfono</label>
+                        <input id="c1Tel" type="tel" placeholder="7771234567">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Contacto 2 — Nombre</label>
+                        <input id="c2Nombre" placeholder="Nombre familiar">
+                    </div>
+                    <div class="form-group full" style="margin-bottom:10px">
+                        <label>Contacto 2 — Teléfono</label>
+                        <input id="c2Tel" type="tel" placeholder="7771234567">
+                    </div>
+                    <button class="btn-perfil btn-green2" onclick="guardarContactos()">💾 GUARDAR CONTACTOS</button>
+                </div>
+
+                <div class="perfil-card">
+                    <div class="perfil-title">📊 Mis Estadísticas</div>
+                    <div class="stats-row">
+                        <div class="stat-box"><div class="stat-val" id="statKm">0</div><div class="stat-lbl">KM Totales</div></div>
+                        <div class="stat-box"><div class="stat-val" id="statSOS">0</div><div class="stat-lbl">SOS Enviados</div></div>
+                        <div class="stat-box"><div class="stat-val" id="statDiag">0</div><div class="stat-lbl">Diagnósticos</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL SOS ACTIVO -->
+<div class="sos-modal" id="sosModal">
+    <h1>🆘 SOS</h1>
+    <p>Alertando a tus contactos y servicios cercanos...</p>
+    <div class="sos-folio" id="modalFolio">#0000</div>
+    <p style="font-size:13px;margin-top:8px" id="modalCoords">Obteniendo ubicación...</p>
+    <button class="btn-cancel-sos" onclick="cancelarSOS()">✕ Cancelar</button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  OilMaster V12 — DATESEG MX
+//  CONDUCE CON PRECAUCIÓN, TU FAMILIA TE ESPERA
+// ════════════════════════════════════════════════════════
+
+// ── Estado global ─────────────────────────────────────
+let mapa = null;
+let miPosicion = null;
+let sosActivo = false;
+let folioCount = parseInt(localStorage.getItem('om_folio') || '1');
+let mediaRecorder = null;
+let grabando = false;
+let streamCam = null;
+let camActiva = false;
+let estadisticas = JSON.parse(localStorage.getItem('om_stats') || '{"km":0,"sos":0,"diag":0}');
+let proveedores = [];
+
+const API_KEY_JULS = localStorage.getItem('juls_apikey') || '';
+
+// Firebase config OilMaster
+const FB_CONFIG = {
+    apiKey: "AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // <-- Pon tu key de oilmaster-7f451
+    projectId: "oilmaster-7f451"
+};
+
+// ── TABS ──────────────────────────────────────────────
+function switchTab(name, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(name + 'Panel').classList.add('active');
+    el.classList.add('active');
+    if (name === 'mapa' && !mapa) initMapa();
+    if (name === 'perfil') cargarPerfil();
+}
+
+// ── MAPA ──────────────────────────────────────────────
+function initMapa() {
+    if (mapa) return; // ya iniciado
+    
+    // Cargar Leaflet dinámicamente
+    function cargarLeaflet(cb) {
+        if (typeof L !== 'undefined') { cb(); return; }
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(css);
+        const sc = document.createElement('script');
+        sc.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        sc.onload = cb;
+        sc.onerror = () => {
+            document.getElementById('map').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:16px;color:#7890b8;text-align:center;padding:20px"><div style="font-size:48px">🗺️</div><div style="font-size:14px">Mapa requiere internet</div><div style="font-size:11px">Súbelo a GitHub Pages para activar el mapa completo</div></div>';
+        };
+        document.body.appendChild(sc);
+    }
+    
+    cargarLeaflet(() => {
+        try {
+            mapa = L.map('map').setView([18.7, -99.2], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(mapa);
+
+    // Mi posición
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            miPosicion = [pos.coords.latitude, pos.coords.longitude];
+            mapa.setView(miPosicion, 14);
+
+            L.circleMarker(miPosicion, {
+                color: '#00d4ff', fillColor: '#00d4ff',
+                fillOpacity: 0.8, radius: 8
+            }).addTo(mapa).bindPopup('📍 Estoy aquí');
+
+            cargarProveedoresEnMapa();
+        }, err => console.log('GPS:', err.message));
+        } catch(e) {
+            console.log('Error mapa:', e.message);
+        }
+    });
+}
+
+function cargarProveedoresEnMapa() {
+    // Proveedores demo — en producción vienen de Firebase
+    const demos = [
+        { nombre:'Taller Eléctrico Morelos', tipo:'electrico', lat:18.702, lng:-99.215, tel:'7771234567' },
+        { nombre:'Grúas Hernández 24hrs', tipo:'grua', lat:18.695, lng:-99.205, tel:'7779876543' },
+        { nombre:'Refaccionaria Millán', tipo:'refaccionaria', lat:18.710, lng:-99.220, tel:'2219567392' },
+        { nombre:'Mecánico a Domicilio', tipo:'mecanico', lat:18.698, lng:-99.198, tel:'7773456789' },
+    ];
+
+    const colores = { grua:'#c8102e', mecanico:'#ff6b00', refaccionaria:'#006847', electrico:'#9b59f7', llanteria:'#00d4ff' };
+    const iconos  = { grua:'🚛', mecanico:'🔧', refaccionaria:'🏪', electrico:'⚡', llanteria:'🔘' };
+
+    demos.forEach(p => {
+        L.circleMarker([p.lat, p.lng], {
+            color: colores[p.tipo] || '#888',
+            fillColor: colores[p.tipo] || '#888',
+            fillOpacity: 0.9, radius: 10
+        }).addTo(mapa)
+        .bindPopup(`
+            <b>${iconos[p.tipo]} ${p.nombre}</b><br>
+            📞 <a href="tel:${p.tel}">${p.tel}</a><br>
+            <a href="https://wa.me/52${p.tel}" target="_blank">💬 WhatsApp</a>
+        `);
+    });
+}
+
+function filtrarMapa() {
+    alert('Filtros próximamente: tipo de servicio, distancia, disponibilidad');
+}
+
+// ── SOS ───────────────────────────────────────────────
+function activarSOS() {
+    if (sosActivo) return;
+    sosActivo = true;
+    folioCount++;
+    localStorage.setItem('om_folio', folioCount);
+    const folio = '#' + String(folioCount).padStart(5, '0');
+
+    // Mostrar modal rojo
+    document.getElementById('sosModal').classList.add('active');
+    document.getElementById('modalFolio').textContent = folio;
+
+    // Vibrar
+    if (navigator.vibrate) {
+        navigator.vibrate([500,200,500,200,500,200,1000]);
+    }
+
+    // Obtener ubicación
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const lat = pos.coords.latitude.toFixed(6);
+            const lng = pos.coords.longitude.toFixed(6);
+            document.getElementById('modalCoords').textContent = `📍 ${lat}, ${lng}`;
+
+            // Abrir SMS a contactos
+            const c1Tel = localStorage.getItem('om_c1tel');
+            const c2Tel = localStorage.getItem('om_c2tel');
+            const nombre = localStorage.getItem('om_nombre') || 'Conductor';
+            const msg = encodeURIComponent(`🆘 SOS OilMaster\n${nombre} necesita ayuda\nFolio: ${folio}\nUbicación: https://maps.google.com/?q=${lat},${lng}`);
+
+            if (c1Tel) {
+                setTimeout(() => window.open(`sms:${c1Tel}?body=${msg}`), 1000);
+            }
+            if (c2Tel) {
+                setTimeout(() => window.open(`sms:${c2Tel}?body=${msg}`), 2500);
+            }
+        });
+    }
+
+    // Guardar estadística
+    estadisticas.sos++;
+    localStorage.setItem('om_stats', JSON.stringify(estadisticas));
+
+    // Folio en tab SOS
+    document.getElementById('folioNum').textContent = folio;
+    document.getElementById('folioBox').classList.add('show');
+    document.getElementById('sosRing').classList.add('active');
+    document.getElementById('sosStatus').textContent = '🔴 SOS ACTIVO — Alertando...';
+    document.getElementById('sosStatus').className = 'sos-status sending';
+}
+
+function cancelarSOS() {
+    sosActivo = false;
+    document.getElementById('sosModal').classList.remove('active');
+    document.getElementById('sosRing').classList.remove('active');
+    document.getElementById('sosStatus').textContent = '✅ SOS cancelado';
+    document.getElementById('sosStatus').className = 'sos-status sent';
+    if (navigator.vibrate) navigator.vibrate(200);
+}
+
+// ── DIAGNÓSTICO SONIDO ────────────────────────────────
+async function toggleSound() {
+    if (grabando) {
+        if (mediaRecorder) mediaRecorder.stop();
+        return;
+    }
+    const btn = document.getElementById('btnSound');
+    const rec = document.getElementById('recIndicator');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+        grabando = true;
+        btn.textContent = '⏹️ DETENER GRABACIÓN';
+        btn.className = 'diag-btn btn-stop';
+        rec.style.display = 'flex';
+
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+            grabando = false;
+            btn.textContent = '🎙️ GRABAR SONIDO DEL MOTOR';
+            btn.className = 'diag-btn btn-sound';
+            rec.style.display = 'none';
+            stream.getTracks().forEach(t => t.stop());
+
+            // Analizar con IA
+            const res = document.getElementById('soundResult');
+            res.style.display = 'block';
+            res.innerHTML = '<div style="color:var(--txtD)">⏳ JULS analizando el sonido...</div>';
+
+            try {
+                const reply = await askJULS(`Actúa como mecánico experto. El usuario grabó el sonido de su motor. Basándote en problemas comunes de motores de autos mexicanos (Tsuru, Sentra, Jetta, Aveo, Pointer), proporciona un diagnóstico general. Describe: 1) Posibles causas del problema, 2) Nivel de urgencia (URGENTE/MODERADO/LEVE), 3) Recomendación inmediata. Sé directo y específico.`);
+                mostrarDiagnostico(res, reply);
+                estadisticas.diag++;
+                localStorage.setItem('om_stats', JSON.stringify(estadisticas));
+            } catch(e) {
+                res.innerHTML = '<div class="result-warn">⚠️ Error al analizar: ' + e.message + '</div>';
+            }
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => { if (grabando && mediaRecorder) mediaRecorder.stop(); }, 8000);
+    } catch(e) {
+        alert('Error al acceder al micrófono: ' + e.message);
+    }
+}
+
+// ── DIAGNÓSTICO CÁMARA ────────────────────────────────
+async function toggleCam() {
+    const btn    = document.getElementById('btnCam');
+    const cap    = document.getElementById('btnCapture');
+    const video  = document.getElementById('camPreview');
+
+    if (camActiva) {
+        if (streamCam) streamCam.getTracks().forEach(t => t.stop());
+        video.style.display = 'none';
+        cap.style.display = 'none';
+        btn.textContent = '📷 ABRIR CÁMARA';
+        btn.className = 'diag-btn btn-cam';
+        camActiva = false;
+        return;
+    }
+
+    try {
+        streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = streamCam;
+        video.style.display = 'block';
+        cap.style.display = 'block';
+        btn.textContent = '⏹️ CERRAR CÁMARA';
+        btn.className = 'diag-btn btn-stop';
+        camActiva = true;
+    } catch(e) {
+        alert('Error al acceder a la cámara: ' + e.message);
+    }
+}
+
+async function capturarFoto() {
+    const video  = document.getElementById('camPreview');
+    const canvas = document.getElementById('camCanvas');
+    const res    = document.getElementById('camResult');
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const imgData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+    res.style.display = 'block';
+    res.innerHTML = '<div style="color:var(--txtD)">⏳ JULS analizando el componente...</div>';
+
+    try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': API_KEY_JULS,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 400,
+                messages: [{
+                    role: 'user',
+                    content: [
+                        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imgData }},
+                        { type: 'text', text: 'Eres mecánico experto. Analiza este componente automotriz. Dime: 1) Qué componente es, 2) Si se ve en buen estado o tiene problemas visibles, 3) Nivel de urgencia (URGENTE🔴 / MODERADO🟡 / BUENO🟢), 4) Recomendación. Sé directo y conciso.' }
+                    ]
+                }]
+            })
+        });
+        const data  = await response.json();
+        const reply = data.content[0].text;
+        mostrarDiagnostico(res, reply);
+        estadisticas.diag++;
+        localStorage.setItem('om_stats', JSON.stringify(estadisticas));
+    } catch(e) {
+        res.innerHTML = '<div class="result-warn">⚠️ ' + e.message + '</div>';
+    }
+}
+
+function mostrarDiagnostico(el, texto) {
+    const upper = texto.toUpperCase();
+    let clase = 'result-ok';
+    if (upper.includes('URGENTE') || upper.includes('🔴')) clase = 'result-danger';
+    else if (upper.includes('MODERADO') || upper.includes('🟡')) clase = 'result-warn';
+    el.innerHTML = `<div class="${clase}">${texto.replace(/\n/g,'<br>')}</div>`;
+}
+
+// ── REGISTRO PROVEEDOR ────────────────────────────────
+async function registrarProveedor() {
+    const nombre = document.getElementById('pNombre').value.trim();
+    const tipo   = document.getElementById('pTipo').value;
+    const tel    = document.getElementById('pTel').value.trim();
+    const wa     = document.getElementById('pWA').value.trim();
+    const dir    = document.getElementById('pDir').value.trim();
+    const desc   = document.getElementById('pDesc').value.trim();
+    const email  = document.getElementById('pEmail').value.trim();
+    const msg    = document.getElementById('provMsg');
+
+    if (!nombre || !tel || !dir) {
+        msg.textContent = '⚠️ Nombre, teléfono y dirección son obligatorios';
+        msg.className = 'prov-msg err'; return;
+    }
+
+    msg.textContent = '⏳ Enviando solicitud...';
+    msg.className = 'prov-msg ok';
+
+    try {
+        // Guardar en Firebase
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js');
+        const { getFirestore, collection, addDoc } = await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js');
+        const app = initializeApp(FB_CONFIG, 'oilmaster');
+        const db  = getFirestore(app);
+        await addDoc(collection(db, 'solicitudes_proveedores'), {
+            nombre, tipo, tel, wa, dir, desc, email,
+            estado: 'pendiente',
+            fecha: new Date().toISOString()
+        });
+        msg.textContent = '✅ Solicitud enviada. Te contactamos en 24-48hrs';
+        document.getElementById('pNombre').value = '';
+        document.getElementById('pTel').value = '';
+        document.getElementById('pDir').value = '';
+        document.getElementById('pDesc').value = '';
+    } catch(e) {
+        // Si no hay Firebase, guardar local
+        localStorage.setItem('om_prov_pendiente', JSON.stringify({ nombre, tipo, tel, dir }));
+        msg.textContent = '✅ Solicitud guardada. Llama al 2219567392';
+    }
+}
+
+// ── PERFIL ────────────────────────────────────────────
+function guardarPerfil() {
+    localStorage.setItem('om_nombre', document.getElementById('uNombre').value);
+    localStorage.setItem('om_tel', document.getElementById('uTel').value);
+    localStorage.setItem('om_placa', document.getElementById('uPlaca').value);
+    mostrarToast('✅ Perfil guardado');
+}
+
+function guardarContactos() {
+    localStorage.setItem('om_c1nombre', document.getElementById('c1Nombre').value);
+    localStorage.setItem('om_c1tel', document.getElementById('c1Tel').value);
+    localStorage.setItem('om_c2nombre', document.getElementById('c2Nombre').value);
+    localStorage.setItem('om_c2tel', document.getElementById('c2Tel').value);
+    mostrarToast('✅ Contactos de emergencia guardados');
+    actualizarContactosSOS();
+}
+
+function cargarPerfil() {
+    const set = (id, key) => { const el = document.getElementById(id); if (el) el.value = localStorage.getItem(key) || ''; };
+    set('uNombre','om_nombre'); set('uTel','om_tel'); set('uPlaca','om_placa');
+    set('c1Nombre','om_c1nombre'); set('c1Tel','om_c1tel');
+    set('c2Nombre','om_c2nombre'); set('c2Tel','om_c2tel');
+    document.getElementById('statKm').textContent  = estadisticas.km;
+    document.getElementById('statSOS').textContent  = estadisticas.sos;
+    document.getElementById('statDiag').textContent = estadisticas.diag;
+}
+
+function actualizarContactosSOS() {
+    const c1n = localStorage.getItem('om_c1nombre');
+    const c1t = localStorage.getItem('om_c1tel');
+    const c2n = localStorage.getItem('om_c2nombre');
+    const c2t = localStorage.getItem('om_c2tel');
+    const cont = document.getElementById('sosContacts');
+    if (!c1t && !c2t) { cont.innerHTML = '<p style="font-size:12px;color:var(--txtD)">Agrega contactos en Perfil → Contactos de Emergencia</p>'; return; }
+    cont.innerHTML = [c1n && c1t ? `<div class="contact-card"><div class="contact-icon">👤</div><div class="contact-info"><div class="contact-name">${c1n}</div><div class="contact-phone">${c1t}</div></div><button class="btn-call" onclick="window.open('tel:${c1t}')">📞</button></div>` : '',
+        c2n && c2t ? `<div class="contact-card"><div class="contact-icon">👤</div><div class="contact-info"><div class="contact-name">${c2n}</div><div class="contact-phone">${c2t}</div></div><button class="btn-call" onclick="window.open('tel:${c2t}')">📞</button></div>` : ''
+    ].join('');
+}
+
+// ── API JULS (diagnóstico) ────────────────────────────
+async function askJULS(prompt) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY_JULS,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 400,
+            messages: [{ role: 'user', content: prompt }]
+        })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Error API');
+    return data.content[0].text;
+}
+
+// ── TOAST ─────────────────────────────────────────────
+function mostrarToast(msg) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#006847;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;white-space:nowrap';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────
+actualizarContactosSOS();
+// initMapa se ejecuta al tocar el tab de Mapa
+</script>
+</body>
+</html>

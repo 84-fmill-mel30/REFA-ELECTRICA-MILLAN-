@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ProPart V8 — DATESEG MX</title>
+<style>
+:root{
+  /* TEMA CLARO */
+  --bg:#eef2f6;--panel:#ffffff;--panel2:#f7f9fb;--line:#dce3ea;--line2:#e8edf2;
+  --ink:#1a2530;--ink2:#5a6b7a;--ink3:#8a9aa8;
+  --amber:#e8920c;--cyan:#0b9e88;--red:#e23b3b;--green:#16a34a;--violet:#7c5cff;--blue:#2563eb;
+  /* osciloscopio oscuro (las gráficas) */
+  --scope-bg:#0b0f14;--scope-grid:rgba(120,140,160,.18);
+  --s-amber:#ffb000;--s-cyan:#19e3c4;--s-red:#ff4d4d;--s-green:#37e07a;--s-violet:#9d7bff;--s-pink:#ff5d9e;--s-blue:#4d9fff;
+  --mono:'JetBrains Mono','SF Mono',ui-monospace,Consolas,monospace;
+  --disp:'Rajdhani','Oswald',system-ui,sans-serif;
+  --shadow:0 1px 3px rgba(20,40,60,.06),0 4px 14px rgba(20,40,60,.05);
+}
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--disp);display:flex;flex-direction:column;height:100vh;user-select:none}
+
+/* TOP */
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow);z-index:20}
+.logo{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--amber),#ff7a00);display:grid;place-items:center;font-weight:700;font-size:17px;color:#fff;box-shadow:0 2px 8px rgba(232,146,12,.35)}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:.3px;line-height:1}
+.brand h1 b{color:var(--amber)}
+.brand span{font-size:9px;color:var(--ink3);letter-spacing:2px;font-family:var(--mono)}
+.spacer{flex:1}
+.veh-chip{font-family:var(--mono);font-size:10px;color:var(--violet);background:rgba(124,92,255,.08);border:1px solid rgba(124,92,255,.25);padding:6px 11px;border-radius:7px;letter-spacing:.3px;cursor:pointer}
+.conn{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;padding:7px 12px;border-radius:7px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);transition:.2s;color:var(--ink2)}
+.conn:active{transform:scale(.96)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 6px rgba(226,59,59,.5)}
+.conn.on .dot{background:var(--green);box-shadow:0 0 8px rgba(22,163,74,.6);animation:pulse 1.6s infinite}
+.conn.on{border-color:rgba(22,163,74,.4);color:var(--green);background:rgba(22,163,74,.06)}
+@keyframes pulse{50%{opacity:.4}}
+
+/* LAYOUT */
+.app{flex:1;display:grid;grid-template-columns:210px 1fr;gap:0;overflow:hidden}
+.nav{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:4px}
+.nav::-webkit-scrollbar{width:5px}.nav::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.nav-lbl{font-family:var(--mono);font-size:8.5px;color:var(--ink3);letter-spacing:2px;padding:11px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:9px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--ink2);border:1px solid transparent;transition:.14s}
+.nav-item .ic{font-size:16px;width:20px;text-align:center}
+.nav-item:active{transform:scale(.97)}
+.nav-item.active{background:linear-gradient(90deg,rgba(232,146,12,.12),rgba(232,146,12,.03));color:var(--amber);border-color:rgba(232,146,12,.25)}
+
+.view{overflow:hidden;display:flex;flex-direction:column}
+.view-inner{flex:1;overflow-y:auto;padding:16px}
+.view-inner::-webkit-scrollbar{width:6px}.view-inner::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+
+.vhead{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+.vhead h2{font-size:22px;font-weight:700;letter-spacing:.3px}
+.vhead h2 .sub{display:block;font-size:10px;color:var(--ink3);font-family:var(--mono);letter-spacing:2px;margin-top:2px}
+.vhead .tag{font-family:var(--mono);font-size:10px;color:var(--cyan);background:rgba(11,158,136,.08);padding:5px 10px;border-radius:6px;border:1px solid rgba(11,158,136,.25)}
+
+/* ====== OSCILOSCOPIO ====== */
+.osc{display:grid;grid-template-columns:220px 1fr;gap:14px;height:100%}
+.sigpanel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;overflow-y:auto;box-shadow:var(--shadow)}
+.sigpanel::-webkit-scrollbar{width:5px}.sigpanel::-webkit-scrollbar-thumb{background:var(--line)}
+.sp-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 8px}
+.sp-head .t{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:2px}
+.sp-head .cnt{font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:700}
+.grp-lbl{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:1.5px;padding:9px 4px 3px;display:flex;align-items:center;gap:6px}
+.grp-lbl::after{content:'';flex:1;height:1px;background:var(--line2)}
+.sig{display:flex;align-items:center;gap:9px;padding:9px 9px;border-radius:8px;cursor:pointer;border:1px solid transparent;transition:.13s;font-size:13px;font-weight:500}
+.sig:active{transform:scale(.97)}
+.sig .sw{width:11px;height:11px;border-radius:3px;flex:0 0 11px;transition:.13s;border:1.5px solid var(--line)}
+.sig .nm{flex:1;line-height:1.15;color:var(--ink)}
+.sig .nm small{display:block;font-family:var(--mono);font-size:7.5px;color:var(--ink3);font-weight:400}
+.sig.on{background:var(--panel2);border-color:var(--line)}
+.sig.on .sw{border-color:transparent;box-shadow:0 0 7px currentColor}
+.sig.off .sw{background:transparent!important}
+.presets{display:flex;flex-wrap:wrap;gap:5px;padding:3px 2px 8px}
+.preset{font-family:var(--mono);font-size:9px;padding:6px 9px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);color:var(--cyan);cursor:pointer;transition:.13s;font-weight:500}
+.preset:active{transform:scale(.94)}
+
+.scopewrap{display:flex;flex-direction:column;min-height:0}
+.scopebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.scopebar .mode-sub{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:1px}
+.layout-pick{display:flex;gap:5px}
+.lp{width:34px;height:28px;border-radius:6px;background:var(--panel);border:1px solid var(--line);cursor:pointer;display:grid;gap:2px;padding:5px;transition:.13s;box-shadow:var(--shadow)}
+.lp:active{transform:scale(.93)}
+.lp.on{border-color:rgba(232,146,12,.5);background:rgba(232,146,12,.08)}
+.lp i{background:var(--ink3);border-radius:1px;display:block}
+.lp.on i{background:var(--amber)}
+.lp.l1{grid-template:1fr/1fr}.lp.l2{grid-template:1fr/1fr 1fr}.lp.l4{grid-template:1fr 1fr/1fr 1fr}
+.scope-area{flex:1;display:grid;gap:12px;overflow:hidden;min-height:0}
+
+/* la gráfica = oscura aunque la app sea clara */
+.scope{background:var(--scope-bg);border:1px solid #1c2530;border-radius:12px;padding:11px;display:flex;flex-direction:column;overflow:hidden;min-height:0;box-shadow:inset 0 0 30px rgba(0,0,0,.4),var(--shadow)}
+.scope-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex:0 0 auto}
+.scope-title{font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px;color:#cdd9e0}
+.scope-title .led{width:8px;height:8px;border-radius:50%;animation:pulse 1.4s infinite}
+.scope-read{font-family:var(--mono);font-size:17px;font-weight:700}
+.scope-read .u{font-size:9px;color:#5d6e78;margin-left:2px}
+.scope canvas{flex:1;width:100%;display:block;border-radius:6px;background:#060a0d;border:1px solid #161e26;min-height:0}
+.scope-foot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:#5d6e78;margin-top:5px;flex:0 0 auto}
+.legend{display:flex;gap:9px;flex-wrap:wrap}
+.legend .li{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:#cdd9e0}
+.legend .li .d{width:9px;height:9px;border-radius:2px}
+.empty{flex:1;display:grid;place-items:center;color:var(--ink3);font-family:var(--mono);font-size:12px;text-align:center;line-height:1.9}
+
+/* ====== ACTUADORES ====== */
+.warn-banner{background:rgba(226,59,59,.06);border:1px solid rgba(226,59,59,.3);border-radius:9px;padding:11px 14px;font-family:var(--mono);font-size:10.5px;color:#b53030;line-height:1.6;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.warn-banner b{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:13px}
+.act{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;position:relative;overflow:hidden;transition:.2s;box-shadow:var(--shadow)}
+.act::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--line2)}
+.act.live::before{background:linear-gradient(90deg,var(--amber),transparent)}
+.act.live{border-color:rgba(232,146,12,.4)}
+.act-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.act-name{font-size:15px;font-weight:600}
+.act-id{font-family:var(--mono);font-size:8.5px;color:var(--ink3);margin-top:2px}
+.act-icon{font-size:22px;opacity:.85}
+.gauge{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;margin:10px 0;border:1px solid var(--line)}
+.gauge-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .4s ease}
+.act-val{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between}
+.act-val .unit{color:var(--ink3);font-size:10px;font-weight:400}
+.act-ctrl{display:flex;gap:7px}
+.btn{flex:1;padding:11px;border:none;border-radius:8px;cursor:pointer;font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.3px;transition:.14s}
+.btn:active{transform:scale(.95)}
+.btn-run{background:rgba(11,158,136,.1);color:var(--cyan);border:1px solid rgba(11,158,136,.35)}
+.btn-run.active{background:var(--cyan);color:#fff}
+.btn-stop{background:rgba(226,59,59,.08);color:var(--red);border:1px solid rgba(226,59,59,.3);flex:0 0 46px}
+.slider-wrap{margin:6px 0 12px}
+.slider-wrap label{font-family:var(--mono);font-size:8.5px;color:var(--ink3);letter-spacing:.5px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:4px;background:var(--line);margin-top:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:var(--amber);box-shadow:0 1px 4px rgba(232,146,12,.5);cursor:pointer}
+
+/* consola */
+.term{background:var(--scope-bg);border:1px solid #1c2530;border-radius:10px;padding:12px;font-family:var(--mono);font-size:11px;line-height:1.8;overflow-y:auto;color:#7a8a96;height:100%;min-height:300px}
+.term::-webkit-scrollbar{width:5px}.term::-webkit-scrollbar-thumb{background:#1c2530}
+.term .tx{color:#ffb000}.term .rx{color:#19e3c4}.term .ok{color:#37e07a}.term .err{color:#ff5d5d}.term .ts{color:#3a4750}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:var(--shadow)}
+.metric .k{font-family:var(--mono);font-size:8px;color:var(--ink3);letter-spacing:1px}
+.metric .v{font-family:var(--mono);font-size:18px;color:var(--cyan);margin-top:4px;font-weight:700}
+
+/* modales */
+.modal-bg{position:fixed;inset:0;background:rgba(26,37,48,.45);backdrop-filter:blur(3px);display:none;place-items:center;z-index:100}
+.modal-bg.show{display:grid}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:360px;max-height:84vh;overflow-y:auto;box-shadow:0 20px 60px rgba(20,40,60,.25)}
+.modal h3{font-size:18px;margin-bottom:6px}
+.modal p{font-size:12px;color:var(--ink2);font-family:var(--mono);line-height:1.6;margin-bottom:16px}
+.modal .opt{padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:11px;background:var(--panel2);transition:.14s}
+.modal .opt:active{transform:scale(.98)}
+.modal .opt .ic{font-size:20px}
+.modal .opt .t{font-weight:600;font-size:13px}
+.modal .opt .d{font-family:var(--mono);font-size:9px;color:var(--ink3)}
+.fuel-tag{font-family:var(--mono);font-size:8px;padding:2px 7px;border-radius:5px;margin-left:auto;font-weight:600}
+.fuel-tag.d{background:rgba(124,92,255,.12);color:var(--violet)}
+.fuel-tag.g{background:rgba(232,146,12,.12);color:var(--amber)}
+
+@media (max-width:860px){.app{grid-template-columns:1fr}.nav{display:none}.osc{grid-template-columns:1fr}.sigpanel{max-height:200px}}
+@media (orientation:portrait){.scope-area{grid-template-columns:1fr!important;grid-template-rows:none!important}.metrics{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">P8</div>
+  <div class="brand"><h1>PRO<b>PART</b> V8</h1><span>DATESEG MX · BIDIRECCIONAL</span></div>
+  <div class="spacer"></div>
+  <div class="veh-chip" id="vehChip" onclick="openVeh()">⬡ SELECCIONAR MOTOR</div>
+  <div class="conn" id="connBtn" onclick="toggleConn()"><div class="dot"></div><span id="connTxt">DESCONECTADO</span></div>
+</div>
+
+<div class="app">
+  <div class="nav">
+    <div class="nav-lbl">DIAGNÓSTICO</div>
+    <div class="nav-item active" data-v="osc" onclick="go(this)"><span class="ic">📈</span> Osciloscopio</div>
+    <div class="nav-lbl">ACTUADORES</div>
+    <div class="nav-item" data-v="motor" onclick="go(this)"><span class="ic">⚙</span> Motor</div>
+    <div class="nav-item" data-v="inyeccion" onclick="go(this)"><span class="ic">⛽</span> Inyección</div>
+    <div class="nav-item" data-v="emisiones" onclick="go(this)"><span class="ic">♺</span> Emisiones</div>
+    <div class="nav-item" data-v="admision" onclick="go(this)"><span class="ic">🌀</span> Admisión</div>
+    <div class="nav-item" data-v="refrig" onclick="go(this)"><span class="ic">❄</span> Refrigeración</div>
+    <div class="nav-lbl">SERVICIOS</div>
+    <div class="nav-item" data-v="reset" onclick="go(this)"><span class="ic">🔧</span> Reinicios</div>
+    <div class="nav-item" data-v="dtc" onclick="go(this)"><span class="ic">⚠</span> Códigos DTC</div>
+    <div class="nav-item" data-v="consola" onclick="go(this)"><span class="ic">🖥</span> Consola UDS</div>
+  </div>
+  <div class="view"><div class="view-inner" id="view"></div></div>
+</div>
+
+<!-- MODAL CONEXION -->
+<div class="modal-bg" id="modal"><div class="modal">
+  <h3>Conectar adaptador</h3><p>Fuente de datos del vehículo.</p>
+  <div class="opt" onclick="connect('sim')"><span class="ic">🧪</span><div><div class="t">Simulador</div><div class="d">Señales en vivo · sin carro</div></div></div>
+  <div class="opt" onclick="connect('ble')"><span class="ic">📡</span><div><div class="t">Bluetooth OBD</div><div class="d">ELM327 / OBDLink MX+</div></div></div>
+  <div class="opt" onclick="connect('native')"><span class="ic">🔌</span><div><div class="t">Puente nativo</div><div class="d">Android WebView · NativeBLE</div></div></div>
+</div></div>
+
+<!-- MODAL MOTOR -->
+<div class="modal-bg" id="vehModal"><div class="modal">
+  <h3>Base de motores</h3><p id="vehStatus">Cargando...</p><div id="vehList"></div>
+</div></div>
+
+<script>
+/* ============================================================
+   PROPART V8 — APP COMPLETA · DATESEG MX
+   Osciloscopio filtrable + Actuadores UDS + Firebase + Consola
+   HTML-first → Android WebView (assets/index.html)
+   ============================================================ */
+
+/* ---------- FIREBASE (base motores diésel/gasolina) ---------- */
+const FIREBASE_CONFIG={apiKey:"TU_API_KEY",authDomain:"propartv8-bidireccional.firebaseapp.com",projectId:"propartv8-bidireccional",storageBucket:"propartv8-bidireccional.appspot.com",messagingSenderId:"TU_SENDER_ID",appId:"TU_APP_ID"};
+const MOTORES_FALLBACK=[
+  {marca:"Nissan",modelo:"Versa MR20",anio:"2019",combustible:"gasolina",cilindrada:"2.0L",ecu:"0x7E0",protocolo:"CAN 500k"},
+  {marca:"VW",modelo:"Jetta TDI",anio:"2015",combustible:"diesel",cilindrada:"2.0L",ecu:"0x7E0",protocolo:"CAN ISO15765"},
+  {marca:"Chevrolet",modelo:"Aveo 1.6",anio:"2020",combustible:"gasolina",cilindrada:"1.6L",ecu:"0x7E8",protocolo:"GM-LAN"},
+  {marca:"Ford",modelo:"Ranger 3.2 TDCi",anio:"2018",combustible:"diesel",cilindrada:"3.2L",ecu:"0x7E0",protocolo:"MS-CAN"},
+  {marca:"Toyota",modelo:"Hilux 2.8 GD",anio:"2021",combustible:"diesel",cilindrada:"2.8L",ecu:"0x7E0",protocolo:"CAN 500k"},
+  {marca:"Mazda",modelo:"3 Skyactiv-G",anio:"2019",combustible:"gasolina",cilindrada:"2.5L",ecu:"0x7E0",protocolo:"CAN 500k"},
+];
+const MotorDB={loaded:false,list:[],async load(){
+  if(FIREBASE_CONFIG.apiKey!=="TU_API_KEY"){try{
+    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js');
+    const {getFirestore,collection,getDocs}=await import('https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js');
+    const db=getFirestore(initializeApp(FIREBASE_CONFIG));
+    const snap=await getDocs(collection(db,'motores'));
+    this.list=snap.docs.map(d=>d.data());this.loaded=true;
+    log('ok',`✓ Firebase: ${this.list.length} motores`);return this.list;
+  }catch(e){log('err','Firebase no disp., usando base local');}}
+  this.list=MOTORES_FALLBACK;this.loaded=true;return this.list;
+}};
+
+/* ---------- SEÑALES (osciloscopio) ---------- */
+const SIGNALS={
+  pedal1:{grp:"pedal",name:"Pedal acelerador 1",pid:"0x49",unit:"%",color:"var(--s-pink)",hex:"#ff5d9e",min:0,max:100,base:14,amp:3,wave:"drive"},
+  pedal2:{grp:"pedal",name:"Pedal acelerador 2",pid:"0x4A",unit:"%",color:"#ff8ab8",hex:"#ff8ab8",min:0,max:100,base:7,amp:1.5,wave:"drive"},
+  tps:{grp:"pedal",name:"Cuerpo aceleración (TPS)",pid:"0x11",unit:"%",hex:"#19e3c4",min:0,max:100,base:14,amp:3,wave:"drive"},
+  rpm:{grp:"motor",name:"RPM",pid:"0x0C",unit:"rpm",hex:"#ffb000",min:600,max:6500,base:820,amp:80,wave:"rev"},
+  load:{grp:"motor",name:"Carga calculada",pid:"0x04",unit:"%",hex:"#ffd166",min:0,max:100,base:22,amp:6,wave:"drive"},
+  map:{grp:"motor",name:"MAP / Boost",pid:"0x0B",unit:"kPa",hex:"#4d9fff",min:20,max:250,base:101,amp:9,wave:"rev"},
+  maf:{grp:"motor",name:"Flujo aire MAF",pid:"0x10",unit:"g/s",hex:"#7ec8ff",min:0,max:200,base:8,amp:3,wave:"rev"},
+  inj:{grp:"iny",name:"Ancho pulso inyector",pid:"0x4C",unit:"ms",hex:"#9d7bff",min:0,max:25,base:3.2,amp:0.8,wave:"rev"},
+  rail:{grp:"iny",name:"Presión riel (common rail)",pid:"0x23",unit:"bar",hex:"#b89bff",min:200,max:1800,base:340,amp:40,wave:"rev"},
+  fuelt:{grp:"iny",name:"Ajuste combustible",pid:"0x06",unit:"%",hex:"#c4a9ff",min:-25,max:25,base:1.5,amp:4,wave:"noise"},
+  lambda:{grp:"emis",name:"Lambda / O2",pid:"0x24",unit:"λ",hex:"#37e07a",min:0.7,max:1.3,base:1.0,amp:0.07,wave:"osc"},
+  egr:{grp:"emis",name:"Posición EGR",pid:"0x2C",unit:"%",hex:"#5de89a",min:0,max:100,base:8,amp:5,wave:"drive"},
+  ect:{grp:"emis",name:"Temp refrigerante",pid:"0x05",unit:"°C",hex:"#ff4d4d",min:40,max:120,base:88,amp:1.5,wave:"slow"},
+  iat:{grp:"emis",name:"Temp aire admisión",pid:"0x0F",unit:"°C",hex:"#ff7a7a",min:10,max:80,base:38,amp:1,wave:"slow"},
+};
+const GRP_NAMES={pedal:"🎚 PEDAL / ACELERACIÓN",motor:"⚙ MOTOR",iny:"⛽ INYECCIÓN",emis:"♺ EMISIONES / TÉRMICA"};
+const PRESETS=[
+  {name:"Calibrar TPS",sig:["pedal1","tps"]},
+  {name:"Inyección full",sig:["rpm","inj","rail"]},
+  {name:"Aire/Boost",sig:["rpm","map","maf"]},
+  {name:"Mezcla",sig:["lambda","fuelt","tps"]},
+  {name:"Pedal doble",sig:["pedal1","pedal2"]},
+  {name:"Panorama total",sig:["rpm","tps","map","inj","lambda","ect"]},
+];
+
+/* ---------- ACTUADORES (UDS) ---------- */
+const SYSTEMS={
+  motor:{title:"Sistema de Motor",sub:"ENGINE · POWERTRAIN",acts:[
+    {id:"thr",name:"Cuerpo de aceleración",icon:"🎚",did:"0x1F01",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Calibración / barrido TPS"},
+    {id:"idle",name:"Control de ralentí",icon:"〰",did:"0x1F02",svc:"0x2F",unit:"RPM",min:600,max:1500,type:"slider",desc:"IAC bypass"},
+    {id:"fan1",name:"Electroventilador 1",icon:"🌀",did:"0x2A10",svc:"0x2F",unit:"",type:"toggle",desc:"Relé baja"},
+    {id:"fan2",name:"Electroventilador 2",icon:"🌀",did:"0x2A11",svc:"0x2F",unit:"",type:"toggle",desc:"Relé alta"},
+  ]},
+  inyeccion:{title:"Sistema de Inyección",sub:"FUEL · INJECTORS",acts:[
+    {id:"inj1",name:"Inyector cilindro 1",icon:"⛽",did:"0x3101",svc:"0x31",unit:"ms",min:0,max:25,type:"pulse",desc:"Corte cil.1"},
+    {id:"inj2",name:"Inyector cilindro 2",icon:"⛽",did:"0x3102",svc:"0x31",unit:"ms",min:0,max:25,type:"pulse",desc:"Corte cil.2"},
+    {id:"inj3",name:"Inyector cilindro 3",icon:"⛽",did:"0x3103",svc:"0x31",unit:"ms",min:0,max:25,type:"pulse",desc:"Corte cil.3"},
+    {id:"inj4",name:"Inyector cilindro 4",icon:"⛽",did:"0x3104",svc:"0x31",unit:"ms",min:0,max:25,type:"pulse",desc:"Corte cil.4"},
+    {id:"pwm",name:"Ancho de pulso global",icon:"📐",did:"0x1F40",svc:"0x2F",unit:"ms",min:0,max:20,type:"slider",desc:"Pulse width"},
+    {id:"pump",name:"Bomba combustible",icon:"🛢",did:"0x2A20",svc:"0x2F",unit:"",type:"toggle",desc:"Relé bomba"},
+    {id:"rail",name:"Presión riel (diésel)",icon:"📈",did:"0x1F41",svc:"0x2F",unit:"bar",min:200,max:1800,type:"slider",desc:"Common rail"},
+  ]},
+  emisiones:{title:"Control de Emisiones",sub:"EMISSIONS · EGR · DPF",acts:[
+    {id:"egr",name:"Válvula EGR",icon:"♺",did:"0x1F50",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Apertura EGR"},
+    {id:"egr2",name:"EGR cooler bypass",icon:"♺",did:"0x1F51",svc:"0x2F",unit:"",type:"toggle",desc:"Bypass diésel"},
+    {id:"evap",name:"Válvula purga EVAP",icon:"💨",did:"0x1F52",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Canister purge"},
+    {id:"dpf",name:"Regeneración DPF",icon:"🔥",did:"0x3150",svc:"0x31",unit:"",type:"routine",desc:"Regen forzada"},
+  ]},
+  admision:{title:"Sistema de Admisión",sub:"INTAKE · TURBO",acts:[
+    {id:"wg",name:"Wastegate / VGT",icon:"🌀",did:"0x1F60",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Geometría turbo"},
+    {id:"swirl",name:"Mariposas swirl",icon:"🍃",did:"0x1F61",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Intake swirl"},
+    {id:"mapt",name:"Boost objetivo",icon:"📊",did:"0x1F62",svc:"0x2F",unit:"kPa",min:90,max:250,type:"slider",desc:"Presión turbo"},
+  ]},
+  refrig:{title:"Refrigeración",sub:"COOLING · THERMAL",acts:[
+    {id:"wpump",name:"Bomba agua eléctrica",icon:"💧",did:"0x2A30",svc:"0x2F",unit:"%",min:0,max:100,type:"slider",desc:"Electric pump"},
+    {id:"thermo",name:"Termostato mapeado",icon:"🌡",did:"0x1F70",svc:"0x2F",unit:"°C",min:75,max:110,type:"slider",desc:"Map thermostat"},
+  ]},
+};
+const RESETS=[
+  {id:"oil",name:"Reinicio servicio aceite",icon:"🛢",rid:"0xF010",desc:"Oil reset"},
+  {id:"sas",name:"Calibración SAS",icon:"🎯",rid:"0xF011",desc:"Steering angle"},
+  {id:"epb",name:"Servicio frenos EPB",icon:"🛑",rid:"0xF012",desc:"Parking brake"},
+  {id:"bms",name:"Registro batería BMS",icon:"🔋",rid:"0xF013",desc:"Battery mgmt"},
+  {id:"tps",name:"Aprendizaje TPS",icon:"🎚",rid:"0xF014",desc:"Throttle adapt"},
+  {id:"dpfr",name:"Reinicio ceniza DPF",icon:"🔥",rid:"0xF015",desc:"DPF ash reset"},
+];
+const DTCS=[{code:"P0401",desc:"Flujo EGR insuficiente",st:"Confirmado"},{code:"P0133",desc:"O2 respuesta lenta B1S1",st:"Pendiente"},{code:"P0299",desc:"Turbo underboost",st:"Confirmado"}];
+
+let S={connected:false,view:"osc",motor:null,frames:0,active:{},
+  selected:["rpm","tps","map"],mode:"auto",timer:null,buf:{},logbuf:[]};
+
+/* ---------- TRANSPORTE (capa intercambiable) ---------- */
+const Transport={mode:null,
+  async connect(m){this.mode=m;
+    if(m==='sim')return{proto:"CAN 500k",ecu:S.motor?.ecu||"0x7E0",lat:"SIM"};
+    if(m==='ble'){log('err','Web BT: enchufa OBDLink aquí');return{proto:"ISO15765",ecu:"0x7E0",lat:"~12ms"};}
+    log('err','NativeBLE: Android.bleConnect()');return{proto:"ISO15765",ecu:"0x7E0",lat:"~8ms"};},
+  async send(svc,did,data){S.frames++;setMetric('mFrames',S.frames);
+    log('tx',buildUDS(svc,did,data));await wait(70+Math.random()*110);
+    const pos=(parseInt(svc,16)+0x40).toString(16).toUpperCase();
+    log('rx',`${pos} ${did.replace('0x','')} ${data!==undefined?v2h(data):''}`.trim());return{ok:true};}
+};
+function buildUDS(svc,did,data){let s=`${svc.replace('0x','')} ${did.replace('0x','')}`;if(svc==='0x2F')s+=` 03 ${data!==undefined?v2h(data):'00'}`;if(svc==='0x31')s+=` 01 ${data!==undefined?v2h(data):'00'}`;return s;}
+function v2h(v){const n=Math.round(Number(v))&0xFFFF;return n.toString(16).toUpperCase().padStart(4,'0').replace(/(..)(..)/,'$1 $2');}
+
+const UDS={
+  async io(a,v){if(!S.connected)return warn();await Transport.send(a.svc,a.did,v);log('ok',`✓ ${a.name} → ${v!==undefined?v+a.unit:'ON'}`);},
+  async routine(a,v){if(!S.connected)return warn();log('ts',`── Rutina ${a.did} ──`);await Transport.send(a.svc,a.did,v);log('ok',`✓ ${a.name} OK`);},
+  async stop(a){if(!S.connected)return warn();await Transport.send(a.svc,a.did,0);log('ts',`■ ${a.name}: control a ECU`);}
+};
+function warn(){log('err','✗ Sin conexión. Conecta adaptador.');}
+
+/* ---------- LOG ---------- */
+function log(type,msg){
+  const ts=new Date().toLocaleTimeString('es-MX',{hour12:false});
+  S.logbuf.push({ts,type,msg});if(S.logbuf.length>200)S.logbuf.shift();
+  const t=document.getElementById('term');if(!t)return;
+  const tag=type==='tx'?'<span class="tx">TX▸</span>':type==='rx'?'<span class="rx">RX◂</span>':type==='ok'?'<span class="ok">   </span>':type==='err'?'<span class="err">!!!</span>':'<span class="ts">   </span>';
+  const cls=type==='ok'?'ok':type==='err'?'err':'';
+  t.innerHTML+=`<div><span class="ts">${ts}</span> ${tag} <span class="${cls}">${msg}</span></div>`;t.scrollTop=t.scrollHeight;
+}
+function setMetric(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+/* ---------- ROUTER ---------- */
+function go(el){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  el.classList.add('active');stopOsc();S.view=el.dataset.v;render();
+}
+function render(){
+  const v=document.getElementById('view');
+  if(S.view==='osc')return renderOsc(v);
+  if(S.view==='reset')return renderResets(v);
+  if(S.view==='dtc')return renderDTC(v);
+  if(S.view==='consola')return renderConsola(v);
+  renderActs(v);
+}
+
+/* ========== OSCILOSCOPIO ========== */
+function renderOsc(v){
+  const mo=S.motor;
+  v.innerHTML=`<div class="osc">
+    <div class="sigpanel">
+      <div class="sp-head"><span class="t">SEÑALES</span><span class="cnt"><span id="selCount">0</span>/6</span></div>
+      <div class="grp-lbl">⚡ PRESETS</div>
+      <div class="presets" id="presets"></div>
+      <div id="sigList"></div>
+    </div>
+    <div class="scopewrap">
+      <div class="scopebar">
+        <span class="mode-sub" id="modeSub">—</span>
+        <div class="layout-pick">
+          <div class="lp l1" data-m="combo" onclick="setMode('combo',this)"><i></i></div>
+          <div class="lp l2 on" data-m="auto" onclick="setMode('auto',this)"><i></i><i></i></div>
+          <div class="lp l4" data-m="grid" onclick="setMode('grid',this)"><i></i><i></i><i></i><i></i></div>
+        </div>
+      </div>
+      <div class="scope-area" id="scopeArea"></div>
+    </div>
+  </div>`;
+  document.getElementById('presets').innerHTML=PRESETS.map((p,i)=>`<div class="preset" onclick="applyPreset(${i})">${p.name}</div>`).join('');
+  let h='';const grps={};
+  for(const k in SIGNALS){const s=SIGNALS[k];(grps[s.grp]=grps[s.grp]||[]).push([k,s]);}
+  for(const g in grps){h+=`<div class="grp-lbl">${GRP_NAMES[g]}</div>`;
+    grps[g].forEach(([k,s])=>{h+=`<div class="sig off" id="sig_${k}" onclick="toggleSig('${k}')" style="color:${s.hex}"><span class="sw" style="background:${s.hex}"></span><span class="nm">${s.name}<small>PID ${s.pid} · ${s.unit}</small></span></div>`;});}
+  document.getElementById('sigList').innerHTML=h;
+  // restaurar modo activo
+  document.querySelectorAll('.lp').forEach(x=>x.classList.toggle('on',x.dataset.m===S.mode));
+  syncSig();renderScopes();
+}
+function syncSig(){for(const k in SIGNALS){const el=document.getElementById('sig_'+k);if(!el)continue;const on=S.selected.includes(k);el.classList.toggle('on',on);el.classList.toggle('off',!on);}const c=document.getElementById('selCount');if(c)c.textContent=S.selected.length;}
+function toggleSig(k){const i=S.selected.indexOf(k);if(i>=0)S.selected.splice(i,1);else{if(S.selected.length>=6){flashFull();return;}S.selected.push(k);}syncSig();renderScopes();}
+function applyPreset(i){S.selected=[...PRESETS[i].sig];syncSig();renderScopes();}
+function flashFull(){const c=document.getElementById('selCount');if(!c)return;c.style.color='var(--red)';c.style.transform='scale(1.5)';setTimeout(()=>{c.style.color='';c.style.transform='';},400);}
+function setMode(m,el){S.mode=m;document.querySelectorAll('.lp').forEach(x=>x.classList.remove('on'));el.classList.add('on');renderScopes();}
+
+function renderScopes(){
+  const area=document.getElementById('scopeArea');if(!area)return;
+  const n=S.selected.length;const sub=document.getElementById('modeSub');
+  if(n===0){area.style.gridTemplateColumns='1fr';area.style.gridTemplateRows='1fr';area.innerHTML=`<div class="empty">⊘ Sin señales<br>Marca señales o usa un preset</div>`;if(sub)sub.textContent='SELECCIONA SEÑALES';return;}
+  if(S.mode==='combo'){
+    area.style.gridTemplateColumns='1fr';area.style.gridTemplateRows='1fr';
+    if(sub)sub.textContent=`${n} SEÑALES · COMBINADA`;
+    const leg=S.selected.map(k=>`<span class="li"><span class="d" style="background:${SIGNALS[k].hex}"></span>${SIGNALS[k].name}</span>`).join('');
+    area.innerHTML=`<div class="scope"><div class="scope-head"><div class="scope-title">Vista combinada</div><div class="legend">${leg}</div></div><canvas id="cv_combo"></canvas><div class="scope-foot"><span>0%</span><span id="ft_combo">—</span><span>100%</span></div></div>`;
+    initBuf();requestAnimationFrame(()=>{sizeCv('cv_combo');drawCombo();});return;
+  }
+  let cols=1,rows=1;
+  if(S.mode==='grid'){cols=2;rows=Math.ceil(n/2);}
+  else{if(n===1){cols=1;}else if(n===2){cols=2;}else if(n===3){cols=3;}else if(n===4){cols=2;rows=2;}else{cols=3;rows=2;}}
+  area.style.gridTemplateColumns=`repeat(${cols},1fr)`;area.style.gridTemplateRows=`repeat(${rows},1fr)`;
+  if(sub)sub.textContent=`${n} SEÑAL${n>1?'ES':''} · SEPARADAS`;
+  area.innerHTML=S.selected.map(k=>{const s=SIGNALS[k];return `<div class="scope"><div class="scope-head"><div class="scope-title"><span class="led" style="background:${s.hex};box-shadow:0 0 8px ${s.hex}"></span>${s.name}</div><div class="scope-read" style="color:${s.hex}"><span id="rd_${k}">—</span><span class="u">${s.unit}</span></div></div><canvas id="cv_${k}"></canvas><div class="scope-foot"><span>${s.min}${s.unit}</span><span id="ft_${k}">—</span><span>${s.max}${s.unit}</span></div></div>`;}).join('');
+  initBuf();requestAnimationFrame(()=>{S.selected.forEach(k=>sizeCv('cv_'+k));S.selected.forEach(k=>drawScope(k));});
+}
+function initBuf(){S.selected.forEach(k=>{if(!S.buf[k])S.buf[k]=new Array(160).fill(SIGNALS[k].base);});}
+function sizeCv(id){const cv=document.getElementById(id);if(!cv)return;const r=cv.getBoundingClientRect();const dpr=window.devicePixelRatio||1;cv.width=Math.max(300,r.width)*dpr;cv.height=Math.max(70,r.height)*dpr;}
+
+function nextVal(k){const s=SIGNALS[k];const last=S.buf[k].at(-1);let v;const t=Date.now()/1000;
+  switch(s.wave){
+    case"drive":v=s.base+(Math.sin(t*0.6)+Math.sin(t*1.7)*0.4)*s.amp*4+(Math.random()-0.5)*s.amp;break;
+    case"rev":v=s.base+(Math.sin(t*0.6)+1)*s.amp*3+(Math.random()-0.5)*s.amp;break;
+    case"osc":v=s.base+Math.sin(t*4)*s.amp;break;
+    case"noise":v=last+(Math.random()-0.5)*s.amp;v+=(s.base-v)*0.1;break;
+    case"slow":v=last+(Math.random()-0.5)*s.amp*0.3;v+=(s.base-v)*0.02;break;
+    default:v=last+(Math.random()-0.5)*s.amp;}
+  return Math.max(s.min,Math.min(s.max,v));}
+
+function tickOsc(){
+  S.selected.forEach(k=>{const v=nextVal(k);S.buf[k].push(v);S.buf[k].shift();
+    const rd=document.getElementById('rd_'+k);if(rd)rd.textContent=(SIGNALS[k].unit==='λ')?v.toFixed(2):(SIGNALS[k].max<30?v.toFixed(1):Math.round(v));
+    const ft=document.getElementById('ft_'+k);if(ft)ft.textContent='12.5 m/s';});
+  if(S.mode==='combo'){drawCombo();const f=document.getElementById('ft_combo');if(f)f.textContent='12.5 muestras/s';}
+  else S.selected.forEach(k=>drawScope(k));
+}
+function gridBg(ctx,W,H){ctx.strokeStyle='rgba(120,140,160,.16)';ctx.lineWidth=1;for(let x=0;x<W;x+=W/12){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(let y=0;y<H;y+=H/4){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}}
+function drawScope(k){const cv=document.getElementById('cv_'+k);if(!cv)return;const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;const s=SIGNALS[k];const arr=S.buf[k];if(!arr)return;ctx.clearRect(0,0,W,H);gridBg(ctx,W,H);const n=arr.length;const toY=v=>H-((v-s.min)/(s.max-s.min))*H;const dpr=window.devicePixelRatio||1;
+  ctx.beginPath();arr.forEach((v,i)=>{const x=(i/(n-1))*W,y=toY(v);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,s.hex+'44');g.addColorStop(1,s.hex+'00');ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();arr.forEach((v,i)=>{const x=(i/(n-1))*W,y=toY(v);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.strokeStyle=s.hex;ctx.lineWidth=2*dpr;ctx.shadowColor=s.hex;ctx.shadowBlur=8;ctx.stroke();ctx.shadowBlur=0;
+  const ly=toY(arr[n-1]);ctx.beginPath();ctx.arc(W-3,ly,3.5*dpr,0,7);ctx.fillStyle=s.hex;ctx.fill();}
+function drawCombo(){const cv=document.getElementById('cv_combo');if(!cv)return;const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;const dpr=window.devicePixelRatio||1;ctx.clearRect(0,0,W,H);gridBg(ctx,W,H);
+  S.selected.forEach(k=>{const s=SIGNALS[k];const arr=S.buf[k];if(!arr)return;const n=arr.length;const toY=v=>H-((v-s.min)/(s.max-s.min))*H*0.92-H*0.04;
+    ctx.beginPath();arr.forEach((v,i)=>{const x=(i/(n-1))*W,y=toY(v);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.strokeStyle=s.hex;ctx.lineWidth=2*dpr;ctx.shadowColor=s.hex;ctx.shadowBlur=6;ctx.stroke();ctx.shadowBlur=0;
+    const ly=toY(arr[n-1]);ctx.beginPath();ctx.arc(W-3,ly,3*dpr,0,7);ctx.fillStyle=s.hex;ctx.fill();});}
+function startOsc(){stopOsc();if(S.view==='osc')S.timer=setInterval(tickOsc,80);}
+function stopOsc(){if(S.timer){clearInterval(S.timer);S.timer=null;}}
+
+/* ========== ACTUADORES ========== */
+function renderActs(v){
+  const sys=SYSTEMS[S.view];
+  let h=`<div class="vhead"><h2>${sys.title}<span class="sub">${sys.sub}</span></h2><div class="tag">UDS 0x2F · 0x31</div></div>`;
+  h+=`<div class="warn-banner"><span>⚠</span><div><b>Pruebas activas reales:</b> mover actuadores con motor encendido puede afectar marcha o causar calado. Devuelve control al ECU (■) al terminar.</div></div>`;
+  h+=`<div class="grid">`+sys.acts.map(actCard).join('')+`</div>`;
+  v.innerHTML=h;
+}
+function actCard(a){const val=S.active[a.id]??(a.min??0);let c='';
+  if(a.type==='slider'||a.type==='pulse'){c=`<div class="act-val"><span id="v_${a.id}">${val}</span><span class="unit">${a.unit}</span></div><div class="slider-wrap"><label>${a.min}${a.unit} ───── ${a.max}${a.unit}</label><input type="range" min="${a.min}" max="${a.max}" value="${val}" oninput="onSlide('${a.id}',this.value)"></div><div class="act-ctrl"><button class="btn btn-run" onclick="runAct('${a.id}')">APLICAR</button><button class="btn btn-stop" onclick="stopAct('${a.id}')">■</button></div>`;}
+  else if(a.type==='toggle'){c=`<div class="act-val"><span id="v_${a.id}">OFF</span></div><div class="act-ctrl"><button class="btn btn-run" id="run_${a.id}" onclick="toggleAct('${a.id}')">ACTIVAR</button><button class="btn btn-stop" onclick="stopAct('${a.id}')">■</button></div>`;}
+  else{c=`<div class="act-val"><span id="v_${a.id}">LISTO</span></div><div class="act-ctrl"><button class="btn btn-run" onclick="routineAct('${a.id}')">EJECUTAR RUTINA</button></div>`;}
+  return `<div class="act" id="card_${a.id}"><div class="act-top"><div><div class="act-name">${a.name}</div><div class="act-id">${a.svc} · ${a.did} · ${a.desc}</div></div><div class="act-icon">${a.icon}</div></div><div class="gauge"><div class="gauge-fill" id="g_${a.id}"></div></div>${c}</div>`;}
+function findAct(id){for(const k in SYSTEMS){const a=SYSTEMS[k].acts.find(x=>x.id===id);if(a)return a;}return null;}
+function onSlide(id,val){S.active[id]=val;document.getElementById('v_'+id).textContent=val;const a=findAct(id);document.getElementById('g_'+id).style.width=((val-a.min)/(a.max-a.min))*100+'%';}
+function runAct(id){const a=findAct(id);UDS.io(a,S.active[id]??a.min);flash(id);}
+function toggleAct(id){const a=findAct(id);const on=!S.active[id];S.active[id]=on;document.getElementById('v_'+id).textContent=on?'ON':'OFF';document.getElementById('run_'+id).classList.toggle('active',on);document.getElementById('g_'+id).style.width=on?'100%':'0%';document.getElementById('card_'+id).classList.toggle('live',on);UDS.io(a,on?1:0);}
+function routineAct(id){const a=findAct(id);UDS.routine(a,1);flash(id);}
+function stopAct(id){const a=findAct(id);S.active[id]=0;const e=document.getElementById('v_'+id);if(e)e.textContent=a.type==='toggle'?'OFF':'0';document.getElementById('g_'+id).style.width='0%';document.getElementById('card_'+id).classList.remove('live');document.getElementById('run_'+id)?.classList.remove('active');UDS.stop(a);}
+function flash(id){const c=document.getElementById('card_'+id);c.classList.add('live');setTimeout(()=>{if(!S.active[id])c.classList.remove('live');},2500);}
+
+function renderResets(v){let h=`<div class="vhead"><h2>Servicios de Reinicio<span class="sub">SERVICE RESET</span></h2><div class="tag">RUTINA 0x31</div></div><div class="grid">`;
+  h+=RESETS.map(r=>`<div class="act" id="card_${r.id}"><div class="act-top"><div><div class="act-name">${r.name}</div><div class="act-id">RID ${r.rid} · ${r.desc}</div></div><div class="act-icon">${r.icon}</div></div><div class="act-ctrl" style="margin-top:8px"><button class="btn btn-run" onclick="doReset('${r.id}','${r.name}','${r.rid}')">EJECUTAR</button></div></div>`).join('');
+  v.innerHTML=h+`</div>`;}
+async function doReset(id,name,rid){if(!S.connected)return warn();flash(id);log('ts',`── ${name} ──`);await Transport.send('0x31',rid,1);log('ok',`✓ ${name} completado`);}
+
+function renderDTC(v){let h=`<div class="vhead"><h2>Códigos DTC<span class="sub">ISO 15031-6</span></h2><div class="tag">0x19 · 0x14</div></div><div class="grid" style="grid-template-columns:1fr">`;
+  h+=DTCS.map(d=>{const c=d.st==='Confirmado'?'var(--red)':'var(--amber)';return `<div class="act"><div class="act-top"><div><div class="act-name" style="font-family:var(--mono);color:${c}">${d.code}</div><div class="act-id">${d.desc}</div></div><div style="font-family:var(--mono);font-size:10px;color:${c}">${d.st}</div></div></div>`;}).join('');
+  v.innerHTML=h+`</div><div style="margin-top:14px"><button class="btn btn-stop" style="flex:none;width:auto;padding:12px 24px" onclick="clearDTC()">🗑 BORRAR TODOS (0x14)</button></div>`;}
+async function clearDTC(){if(!S.connected)return warn();await Transport.send('0x14','0xFFFFFF');log('ok','✓ Códigos borrados · 54');}
+
+function renderConsola(v){
+  v.innerHTML=`<div class="vhead"><h2>Consola UDS<span class="sub">ISO 14229 · TRAMAS</span></h2><div class="tag">TIEMPO REAL</div></div>
+  <div class="metrics">
+    <div class="metric"><div class="k">PROTOCOLO</div><div class="v" id="mProto">—</div></div>
+    <div class="metric"><div class="k">LATENCIA</div><div class="v" id="mLat">—</div></div>
+    <div class="metric"><div class="k">ECU ID</div><div class="v" id="mEcu">—</div></div>
+    <div class="metric"><div class="k">TRAMAS</div><div class="v" id="mFrames">${S.frames}</div></div>
+  </div>
+  <div style="height:calc(100% - 150px)"><div class="term" id="term"></div></div>`;
+  const t=document.getElementById('term');
+  t.innerHTML=S.logbuf.map(l=>{const tag=l.type==='tx'?'<span class="tx">TX▸</span>':l.type==='rx'?'<span class="rx">RX◂</span>':l.type==='ok'?'<span class="ok">   </span>':l.type==='err'?'<span class="err">!!!</span>':'<span class="ts">   </span>';const cls=l.type==='ok'?'ok':l.type==='err'?'err':'';return `<div><span class="ts">${l.ts}</span> ${tag} <span class="${cls}">${l.msg}</span></div>`;}).join('');
+  t.scrollTop=t.scrollHeight;
+  if(S.connected){setMetric('mProto',S._proto);setMetric('mLat',S._lat);setMetric('mEcu',S._ecu);}
+}
+
+/* ---------- CONEXIÓN ---------- */
+function toggleConn(){S.connected?disc():document.getElementById('modal').classList.add('show');}
+async function connect(m){
+  document.getElementById('modal').classList.remove('show');
+  log('ts',`Conectando ${m.toUpperCase()}...`);
+  const info=await Transport.connect(m);
+  S.connected=true;S._proto=info.proto.split(' ')[0];S._lat=info.lat;S._ecu=info.ecu;
+  document.getElementById('connBtn').classList.add('on');
+  document.getElementById('connTxt').textContent=m==='sim'?'SIMULADOR':'CONECTADO';
+  log('ok',`✓ Enlace · ${info.proto} · ECU ${info.ecu}`);
+  setMetric('mProto',S._proto);setMetric('mLat',S._lat);setMetric('mEcu',S._ecu);
+  if(S.view==='osc')startOsc();
+}
+function disc(){S.connected=false;stopOsc();document.getElementById('connBtn').classList.remove('on');document.getElementById('connTxt').textContent='DESCONECTADO';['mProto','mLat','mEcu'].forEach(i=>setMetric(i,'—'));log('ts','Sesión cerrada.');}
+
+/* ---------- MOTOR ---------- */
+async function openVeh(){const m=document.getElementById('vehModal');m.classList.add('show');document.getElementById('vehStatus').textContent='Cargando base de motores...';
+  const list=await MotorDB.load();document.getElementById('vehStatus').textContent=`${list.length} motores · diésel y gasolina`;
+  document.getElementById('vehList').innerHTML=list.map((mo,i)=>{const f=mo.combustible==='diesel'?'d':'g';return `<div class="opt" onclick="pickMotor(${i})"><span class="ic">${mo.combustible==='diesel'?'🛢':'⛽'}</span><div style="flex:1"><div class="t">${mo.marca} ${mo.modelo}</div><div class="d">${mo.anio} · ${mo.cilindrada} · ${mo.ecu}</div></div><span class="fuel-tag ${f}">${mo.combustible.toUpperCase()}</span></div>`;}).join('');}
+function pickMotor(i){S.motor=MotorDB.list[i];document.getElementById('vehModal').classList.remove('show');const c=document.getElementById('vehChip');c.innerHTML=`⬡ ${S.motor.marca.toUpperCase()} ${S.motor.modelo} · ${S.motor.combustible==='diesel'?'🛢':'⛽'}`;log('ok',`✓ Motor: ${S.motor.marca} ${S.motor.modelo} (${S.motor.combustible})`);}
+
+/* ---------- UTIL / RESIZE ---------- */
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+let rT;window.addEventListener('resize',()=>{clearTimeout(rT);rT=setTimeout(()=>{if(S.view!=='osc')return;if(S.mode==='combo')sizeCv('cv_combo');else S.selected.forEach(k=>sizeCv('cv_'+k));if(!S.connected){S.mode==='combo'?drawCombo():S.selected.forEach(k=>drawScope(k));}},150);});
+
+/* ---------- INIT ---------- */
+log('ts','ProPart V8 — DATESEG MX');
+log('ts','Selecciona motor y conecta adaptador.');
+render();
+</script>
+</body>
+</html>

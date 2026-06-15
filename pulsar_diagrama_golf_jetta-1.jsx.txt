@@ -1,0 +1,365 @@
+import { useState, useMemo } from "react";
+
+// ─── Datos VW Golf/Jetta 2.0L MFI Motronic BBW ───────────────────────────────
+// Basado en diagramas eléctricos No.86/2 al 86/17 (Edition 09.03 / 04.04)
+// Conector ECM: J220 Motronic — T121 (121 pines)
+const GOLF_PINS = [
+  // ── SENSORES ──────────────────────────────────────────────────────────────
+  { num:"T10/1",  fn:"ECT Sensor (G62)",           cat:"SENSOR",      c1:"#FFCC00", c2:"#222222", cName:"Amarillo/Negro",  comp:"Sensor ECT G62",      dtc:"P0115" },
+  { num:"T10/2",  fn:"ECT Tierra (G62)",           cat:"SENSOR",      c1:"#666666", c2:null,      cName:"Marrón",          comp:"Sensor ECT G62",      dtc:""      },
+  { num:"T6/1",   fn:"CMP Sensor +5V (G40)",       cat:"SENSOR",      c1:"#FF6600", c2:null,      cName:"Naranja",         comp:"Sensor CMP G40",      dtc:"P0340" },
+  { num:"T6/2",   fn:"CMP Señal OUT (G40)",        cat:"SENSOR",      c1:"#FF6600", c2:"#222222", cName:"Naranja/Negro",   comp:"Sensor CMP G40",      dtc:"P0340" },
+  { num:"T6/3",   fn:"CMP Tierra (G40)",           cat:"SENSOR",      c1:"#666666", c2:null,      cName:"Marrón",          comp:"Sensor CMP G40",      dtc:""      },
+  { num:"T3/1",   fn:"CKP/RPM + (G28)",            cat:"SENSOR",      c1:"#FF3030", c2:null,      cName:"Rojo",            comp:"Sensor RPM G28",      dtc:"P0335" },
+  { num:"T3/2",   fn:"CKP/RPM − (G28)",            cat:"SENSOR",      c1:"#FF3030", c2:"#222222", cName:"Rojo/Negro",      comp:"Sensor RPM G28",      dtc:"P0335" },
+  { num:"T2/1",   fn:"Knock Sensor 1 + (G61)",     cat:"SENSOR",      c1:"#5588FF", c2:null,      cName:"Azul",            comp:"Knock Sensor G61",    dtc:"P0327" },
+  { num:"T2/2",   fn:"Knock Sensor 1 − (G61)",     cat:"SENSOR",      c1:"#5588FF", c2:"#666666", cName:"Azul/Marrón",     comp:"Knock Sensor G61",    dtc:"P0327" },
+  { num:"T2/3",   fn:"Knock Sensor 2 + (G66)",     cat:"SENSOR",      c1:"#5588FF", c2:"#FFCC00", cName:"Azul/Amarillo",   comp:"Knock Sensor G66",    dtc:"P0332" },
+  { num:"T2/4",   fn:"Knock Sensor 2 − (G66)",     cat:"SENSOR",      c1:"#5588FF", c2:"#FF3030", cName:"Azul/Rojo",       comp:"Knock Sensor G66",    dtc:"P0332" },
+  { num:"T10b/1", fn:"TPS Ángulo 1 (G186)",        cat:"SENSOR",      c1:"#22CC44", c2:null,      cName:"Verde",           comp:"TPS EPC G186",        dtc:"P1633" },
+  { num:"T10b/2", fn:"TPS Ángulo 2 (G187)",        cat:"SENSOR",      c1:"#22CC44", c2:"#FFCC00", cName:"Verde/Amarillo",  comp:"TPS EPC G187",        dtc:"P1634" },
+  { num:"T10b/3", fn:"TPS Ángulo 3 (G188)",        cat:"SENSOR",      c1:"#22CC44", c2:"#FF3030", cName:"Verde/Rojo",      comp:"TPS EPC G188",        dtc:"P1386" },
+  { num:"T10b/4", fn:"Pedal Aceler. 2 (G185)",     cat:"SENSOR",      c1:"#22CC44", c2:"#5588FF", cName:"Verde/Azul",      comp:"Pedal Acelerador G185",dtc:"P2138"},
+  { num:"T4/1",   fn:"HO2S Señal+ (G39)",          cat:"SENSOR",      c1:"#222222", c2:null,      cName:"Negro",           comp:"Sensor O2 G39",       dtc:"P0130" },
+  { num:"T4/2",   fn:"HO2S Señal− (G39)",          cat:"SENSOR",      c1:"#E8E8E8", c2:null,      cName:"Blanco",          comp:"Sensor O2 G39",       dtc:"P0130" },
+  { num:"T4/3",   fn:"HO2S Calen.+ (G39)",         cat:"SENSOR",      c1:"#E8E8E8", c2:"#666666", cName:"Blanco/Marrón",   comp:"Sensor O2 G39",       dtc:"P0135" },
+  { num:"T6c/1",  fn:"O2 Post-CAT + (G130)",       cat:"SENSOR",      c1:"#222222", c2:"#5588FF", cName:"Negro/Azul",      comp:"Sensor O2 G130",      dtc:"P0136" },
+  { num:"T6c/2",  fn:"O2 Post-CAT − (G130)",       cat:"SENSOR",      c1:"#E8E8E8", c2:"#5588FF", cName:"Blanco/Azul",     comp:"Sensor O2 G130",      dtc:"P0136" },
+  { num:"T10c/1", fn:"ECT Motor G (G62) Tierra",   cat:"SENSOR",      c1:"#666666", c2:"#222222", cName:"Marrón/Negro",    comp:"Sensor ECT G62",      dtc:""      },
+  { num:"T4f/1",  fn:"Temp. Gas Escape (G235)",    cat:"SENSOR",      c1:"#FF6600", c2:"#22CC44", cName:"Naranja/Verde",   comp:"Sensor EGT G235",     dtc:"P0546" },
+
+  // ── ACTUADORES ────────────────────────────────────────────────────────────
+  { num:"T14a/1", fn:"Inyector Cil.1 (N30)",       cat:"ACTUADOR",    c1:"#FF3030", c2:"#222222", cName:"Rojo/Negro",      comp:"Inyector N30 Cil.1",  dtc:"P0201" },
+  { num:"T14a/2", fn:"Inyector Cil.2 (N31)",       cat:"ACTUADOR",    c1:"#FF3030", c2:"#5588FF", cName:"Rojo/Azul",       comp:"Inyector N31 Cil.2",  dtc:"P0202" },
+  { num:"T14a/3", fn:"Inyector Cil.3 (N32)",       cat:"ACTUADOR",    c1:"#FF3030", c2:"#22CC44", cName:"Rojo/Verde",      comp:"Inyector N32 Cil.3",  dtc:"P0203" },
+  { num:"T14a/4", fn:"Inyector Cil.4 (N33)",       cat:"ACTUADOR",    c1:"#FF3030", c2:"#FFCC00", cName:"Rojo/Amarillo",   comp:"Inyector N33 Cil.4",  dtc:"P0204" },
+  { num:"T16/1",  fn:"Bobina Enc.1 (N70)",         cat:"ACTUADOR",    c1:"#222222", c2:"#FF3030", cName:"Negro/Rojo",      comp:"Bobina N70 Cil.1",    dtc:"P0351" },
+  { num:"T16/2",  fn:"Bobina Enc.2 (N127)",        cat:"ACTUADOR",    c1:"#222222", c2:"#22CC44", cName:"Negro/Verde",     comp:"Bobina N127 Cil.2",   dtc:"P0352" },
+  { num:"T16/3",  fn:"Bobina Enc.3 (N291)",        cat:"ACTUADOR",    c1:"#222222", c2:"#5588FF", cName:"Negro/Azul",      comp:"Bobina N291 Cil.3",   dtc:"P0353" },
+  { num:"T16/4",  fn:"Bobina Enc.4 (N292)",        cat:"ACTUADOR",    c1:"#222222", c2:"#FFCC00", cName:"Negro/Amarillo",  comp:"Bobina N292 Cil.4",   dtc:"P0354" },
+  { num:"T6b/1",  fn:"Válv.EVAP/Purga (N80)",      cat:"ACTUADOR",    c1:"#22CC44", c2:"#222222", cName:"Verde/Negro",     comp:"Válvula EVAP N80",    dtc:"P0443" },
+  { num:"T2b/1",  fn:"Válv.Ajuste CMP (N205)",     cat:"ACTUADOR",    c1:"#666666", c2:"#22CC44", cName:"Marrón/Verde",    comp:"Válvula CMP N205",    dtc:"P1340" },
+  { num:"T6d/1",  fn:"Bomba Vac.Frenos (V182)",    cat:"ACTUADOR",    c1:"#666666", c2:"#5588FF", cName:"Marrón/Azul",     comp:"Bomba Vacío V182",    dtc:""      },
+
+  // ── ALIMENTACIÓN ──────────────────────────────────────────────────────────
+  { num:"T6/4",   fn:"BAT+ KL.30 (Relay J271)",    cat:"ALIMENTACION",c1:"#FF3030", c2:null,      cName:"Rojo",            comp:"Relay ECM J271",      dtc:""      },
+  { num:"T6/5",   fn:"IGN KL.15 (Relay J271)",     cat:"ALIMENTACION",c1:"#FF3030", c2:"#222222", cName:"Rojo/Negro",      comp:"Relay ECM J271",      dtc:""      },
+  { num:"T4g/1",  fn:"Relay Bomba (J17)",           cat:"ALIMENTACION",c1:"#222222", c2:"#FFCC00", cName:"Negro/Amarillo",  comp:"Relay Bomba J17",     dtc:""      },
+  { num:"T4g/2",  fn:"Bomba Combustible (G6)",      cat:"ALIMENTACION",c1:"#222222", c2:"#5588FF", cName:"Negro/Azul",      comp:"Bomba Combustible G6",dtc:""      },
+  { num:"T6/6",   fn:"Fusible 32 (Inyectores)",     cat:"ALIMENTACION",c1:"#FF3030", c2:"#666666", cName:"Rojo/Marrón",     comp:"Relay ECM J271",      dtc:""      },
+
+  // ── TIERRA ────────────────────────────────────────────────────────────────
+  { num:"T121/1", fn:"GND Motor −1 (31)",           cat:"TIERRA",      c1:"#666666", c2:null,      cName:"Marrón",          comp:"Tierra Motor",        dtc:""      },
+  { num:"T121/2", fn:"GND Sensor Ref.",             cat:"TIERRA",      c1:"#666666", c2:"#222222", cName:"Marrón/Negro",    comp:"Tierra Sensor",       dtc:""      },
+  { num:"T10d/1", fn:"GND Centro Plenum",           cat:"TIERRA",      c1:"#666666", c2:"#22CC44", cName:"Marrón/Verde",    comp:"Tierra Motor",        dtc:""      },
+
+  // ── COMUNICACIÓN ──────────────────────────────────────────────────────────
+  { num:"T16b/1", fn:"Bus CAN H (DLC T16)",         cat:"COMUNICACION",c1:"#FF6600", c2:"#E8E8E8", cName:"Naranja/Blanco",  comp:"Bus CAN/OBD J533",    dtc:""      },
+  { num:"T16b/2", fn:"Bus CAN L (DLC T16)",         cat:"COMUNICACION",c1:"#FF6600", c2:"#222222", cName:"Naranja/Negro",   comp:"Bus CAN/OBD J533",    dtc:""      },
+  { num:"T16b/4", fn:"KL.15 OBD",                  cat:"COMUNICACION",c1:"#FF3030", c2:null,      cName:"Rojo",            comp:"Bus CAN/OBD J533",    dtc:""      },
+  { num:"T16b/16",fn:"BAT+ OBD",                   cat:"COMUNICACION",c1:"#FF3030", c2:"#FFCC00", cName:"Rojo/Amarillo",   comp:"Bus CAN/OBD J533",    dtc:""      },
+];
+
+const TIPO_MAP = {
+  "Sensor ECT G62":"sensor","Sensor CMP G40":"sensor","Sensor RPM G28":"sensor",
+  "Knock Sensor G61":"sensor","Knock Sensor G66":"sensor","TPS EPC G186":"sensor",
+  "TPS EPC G187":"sensor","TPS EPC G188":"sensor","Pedal Acelerador G185":"sensor",
+  "Sensor O2 G39":"sensor","Sensor O2 G130":"sensor","Sensor EGT G235":"sensor",
+  "Inyector N30 Cil.1":"inyector","Inyector N31 Cil.2":"inyector",
+  "Inyector N32 Cil.3":"inyector","Inyector N33 Cil.4":"inyector",
+  "Bobina N70 Cil.1":"bobina","Bobina N127 Cil.2":"bobina",
+  "Bobina N291 Cil.3":"bobina","Bobina N292 Cil.4":"bobina",
+  "Válvula EVAP N80":"solenoide","Válvula CMP N205":"solenoide",
+  "Bomba Vacío V182":"solenoide",
+  "Relay ECM J271":"relay","Relay Bomba J17":"relay","Bomba Combustible G6":"relay",
+  "Bus CAN/OBD J533":"can",
+  "Tierra Motor":"tierra","Tierra Sensor":"tierra",
+};
+
+const TIPO_ICON  = { sensor:"◉",inyector:"⬡",bobina:"⚡",solenoide:"⊟",relay:"⊡",can:"⇄",tierra:"⏚" };
+const TIPO_FILL  = { sensor:"#051a2e",inyector:"#1a0530",bobina:"#1a1205",solenoide:"#2a1a05",relay:"#051a10",can:"#0a1a2a",tierra:"#111" };
+const TIPO_STROKE= { sensor:"#1d4ed8",inyector:"#7c3aed",bobina:"#d97706",solenoide:"#b45309",relay:"#065f46",can:"#0891b2",tierra:"#374151" };
+
+const CATS = [
+  { label:"TODOS",          cat:null              },
+  { label:"SENSORES",       cat:"SENSOR"          },
+  { label:"ACTUADORES",     cat:"ACTUADOR"        },
+  { label:"ALIMENTACIÓN",   cat:"ALIMENTACION"    },
+  { label:"TIERRAS",        cat:"TIERRA"          },
+  { label:"COMUNICACIÓN",   cat:"COMUNICACION"    },
+];
+
+function CompBox({ x, y, w=140, h=44, name, tipo, selected, dimmed }) {
+  const fill   = dimmed ? "#070a14" : (TIPO_FILL[tipo]  || "#0d1120");
+  const stroke = selected ? "#60a5fa" : dimmed ? "#0d1527" : (TIPO_STROKE[tipo] || "#334155");
+  const sw     = selected ? 2 : 1.5;
+  const tc     = dimmed ? "#1a2a3a" : "#e2e8f0";
+  const sc     = dimmed ? "#0f1e2e" : "#64748b";
+  const ic     = dimmed ? "#0f1e2e" : (TIPO_STROKE[tipo] || "#64748b");
+
+  return (
+    <g>
+      {selected && <rect x={x-3} y={y-3} width={w+6} height={h+6} rx={9} fill={TIPO_STROKE[tipo]||"#3b82f6"} opacity={0.12}/>}
+      <rect x={x} y={y} width={w} height={h} rx={6} fill={fill} stroke={stroke} strokeWidth={sw}/>
+      <circle cx={x} cy={y+h/2} r={4} fill={dimmed?"#0d1527":"#cbd5e1"} stroke="#222" strokeWidth={1}/>
+      <text x={x+12} y={y+18} fill={ic} fontSize={14} fontFamily="monospace" textAnchor="middle">
+        {TIPO_ICON[tipo]||"□"}
+      </text>
+      <text x={x+22} y={y+17} fill={tc} fontSize={9} fontFamily="'Courier New',monospace" fontWeight="bold">
+        {name.length>16 ? name.slice(0,16)+"…" : name}
+      </text>
+      <text x={x+22} y={y+31} fill={sc} fontSize={8} fontFamily="monospace">
+        {(tipo||"").toUpperCase()}
+      </text>
+    </g>
+  );
+}
+
+export default function PulsarDiagramGolf() {
+  const [catFilter, setCatFilter] = useState("TODOS");
+  const [selPin, setSelPin]       = useState(null);
+  const [search, setSearch]       = useState("");
+
+  const filtered = useMemo(() => {
+    const cat = CATS.find(c=>c.label===catFilter)?.cat;
+    let pins = cat ? GOLF_PINS.filter(p=>p.cat===cat) : GOLF_PINS;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      pins = pins.filter(p =>
+        p.fn.toLowerCase().includes(q) ||
+        p.num.toLowerCase().includes(q) ||
+        p.comp.toLowerCase().includes(q) ||
+        p.dtc.toLowerCase().includes(q)
+      );
+    }
+    return pins;
+  }, [catFilter, search]);
+
+  const components = useMemo(() => {
+    const seen = new Map();
+    filtered.forEach(p => {
+      if (!seen.has(p.comp)) seen.set(p.comp, { name:p.comp, tipo:TIPO_MAP[p.comp]||"sensor", pins:[] });
+      seen.get(p.comp).pins.push(p.num);
+    });
+    const arr = Array.from(seen.values());
+    const SPACING = 66;
+    arr.forEach((c,i) => { c.y = 46 + i*SPACING; });
+    return arr;
+  },[filtered]);
+
+  const compYC = useMemo(() => {
+    const m = new Map();
+    components.forEach(c => m.set(c.name, c.y+22));
+    return m;
+  },[components]);
+
+  const PCM_X=18, PCM_W=178, PIN_H=26, PIN_Y0=60;
+  const CMP_X=710, CMP_W=140, CMP_H=44;
+  const SVG_W=900;
+  const SVG_H=Math.max(400, components.length*66+100);
+
+  function bezier(x1,y1,x2,y2) {
+    const mx=(x1+x2)/2;
+    return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+  }
+
+  const activeComp = selPin ? filtered.find(p=>p.num===selPin)?.comp : null;
+  const selData = selPin ? filtered.find(p=>p.num===selPin) : null;
+
+  return (
+    <div style={{background:"#060911",minHeight:"100vh",padding:16,fontFamily:"'Courier New',monospace",userSelect:"none"}}>
+
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
+        <div style={{background:"#1d4ed8",borderRadius:8,padding:"6px 14px",color:"#fff",fontWeight:"bold",fontSize:14,letterSpacing:1,display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:16}}>⚙</span> PULSAR PREDICTIVO
+        </div>
+        <div style={{color:"#94a3b8",fontSize:12,fontWeight:"bold"}}>VW Golf/Jetta · 2.0L MFI Motronic BBW · J220 ECM T121</div>
+        <div style={{color:"#334155",fontSize:10,marginLeft:"auto"}}>DATESEG MX · Ed.09.03</div>
+      </div>
+
+      {/* Búsqueda */}
+      <input
+        value={search}
+        onChange={e=>setSearch(e.target.value)}
+        placeholder="🔍 Buscar pin, función, componente, DTC..."
+        style={{width:"100%",maxWidth:400,padding:"6px 14px",borderRadius:20,
+          border:"1px solid #1e3058",background:"#0d1120",color:"#e2e8f0",
+          fontFamily:"monospace",fontSize:12,marginBottom:12,outline:"none"}}
+      />
+
+      {/* Filtros */}
+      <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+        {CATS.map(({label,cat})=>{
+          const count = cat ? GOLF_PINS.filter(p=>p.cat===cat).length : GOLF_PINS.length;
+          const active = catFilter===label;
+          return (
+            <button key={label}
+              onClick={()=>{setCatFilter(label);setSelPin(null);}}
+              style={{padding:"5px 14px",borderRadius:20,border:active?"none":"1px solid #1e2535",
+                cursor:"pointer",fontSize:11,fontFamily:"monospace",
+                background:active?"#1d4ed8":"#0d1120",
+                color:active?"#fff":"#94a3b8",fontWeight:active?"bold":"normal",
+                transition:"all 0.15s"}}>
+              {label} ({count})
+            </button>
+          );
+        })}
+        {(selPin||search) && (
+          <button onClick={()=>{setSelPin(null);setSearch("");}}
+            style={{padding:"5px 12px",borderRadius:20,border:"1px solid #1d4ed8",
+              background:"transparent",color:"#60a5fa",cursor:"pointer",fontSize:11,fontFamily:"monospace"}}>
+            ✕ Limpiar
+          </button>
+        )}
+      </div>
+
+      {/* Detalle pin seleccionado */}
+      {selData && (
+        <div style={{background:"#0d1a2e",border:"1px solid #1d4ed8",borderRadius:10,
+          padding:"12px 16px",marginBottom:14,display:"flex",gap:20,flexWrap:"wrap"}}>
+          <div>
+            <div style={{color:"#60a5fa",fontSize:10,marginBottom:2}}>PIN</div>
+            <div style={{color:"#fff",fontSize:16,fontWeight:"bold"}}>{selData.num}</div>
+          </div>
+          <div style={{flex:1}}>
+            <div style={{color:"#60a5fa",fontSize:10,marginBottom:2}}>FUNCIÓN</div>
+            <div style={{color:"#e2e8f0",fontSize:13}}>{selData.fn}</div>
+          </div>
+          <div>
+            <div style={{color:"#60a5fa",fontSize:10,marginBottom:2}}>COMPONENTE</div>
+            <div style={{color:"#94a3b8",fontSize:12}}>{selData.comp}</div>
+          </div>
+          <div>
+            <div style={{color:"#60a5fa",fontSize:10,marginBottom:2}}>CABLE</div>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{width:14,height:14,borderRadius:3,background:selData.c1,border:"1px solid #333"}}/>
+              {selData.c2 && <div style={{width:14,height:14,borderRadius:3,background:selData.c2,border:"1px solid #333"}}/>}
+              <span style={{color:"#94a3b8",fontSize:11}}>{selData.cName}</span>
+            </div>
+          </div>
+          {selData.dtc && (
+            <div>
+              <div style={{color:"#60a5fa",fontSize:10,marginBottom:2}}>DTC</div>
+              <div style={{color:"#f87171",fontSize:13,fontWeight:"bold"}}>{selData.dtc}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SVG Diagrama */}
+      <div style={{overflowX:"auto",background:"#07090f",borderRadius:12,border:"1px solid #0f172a",padding:6}}>
+        <svg width={SVG_W} height={SVG_H}>
+          <defs>
+            <filter id="glow2">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          {/* ECM shadow */}
+          <rect x={PCM_X+3} y={38} width={PCM_W} height={filtered.length*PIN_H+24} rx={10} fill="#000" opacity={0.4}/>
+          {/* ECM block */}
+          <rect x={PCM_X} y={36} width={PCM_W} height={filtered.length*PIN_H+24} rx={10}
+            fill="#08101e" stroke="#1e3a5f" strokeWidth={2}/>
+          <rect x={PCM_X} y={36} width={PCM_W} height={26} rx={10} fill="#0c1a30"/>
+          <rect x={PCM_X} y={50} width={PCM_W} height={12} fill="#0c1a30"/>
+          <text x={PCM_X+PCM_W/2} y={52} textAnchor="middle" fill="#1d4ed8" fontSize={11} fontWeight="bold" fontFamily="monospace">
+            J220 ECM MOTRONIC
+          </text>
+          <text x={PCM_X+PCM_W/2} y={64} textAnchor="middle" fill="#334155" fontSize={8} fontFamily="monospace">
+            VW Golf/Jetta 2.0L BBW · T121
+          </text>
+
+          {/* Cables */}
+          {filtered.map((pin,i)=>{
+            const py = PIN_Y0 + i*PIN_H + PIN_H/2;
+            const cy = compYC.get(pin.comp);
+            if (!cy) return null;
+            const isActive = !activeComp || activeComp===pin.comp;
+            const isSelected = selPin===pin.num;
+            const opacity = isActive ? 1 : 0.08;
+            return (
+              <g key={pin.num+"-wire"} opacity={opacity}>
+                {/* Cable 1 */}
+                <path d={bezier(PCM_X+PCM_W, py, CMP_X, cy)}
+                  stroke={pin.c1} strokeWidth={isSelected?3:1.5}
+                  fill="none" opacity={0.85}
+                  filter={isSelected?"url(#glow2)":undefined}/>
+                {/* Cable 2 */}
+                {pin.c2 && (
+                  <path d={bezier(PCM_X+PCM_W, py+3, CMP_X, cy+3)}
+                    stroke={pin.c2} strokeWidth={isSelected?3:1.5}
+                    fill="none" opacity={0.7} strokeDasharray={isSelected?"":"4 2"}/>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Pines ECM */}
+          {filtered.map((pin,i)=>{
+            const py = PIN_Y0 + i*PIN_H;
+            const isActive = !activeComp || activeComp===pin.comp;
+            const isSelected = selPin===pin.num;
+            const isHover = false;
+            return (
+              <g key={pin.num}
+                style={{cursor:"pointer"}}
+                onClick={()=>setSelPin(selPin===pin.num ? null : pin.num)}
+                opacity={isActive?1:0.15}>
+                {/* Fila */}
+                <rect x={PCM_X+2} y={py+1} width={PCM_W-4} height={PIN_H-2} rx={4}
+                  fill={isSelected?"#0c2040":"transparent"}
+                  stroke={isSelected?"#1d4ed8":"transparent"} strokeWidth={1}/>
+                {/* Número pin */}
+                <text x={PCM_X+10} y={py+17} fill={isSelected?"#60a5fa":"#475569"}
+                  fontSize={9} fontFamily="monospace" fontWeight="bold">
+                  {pin.num}
+                </text>
+                {/* Función */}
+                <text x={PCM_X+58} y={py+17} fill={isSelected?"#e2e8f0":"#94a3b8"}
+                  fontSize={9} fontFamily="monospace">
+                  {pin.fn.length>22 ? pin.fn.slice(0,22)+"…" : pin.fn}
+                </text>
+                {/* Muestra de color */}
+                <rect x={PCM_X+PCM_W-24} y={py+6} width={10} height={10} rx={2}
+                  fill={pin.c1} stroke="#222" strokeWidth={0.5}/>
+                {pin.c2 && <rect x={PCM_X+PCM_W-13} y={py+6} width={10} height={10} rx={2}
+                  fill={pin.c2} stroke="#222" strokeWidth={0.5}/>}
+                {/* Punto conector */}
+                <circle cx={PCM_X+PCM_W} cy={py+PIN_H/2} r={3}
+                  fill={isSelected?"#60a5fa":"#1e3a5f"}/>
+              </g>
+            );
+          })}
+
+          {/* Componentes lado derecho */}
+          {components.map(c=>{
+            const isActive = !activeComp || activeComp===c.name;
+            const isSelected = activeComp===c.name;
+            return (
+              <CompBox key={c.name}
+                x={CMP_X} y={c.y} w={CMP_W} h={CMP_H}
+                name={c.name} tipo={c.tipo}
+                selected={isSelected} dimmed={!isActive}/>
+            );
+          })}
+        </svg>
+      </div>
+
+      {/* Leyenda */}
+      <div style={{marginTop:14,padding:"10px 14px",background:"#0d1120",borderRadius:8,
+        border:"1px solid #1e2535",display:"flex",gap:16,flexWrap:"wrap"}}>
+        {Object.entries(TIPO_ICON).map(([tipo,icon])=>(
+          <div key={tipo} style={{display:"flex",alignItems:"center",gap:5}}>
+            <span style={{color:TIPO_STROKE[tipo]||"#64748b",fontSize:14}}>{icon}</span>
+            <span style={{color:"#475569",fontSize:10}}>{tipo.toUpperCase()}</span>
+          </div>
+        ))}
+        <div style={{marginLeft:"auto",color:"#1e293b",fontSize:9}}>
+          {GOLF_PINS.length} pines · Ed.09.03/04.04
+        </div>
+      </div>
+    </div>
+  );
+}

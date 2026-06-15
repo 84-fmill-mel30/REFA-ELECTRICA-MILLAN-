@@ -1,0 +1,359 @@
+import { useState, useMemo } from "react";
+
+// ─── Datos Honda Civic D16Y8 1.6L SOHC ───────────────────────────────────────
+const HONDA_PINS = [
+  // SENSORES
+  { num:"B1",  fn:"MAP +5V Ref.",      cat:"SENSOR",      c1:"#FF3030", c2:null,       cName:"Rojo",             comp:"MAP Sensor",     dtc:""       },
+  { num:"B2",  fn:"MAP Señal OUT",     cat:"SENSOR",      c1:"#22CC44", c2:"#F0F0F0",  cName:"Verde/Blanco",     comp:"MAP Sensor",     dtc:"P0107"  },
+  { num:"B3",  fn:"MAP Tierra",        cat:"SENSOR",      c1:"#22CC44", c2:"#FF3030",  cName:"Verde/Rojo",       comp:"MAP Sensor",     dtc:""       },
+  { num:"B7",  fn:"Sensor ECT",        cat:"SENSOR",      c1:"#22CC44", c2:"#F0F0F0",  cName:"Verde/Blanco",     comp:"Sensor ECT",     dtc:"P0115"  },
+  { num:"B8",  fn:"TPS +5V",           cat:"SENSOR",      c1:"#FFCC00", c2:"#F0F0F0",  cName:"Amarillo/Blanco",  comp:"TPS",            dtc:""       },
+  { num:"B9",  fn:"TPS Señal",         cat:"SENSOR",      c1:"#FF3030", c2:"#F0F0F0",  cName:"Rojo/Blanco",      comp:"TPS",            dtc:"P0122"  },
+  { num:"B14", fn:"TPS Tierra",        cat:"SENSOR",      c1:"#22CC44", c2:"#FF3030",  cName:"Verde/Rojo",       comp:"TPS",            dtc:""       },
+  { num:"B10", fn:"Sensor IAT",        cat:"SENSOR",      c1:"#22CC44", c2:"#FF3030",  cName:"Verde/Rojo",       comp:"Sensor IAT",     dtc:"P0112"  },
+  { num:"C1",  fn:"O2 Señal (+)",      cat:"SENSOR",      c1:"#E8E8E8", c2:null,       cName:"Blanco",           comp:"O2 Sensor",      dtc:"P0136"  },
+  { num:"C2",  fn:"O2 Señal (−)",      cat:"SENSOR",      c1:"#E8E8E8", c2:"#222222",  cName:"Blanco/Negro",     comp:"O2 Sensor",      dtc:"P0136"  },
+  { num:"D7",  fn:"CKP Sensor (+)",    cat:"SENSOR",      c1:"#5588FF", c2:"#FFCC00",  cName:"Azul/Amarillo",    comp:"CKP Sensor",     dtc:"P0335"  },
+  { num:"D8",  fn:"CKP Sensor (−)",    cat:"SENSOR",      c1:"#5588FF", c2:"#22CC44",  cName:"Azul/Verde",       comp:"CKP Sensor",     dtc:"P0335"  },
+  // ACTUADORES
+  { num:"A1",  fn:"Inyector #1",       cat:"ACTUADOR",    c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Inyector #1",    dtc:"P0201"  },
+  { num:"A2",  fn:"Inyector #2",       cat:"ACTUADOR",    c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Inyector #2",    dtc:"P0202"  },
+  { num:"A3",  fn:"Inyector #3",       cat:"ACTUADOR",    c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Inyector #3",    dtc:"P0203"  },
+  { num:"A4",  fn:"Inyector #4",       cat:"ACTUADOR",    c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Inyector #4",    dtc:"P0204"  },
+  { num:"A6",  fn:"VTEC Solenoide",    cat:"ACTUADOR",    c1:"#FFCC00", c2:"#22CC44",  cName:"Amarillo/Verde",   comp:"VTEC Solenoid",  dtc:"P1259"  },
+  { num:"A8",  fn:"Válvula IAC",       cat:"ACTUADOR",    c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Válvula IAC",    dtc:"P0505"  },
+  // ALIMENTACIÓN
+  { num:"A16", fn:"Relay Principal",   cat:"ALIMENTACION",c1:"#FFCC00", c2:"#222222",  cName:"Amarillo/Negro",   comp:"Relay Principal",dtc:""       },
+  { num:"A7",  fn:"Relay Bomba Comb.", cat:"ALIMENTACION",c1:"#222222", c2:"#FFCC00",  cName:"Negro/Amarillo",   comp:"Relay Bomba",    dtc:""       },
+  { num:"A24", fn:"BAT+ IGN OFF",      cat:"ALIMENTACION",c1:"#FFCC00", c2:null,       cName:"Amarillo",         comp:"Batería +",      dtc:""       },
+  // TIERRAS
+  { num:"A26", fn:"Tierra Motor",      cat:"TIERRA",      c1:"#444444", c2:null,       cName:"Negro",            comp:"GND Motor",      dtc:""       },
+  { num:"D22", fn:"Tierra Sensor",     cat:"TIERRA",      c1:"#444444", c2:"#999999",  cName:"Negro/Gris",       comp:"GND Sensor",     dtc:""       },
+];
+
+const TIPO_MAP = {
+  "MAP Sensor":"sensor","Sensor ECT":"sensor","TPS":"sensor",
+  "Sensor IAT":"sensor","O2 Sensor":"sensor","CKP Sensor":"sensor",
+  "Inyector #1":"inyector","Inyector #2":"inyector",
+  "Inyector #3":"inyector","Inyector #4":"inyector",
+  "VTEC Solenoid":"solenoide","Válvula IAC":"solenoide",
+  "Relay Principal":"relay","Relay Bomba":"relay",
+  "Batería +":"bateria",
+  "GND Motor":"tierra","GND Sensor":"tierra",
+};
+
+const TIPO_ICON  = { sensor:"◉",inyector:"⬡",solenoide:"⊟",relay:"⊡",bateria:"⊕",tierra:"⏚" };
+const TIPO_FILL  = { sensor:"#051a2e",inyector:"#1a0530",solenoide:"#2a1a05",relay:"#051a10",bateria:"#1a1a05",tierra:"#111" };
+const TIPO_STROKE= { sensor:"#1d4ed8",inyector:"#7c3aed",solenoide:"#b45309",relay:"#065f46",bateria:"#92400e",tierra:"#374151" };
+
+const CATS = [
+  { label:"TODOS",       cat:null              },
+  { label:"SENSORES",    cat:"SENSOR"          },
+  { label:"ACTUADORES",  cat:"ACTUADOR"        },
+  { label:"ALIMENTACIÓN",cat:"ALIMENTACION"    },
+  { label:"TIERRAS",     cat:"TIERRA"          },
+];
+
+// ─── Component box ────────────────────────────────────────────────────────────
+function CompBox({ x, y, w=130, h=44, name, tipo, selected, dimmed }) {
+  const fill   = dimmed ? "#070a14" : (TIPO_FILL[tipo]  || "#0d1120");
+  const stroke = selected ? "#60a5fa" : dimmed ? "#0d1527" : (TIPO_STROKE[tipo] || "#334155");
+  const sw     = selected ? 2 : 1.5;
+  const tc     = dimmed ? "#1a2a3a" : "#e2e8f0";
+  const sc     = dimmed ? "#0f1e2e" : "#64748b";
+  const ic     = dimmed ? "#0f1e2e" : (TIPO_STROKE[tipo] || "#64748b");
+
+  return (
+    <g>
+      {selected && <rect x={x-3} y={y-3} width={w+6} height={h+6} rx={9} fill={TIPO_STROKE[tipo]||"#3b82f6"} opacity={0.12}/>}
+      <rect x={x} y={y} width={w} height={h} rx={6} fill={fill} stroke={stroke} strokeWidth={sw}/>
+      {/* Left terminal */}
+      <circle cx={x} cy={y+h/2} r={4} fill={dimmed?"#0d1527":"#cbd5e1"} stroke="#222" strokeWidth={1}/>
+      {/* Icon */}
+      <text x={x+12} y={y+18} fill={ic} fontSize={14} fontFamily="monospace" textAnchor="middle">
+        {TIPO_ICON[tipo]||"□"}
+      </text>
+      {/* Name */}
+      <text x={x+22} y={y+17} fill={tc} fontSize={10} fontFamily="'Courier New',monospace" fontWeight="bold">
+        {name.length>14 ? name.slice(0,14)+"…" : name}
+      </text>
+      {/* Type label */}
+      <text x={x+22} y={y+31} fill={sc} fontSize={8} fontFamily="monospace">
+        {(tipo||"").toUpperCase()}
+      </text>
+    </g>
+  );
+}
+
+// ─── Main diagram ─────────────────────────────────────────────────────────────
+export default function PulsarDiagram() {
+  const [catFilter, setCatFilter] = useState("TODOS");
+  const [selPin, setSelPin]       = useState(null);
+  const [hoverPin, setHoverPin]   = useState(null);
+
+  const filtered = useMemo(() => {
+    const cat = CATS.find(c=>c.label===catFilter)?.cat;
+    return cat ? HONDA_PINS.filter(p=>p.cat===cat) : HONDA_PINS;
+  }, [catFilter]);
+
+  // Unique components with Y positions
+  const components = useMemo(() => {
+    const seen = new Map();
+    filtered.forEach(p => {
+      if (!seen.has(p.comp)) seen.set(p.comp, { name:p.comp, tipo:TIPO_MAP[p.comp]||"sensor", pins:[] });
+      seen.get(p.comp).pins.push(p.num);
+    });
+    const arr = Array.from(seen.values());
+    const SPACING = 66;
+    arr.forEach((c,i) => { c.y = 46 + i*SPACING; });
+    return arr;
+  },[filtered]);
+
+  const compYC = useMemo(() => {
+    const m = new Map();
+    components.forEach(c => m.set(c.name, c.y+22));
+    return m;
+  },[components]);
+
+  // Layout constants
+  const PCM_X=18, PCM_W=168, PIN_H=26, PIN_Y0=60;
+  const CMP_X=700, CMP_W=130, CMP_H=44;
+  const SVG_W=880;
+  const SVG_H=Math.max(360, components.length*66+100);
+
+  function bezier(x1,y1,x2,y2) {
+    const mx=(x1+x2)/2;
+    return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+  }
+
+  const activeComp = selPin ? filtered.find(p=>p.num===selPin)?.comp : null;
+
+  return (
+    <div style={{background:"#060911",minHeight:"100vh",padding:16,fontFamily:"'Courier New',monospace",userSelect:"none"}}>
+
+      {/* ── Header ── */}
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14,flexWrap:"wrap"}}>
+        <div style={{background:"#b91c1c",borderRadius:8,padding:"6px 14px",color:"#fff",fontWeight:"bold",fontSize:14,letterSpacing:1,display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:16}}>◉</span> PULSAR PREDICTIVO
+        </div>
+        <div style={{color:"#475569",fontSize:11}}>Honda Civic · D16Y8 1.6L SOHC · Conector ECM</div>
+        <div style={{marginLeft:"auto",color:"#1e293b",fontSize:10}}>DATESEG MX</div>
+      </div>
+
+      {/* ── Filtros ── */}
+      <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+        {CATS.map(({label,cat})=>{
+          const count = cat ? HONDA_PINS.filter(p=>p.cat===cat).length : HONDA_PINS.length;
+          const active = catFilter===label;
+          return (
+            <button key={label}
+              onClick={()=>{setCatFilter(label);setSelPin(null);}}
+              style={{padding:"5px 14px",borderRadius:20,border:active?"none":"1px solid #1e2535",
+                cursor:"pointer",fontSize:11,fontFamily:"monospace",
+                background:active?"#b91c1c":"#0d1120",
+                color:active?"#fff":"#94a3b8",fontWeight:active?"bold":"normal",
+                transition:"all 0.15s"}}>
+              {label} ({count})
+            </button>
+          );
+        })}
+        {selPin && (
+          <button onClick={()=>setSelPin(null)}
+            style={{padding:"5px 12px",borderRadius:20,border:"1px solid #b91c1c",
+              background:"transparent",color:"#f87171",cursor:"pointer",fontSize:11,fontFamily:"monospace"}}>
+            ✕ Limpiar
+          </button>
+        )}
+      </div>
+
+      {/* ── SVG Diagram ── */}
+      <div style={{overflowX:"auto",background:"#07090f",borderRadius:12,border:"1px solid #0f172a",padding:6}}>
+        <svg width={SVG_W} height={SVG_H}>
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          {/* PCM chassis shadow */}
+          <rect x={PCM_X+3} y={38} width={PCM_W} height={filtered.length*PIN_H+24} rx={10} fill="#000" opacity={0.4}/>
+
+          {/* PCM block */}
+          <rect x={PCM_X} y={36} width={PCM_W} height={filtered.length*PIN_H+24} rx={10}
+            fill="#08101e" stroke="#1e3a5f" strokeWidth={2}/>
+
+          {/* PCM header bar */}
+          <rect x={PCM_X} y={36} width={PCM_W} height={26} rx={10} fill="#0c1a30"/>
+          <rect x={PCM_X} y={50} width={PCM_W} height={12} fill="#0c1a30"/>
+          <text x={PCM_X+PCM_W/2} y={52} textAnchor="middle" fill="#b91c1c" fontSize={11} fontWeight="bold" fontFamily="monospace">
+            ECM / PCM
+          </text>
+          <text x={PCM_X+PCM_W/2} y={64} textAnchor="middle" fill="#334155" fontSize={8} fontFamily="monospace">
+            Honda Civic D16Y8
+          </text>
+
+          {/* Wires — drawn first (behind pins) */}
+          {filtered.map((pin,i)=>{
+            const py = PIN_Y0 + i*PIN_H + PIN_H/2;
+            const cy = compYC.get(pin.comp);
+            if (!cy) return null;
+            const isSel  = selPin===pin.num;
+            const isHov  = hoverPin===pin.num;
+            const dim    = (selPin||hoverPin) && !isSel && !isHov;
+            const active = isSel||isHov;
+            const sw     = active ? 4 : dim ? 0.8 : 2;
+            const op     = dim ? 0.12 : 1;
+            const d      = bezier(PCM_X+PCM_W, py, CMP_X, cy);
+            return (
+              <g key={`w${pin.num}`} opacity={op}>
+                {/* Glow for selected */}
+                {isSel && <path d={d} fill="none" stroke={pin.c1} strokeWidth={12} strokeOpacity={0.18} filter="url(#glow)"/>}
+                {/* Main wire */}
+                <path d={d} fill="none" stroke={pin.c1} strokeWidth={sw}/>
+                {/* Stripe overlay */}
+                {pin.c2 && (
+                  <path d={d} fill="none" stroke={pin.c2}
+                    strokeWidth={isSel?2:isHov?1.5:1.2}
+                    strokeDasharray={isSel?"10,7":"6,5"}
+                    strokeOpacity={0.9}/>
+                )}
+                {/* Mid-wire label when selected */}
+                {isSel && (
+                  <text x={(PCM_X+PCM_W+CMP_X)/2} y={Math.min(py,cy)-8}
+                    textAnchor="middle" fill="#fff" fontSize={10} fontFamily="monospace"
+                    style={{filter:"drop-shadow(0 0 5px #000)"}}>
+                    {pin.cName}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Pins in PCM block */}
+          {filtered.map((pin,i)=>{
+            const py  = PIN_Y0 + i*PIN_H + PIN_H/2;
+            const isSel = selPin===pin.num;
+            const isHov = hoverPin===pin.num;
+            const dim   = (selPin||hoverPin) && !isSel && !isHov;
+            return (
+              <g key={pin.num}
+                onClick={()=>setSelPin(isSel?null:pin.num)}
+                onMouseEnter={()=>setHoverPin(pin.num)}
+                onMouseLeave={()=>setHoverPin(null)}
+                style={{cursor:"pointer"}}>
+                {/* Row bg */}
+                <rect x={PCM_X+5} y={py-11} width={PCM_W-10} height={22} rx={3}
+                  fill={isSel?"#0c1f40":isHov?"#0a1830":dim?"transparent":"#0c1527"}
+                  stroke={isSel?"#2563eb":isHov?"#1d4ed8":"transparent"} strokeWidth={1}/>
+                {/* Color swatch (primary) */}
+                <rect x={PCM_X+9} y={py-8} width={14} height={16} rx={2}
+                  fill={pin.c1} stroke="#1a2535" strokeWidth={0.5}/>
+                {/* Color swatch (stripe) */}
+                {pin.c2 && (
+                  <rect x={PCM_X+9} y={py+0} width={14} height={8} rx={0}
+                    fill={pin.c2} stroke="#1a2535" strokeWidth={0.5}/>
+                )}
+                {/* Pin number */}
+                <text x={PCM_X+27} y={py+4}
+                  fill={dim?"#1a2c3c":isSel?"#93c5fd":isHov?"#60a5fa":"#3b82f6"}
+                  fontSize={10} fontWeight="bold" fontFamily="monospace">{pin.num}</text>
+                {/* Function */}
+                <text x={PCM_X+60} y={py+4}
+                  fill={dim?"#0f1e2c":isSel?"#94a3b8":"#475569"}
+                  fontSize={8} fontFamily="monospace">
+                  {pin.fn.length>13 ? pin.fn.slice(0,13)+"…" : pin.fn}
+                </text>
+                {/* Output terminal dot */}
+                <circle cx={PCM_X+PCM_W} cy={py} r={3.5}
+                  fill={dim?"#0c1527":pin.c1}
+                  stroke="#0a0e1a" strokeWidth={1}/>
+              </g>
+            );
+          })}
+
+          {/* Component boxes */}
+          {components.map(comp=>{
+            const isSel = activeComp===comp.name;
+            const isHov = hoverPin && filtered.find(p=>p.num===hoverPin)?.comp===comp.name;
+            const dim   = (selPin||hoverPin) && !isSel && !isHov;
+            return (
+              <CompBox key={comp.name}
+                x={CMP_X} y={comp.y} w={CMP_W} h={CMP_H}
+                name={comp.name} tipo={comp.tipo}
+                selected={isSel||!!isHov} dimmed={dim}/>
+            );
+          })}
+
+          {/* Pin count badges on comps */}
+          {components.map(comp=>{
+            const dim = (selPin||hoverPin) && activeComp!==comp.name;
+            if (comp.pins.length<2) return null;
+            return (
+              <text key={`b${comp.name}`}
+                x={CMP_X+CMP_W+6} y={comp.y+26}
+                fill={dim?"#0f1e2c":"#334155"} fontSize={8} fontFamily="monospace">
+                {comp.pins.join("·")}
+              </text>
+            );
+          })}
+
+          {/* Vertical category separator lines (decorative) */}
+          <line x1={PCM_X+PCM_W+20} y1={36} x2={PCM_X+PCM_W+20} y2={SVG_H-20}
+            stroke="#0d1527" strokeWidth={1} strokeDasharray="4,4"/>
+          <line x1={CMP_X-20} y1={36} x2={CMP_X-20} y2={SVG_H-20}
+            stroke="#0d1527" strokeWidth={1} strokeDasharray="4,4"/>
+
+          {/* Watermark */}
+          <text x={SVG_W-10} y={SVG_H-8} textAnchor="end" fill="#0d1527" fontSize={8} fontFamily="monospace">
+            DATESEG MX © PULSAR PREDICTIVO v8
+          </text>
+        </svg>
+      </div>
+
+      {/* ── Pin info panel ── */}
+      {(()=>{
+        const pin = selPin ? HONDA_PINS.find(p=>p.num===selPin) : null;
+        if (!pin) return (
+          <div style={{marginTop:10,padding:"8px 14px",color:"#1e3a5f",fontSize:10,fontFamily:"monospace",textAlign:"center"}}>
+            ← Toca un pin del ECM para ver su circuito
+          </div>
+        );
+        const tipo = TIPO_MAP[pin.comp]||"sensor";
+        const accent = TIPO_STROKE[tipo]||"#334155";
+        return (
+          <div style={{marginTop:12,background:"#080c18",border:`1.5px solid ${accent}`,borderRadius:10,
+            padding:"10px 16px",display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
+            {/* Swatches */}
+            <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
+              <div style={{width:30,height:30,background:pin.c1,borderRadius:5,border:"1px solid #333"}}/>
+              {pin.c2 && <div style={{width:30,height:15,background:pin.c2,borderRadius:3,border:"1px solid #333"}}/>}
+            </div>
+            <div>
+              <div style={{color:"#60a5fa",fontSize:13,fontWeight:"bold"}}>PIN {pin.num}</div>
+              <div style={{color:"#e2e8f0",fontSize:11}}>{pin.fn}</div>
+            </div>
+            <div style={{fontSize:11}}>
+              <span style={{color:"#475569"}}>Cable: </span>
+              <span style={{color:"#e2e8f0"}}>{pin.cName}</span>
+            </div>
+            <div style={{fontSize:11}}>
+              <span style={{color:"#475569"}}>Componente: </span>
+              <span style={{color:"#e2e8f0"}}>{pin.comp}</span>
+            </div>
+            <div style={{fontSize:11}}>
+              <span style={{color:"#475569"}}>Cat.: </span>
+              <span style={{color:accent}}>{pin.cat}</span>
+            </div>
+            {pin.dtc && (
+              <div style={{padding:"3px 10px",background:"#1a0505",border:"1px solid #7f1d1d",
+                borderRadius:6,fontSize:11,color:"#f87171",fontWeight:"bold"}}>
+                ⚠ {pin.dtc}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+    </div>
+  );
+}

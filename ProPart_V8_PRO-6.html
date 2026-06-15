@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ProPart V8</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --bg: #050a13; --bg1: #0a1422; --bg2: #0f1c32; --bdr: #1e3058;
+            --red: #c8102e; --green: #006847; --cyan: #00d4ff;
+            --txt: #d0e4f5; --txtD: #6880a0; --ok: #059669;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html,body { height:100%; background:var(--bg); color:var(--txt); font-family:'Archivo',Arial,sans-serif; overflow:hidden; }
+        .app { display:flex; flex-direction:column; height:100vh; }
+
+        /* HEADER */
+        .header { height:56px; background:var(--bg1); border-bottom:1px solid var(--bdr); display:flex; align-items:center; padding:0 16px; gap:12px; }
+        .logo { width:40px; height:40px; background:linear-gradient(135deg,var(--red),#ff4d6a); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:18px; }
+        .title { flex:1; font-weight:700; font-size:16px; }
+        .title span { color:var(--red); }
+        .status { display:flex; align-items:center; gap:6px; font-size:10px; padding:5px 10px; border-radius:12px; background:rgba(200,16,46,0.15); color:var(--red); font-weight:700; cursor:pointer; }
+        .status.on { background:rgba(5,150,105,0.15); color:var(--ok); }
+        .dot { width:6px; height:6px; border-radius:50%; background:currentColor; animation:pulse 2s infinite; }
+        @keyframes pulse { 50%{opacity:0.3} }
+
+        /* SPLASH CONECTAR */
+        .splash {
+            position:fixed; inset:0; background:var(--bg);
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            z-index:999; gap:20px; padding:40px 24px;
+            text-align:center;
+        }
+        .splash.hidden { display:none; }
+        .splash-logo {
+            width:100px; height:100px;
+            background:linear-gradient(135deg,var(--red),#ff4d6a);
+            border-radius:24px; display:flex;
+            align-items:center; justify-content:center;
+            font-size:50px;
+            box-shadow:0 8px 32px rgba(200,16,46,0.4);
+        }
+        .splash h1 { font-size:32px; font-weight:800; }
+        .splash h1 span { color:var(--red); }
+        .splash p { font-size:13px; color:var(--txtD); line-height:1.6; }
+        .btn-connect {
+            width:100%; max-width:280px;
+            padding:18px; border:none; border-radius:14px;
+            background:linear-gradient(135deg,var(--red),#ff4d6a);
+            color:#fff; font-size:16px; font-weight:800;
+            text-transform:uppercase; letter-spacing:1px;
+            cursor:pointer; box-shadow:0 6px 24px rgba(200,16,46,0.4);
+            transition:transform 0.15s;
+        }
+        .btn-connect:active { transform:scale(0.96); }
+        .btn-connect:disabled { opacity:0.5; cursor:not-allowed; }
+        .connect-msg { font-size:12px; color:var(--txtD); height:20px; }
+
+        /* TABS */
+        .tabs { display:flex; background:var(--bg1); border-bottom:1px solid var(--bdr); }
+        .tab { flex:1; padding:12px; border:none; background:transparent; color:var(--txtD); cursor:pointer; font-family:inherit; font-weight:600; font-size:11px; text-transform:uppercase; border-bottom:2px solid transparent; transition:all 0.2s; }
+        .tab.active { color:var(--red); border-bottom-color:var(--red); }
+
+        /* CONTENT */
+        .content { flex:1; overflow-y:auto; padding:14px; }
+        .panel { display:none; }
+        .panel.active { display:block; }
+
+        /* SENSORES */
+        .sensor-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+        .sensor-btn { padding:12px 8px; border-radius:8px; border:1px solid var(--bdr); background:var(--bg2); color:var(--txt); cursor:pointer; font-family:inherit; font-size:10px; font-weight:700; text-transform:uppercase; transition:all 0.15s; text-align:center; }
+        .sensor-btn .s-val { font-size:16px; font-weight:800; display:block; margin-top:4px; color:var(--cyan); }
+        .sensor-btn.active { background:linear-gradient(135deg,var(--red),#ff4d6a); border-color:var(--red); color:#fff; }
+        .sensor-btn.active .s-val { color:#fff; }
+
+        .big-value { background:var(--bg2); border:1px solid var(--bdr); border-radius:12px; padding:20px; margin-bottom:14px; text-align:center; }
+        .value-label { font-size:11px; color:var(--txtD); text-transform:uppercase; letter-spacing:1px; }
+        .value-number { font-size:52px; font-weight:800; margin:8px 0; color:var(--red); }
+        .value-unit { font-size:12px; color:var(--txtD); }
+
+        .chart-wrap { background:var(--bg2); border:1px solid var(--bdr); border-radius:12px; padding:14px; margin-bottom:14px; }
+        .chart-title { font-size:11px; color:var(--txtD); text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+        .btn-fs { background:none; border:1px solid var(--bdr); color:var(--txtD); padding:4px 8px; border-radius:4px; cursor:pointer; font-size:10px; }
+
+        /* DTCs */
+        .dtc-list { display:flex; flex-direction:column; gap:10px; }
+        .dtc-item { background:var(--bg2); border-left:4px solid var(--red); border-radius:8px; padding:12px; }
+        .dtc-code { font-family:'Courier New',monospace; font-size:14px; font-weight:800; color:var(--red); }
+        .dtc-desc { font-size:11px; color:var(--txtD); margin-top:4px; }
+        .dtc-estado { font-size:10px; margin-top:4px; }
+        .dtc-activo { color:#ff4d6a; }
+        .dtc-inactivo { color:var(--ok); }
+
+        /* CONFIG */
+        .config-card { background:var(--bg2); border:1px solid var(--bdr); border-radius:12px; padding:14px; margin-bottom:14px; }
+        .config-label { font-size:11px; color:var(--txtD); text-transform:uppercase; display:block; margin-bottom:6px; }
+        .config-value { font-size:14px; font-weight:600; color:var(--txt); font-family:'Courier New',monospace; }
+        .btn-desconectar { width:100%; padding:12px; background:transparent; border:1px solid var(--red); border-radius:8px; color:var(--red); font-family:inherit; font-weight:700; font-size:12px; text-transform:uppercase; cursor:pointer; margin-top:8px; }
+
+        .empty { text-align:center; padding:40px 20px; color:var(--txtD); font-size:14px; }
+
+        /* FAB JULS */
+        .fab { position:fixed; bottom:24px; right:24px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--green),#00a86b); border:none; box-shadow:0 4px 16px rgba(0,168,107,0.4); cursor:pointer; overflow:hidden; z-index:500; padding:0; }
+        .fab:hover { transform:scale(1.1); }
+        .fab img { width:100%; height:100%; object-fit:contain; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">P</div>
+        <div class="title">Pro<span>Part</span> V8</div>
+        <div class="status" id="status" onclick="toggleConexion()">
+            <span class="dot"></span>
+            <span id="statusTxt">Desconectado</span>
+        </div>
+    </header>
+
+    <!-- SPLASH CONECTAR -->
+    <div class="splash" id="splash">
+        <div class="splash-logo">🚗</div>
+        <h1>Pro<span>Part</span> V8</h1>
+        <p>Diagnóstico Automotriz Profesional<br>DATESEG MX — Sistema de Tecnologías Automotrices</p>
+        <button class="btn-connect" id="btnConnect" onclick="conectar()">
+            🔌 CONECTAR AHORA
+        </button>
+        <div class="connect-msg" id="connectMsg">Listo para conectar</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('datos',this)">📊 Datos</button>
+        <button class="tab" onclick="switchTab('dtcs',this)">⚠️ DTCs</button>
+        <button class="tab" onclick="switchTab('config',this)">⚙️ Config</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <!-- DATOS -->
+        <div class="panel active" id="datosPanel">
+            <div class="sensor-grid" id="sensorGrid"></div>
+            <div class="big-value">
+                <div class="value-label" id="sensorLabel">RPM</div>
+                <div class="value-number" id="sensorVal">---</div>
+                <div class="value-unit" id="sensorUnit">rpm</div>
+            </div>
+            <div class="chart-wrap">
+                <div class="chart-title">
+                    <span>Historial</span>
+                    <button class="btn-fs" onclick="fullscreen()">⛶ Fullscreen</button>
+                </div>
+                <canvas id="chart" height="120"></canvas>
+            </div>
+        </div>
+
+        <!-- DTCs -->
+        <div class="panel" id="dtcsPanel">
+            <div id="dtcList" class="dtc-list">
+                <div class="empty">⚡ Sin conexión</div>
+            </div>
+        </div>
+
+        <!-- CONFIG -->
+        <div class="panel" id="configPanel">
+            <div class="config-card">
+                <span class="config-label">Estado</span>
+                <div class="config-value" id="cfgEstado">Desconectado</div>
+            </div>
+            <div class="config-card">
+                <span class="config-label">Dispositivo</span>
+                <div class="config-value" id="cfgDispositivo">---</div>
+            </div>
+            <div class="config-card">
+                <span class="config-label">Dirección MAC</span>
+                <div class="config-value" id="cfgMac">---</div>
+            </div>
+            <div class="config-card">
+                <span class="config-label">Sensores Activos</span>
+                <div class="config-value" id="cfgSensores">---</div>
+            </div>
+            <div class="config-card">
+                <span class="config-label">Última Actualización</span>
+                <div class="config-value" id="cfgUpdate">---</div>
+            </div>
+            <button class="btn-desconectar" onclick="desconectar()">🔌 Desconectar</button>
+        </div>
+    </div>
+</div>
+
+<!-- FAB JULS -->
+<button class="fab" onclick="openJULS()" title="JULS - Para mi hija">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAABmJLR0QA/wD/AP+gvaeTAAALwElEQVR4nO2caZCcxXmAn+7vmmNnZmcPaSUkFoEQCFtCoIrwyhQmAiyMID6gAsSpUCH+J4oY7PzA5bKr7B+2y2UX2D98xRAnLpISMSlMuajYhDMuB4xikDhCwCS6kMTec893tX/MsTPzfTO7s4d2tbirdren+33ffvvZ7re7v2MEc0zp9Mg2TfEJU4t9TAk2CVRKKaJCSFCNkiqgO3tJUCJYrYJF7fRUY9ZDQV4ixjzlHio72QOaaT0+OXlwunOjlSRmE+hLjuy1jOi3hZCXKOXjeEWU8lE1LzrCUcEuqHA4Yd2fyc4FTtCf1tY1zcDUYgAl2y38k6PcL+Zyh95rdbExtQXUnxi52DCsh6TUP+S4RXzlBhs+i+C06lhGAoEoFOype3OF138YYhRoA2gwecUNhpk44PlO3PVKLc2c/XDq/giNqJmk7OR/NpWTt8NBp1UsAGgwPXKXqScesJ2c9JXX0szqgdNYGjGTeJ79vJYt3TDKa7lG0SZAg8krbjCs1OO2nZUKv6WZ1QmnJmOZCZTv/WY803MVPFOPJ1ot058YudiMJJ50nKKpeH+MnEYZz7Mx9fhGU8+kS/bpJ2rldUCpns2P+8rb5Pl2i4nVD6eWXK9IxErvkqLnZdsZfRNAAvQlR67XpPGh1RyQZ4NTKyuVJ4Vlpb4Hmy2oArKM6Ldst9Ai/v6DA+ApD+GzLhGP3AUg0+mRbULIS1bbPqfmTzdwVFWn5EwRNRL3AVJqik8q5TcIvb/hVP4ofKX6eyJbr5SmFrve8YrNDb+P4dTLfBfdMO+QSrBpfmcrUXcmrOGVBad1P9wZDkDZzWJqsaukQKXmM3K2pj96lsCBrem9oXrt4Mx45a/TFUSC7bWHowmDDT2Xc1n/LWjC4K2pZyh7WVYiHEtLcFH6Wi4duJmil+FY9kU85TS403nqoYhJQHQzcjRhYIooUmiYMo4hLVYiHABTRjBlHInE1GJowmxwZxY4lbaF3m1Atr08b00/TVRLcmji51A9s600OABZZ5SX3vsptp/jfyd/1eDOnOAAINb171FlJxfqcKfVSiCpndlWIpzGsoqvftdwomZvZSfdLZyKxNkBp/K7ezi11HpBOdS9ua5WFyRKDdXLA2co6tKj+01l84JTzcpWhfnCuTRd4K/OH6fPdENqgxpLAUeXio9vnOamjdMI0VA7TzgAeif3utnnvDIZY7SkM1HWZtVYqmnl+oJHjqQoeAKlFgqnktHbuTefTeC7BWNWjaWOObV/0GLAgWoMWgw4C51W566P88SDe3niwb1sXNcT8GeuAXnGnYXDAZArAQ7A7TddwO49+9i9Zx+393R+lhMOqMYYFGb4zMABeOnQKCrzRiV/eLTuz3LCUTQGqXceuF+s1gsnUflRpSL33xahNypC7DYbXUo4ELJRDDPd4s2sGpWOK+67XnHRWtGm6crnr9yoszZi4xRKTT+Dps2X92kE04ydi9YKvvAxSETbywTa7gJOS5Be3JHz7Vvz3LLT5tPbEhw8LnjwBcmzvxdNOjdvV1x7no2TD3gGwHWb4FPb4NHDzbYv3wB/swuuvlCxYWOW89fofOYfIkGfW7vdJRwUiKG+q1XZyYSabs52N612nudy/8eLxFxRLz46LTlwWOfR1zUG4/DPf14kZtAxlRzBXxwwOJ4V7N3sc8flLpv7qgYF5HWfux81OXhEhvi4MDhRK40Y6vuIKjvZJYk5D904ydYBl9Y0XpQUXdiQ8AN1Yel4RhI1oD8alH99TOOOn/eE+LgwOFABpAfVOsPptTYybZ+g+cmP8IDsFm2cfPOtbIAkkJTg5E0iu+4mtT4s1sykPgCVofCfPyA73gzJLRohPQjCkUKSsjYwWToSJjUjrJo/692OnD5rmJwzhq8KzTotcIaHTC7csZG+aHAEzaQYsWs+T3qL2UGmZvQkufwvMY4129tS1DjndzYnxux628HuKDRp0W9tqgKaGxwAsbY6xRZ7Kf/mXya5bXesXq6v3wlK4Z787wZ9gYidgzAEEMO66n6MdONoUqgj95N/+VVQHir/LtraoJ1/fC7HfQ9PLMq0atSpT7HFhgPgTWfIHMvUP6/75D2gFBPfva7Fzsnq3wTr97XsOlCoyTeZfvW3dcvr/ixoR+b8RYdTy+lLAQdg9FSWTGrmgQj3B58BpSgcOx1wsZJKRI44DFzQPN1UborMsdN162F2pkZNINbi08LhQNNZLGh0vnBA8eArEf7/VAlNVOuefbFaJ+oyrWnkVsWdFzSXFU4pHnhWUY88z/5XU72r4OnTZovJxYEDNUCLDAdg0tb52bGBatFcDp49yCLc2VJaziV55Eg/tRDcbGVpplVjLvSuxkLhNBd1dypvn848HAi5q/FHOM1aTcvGcsJpj2n54KDUDKBlhxN6yaJV48zCgeoIWiic4XjDcWKFwDmvx5mRmSccaBOkux05R/O1ZXZlwAE4kque0RYABwIXzBoUuphWtY4uBRzmAadeskA40OaK4kqJOeHqSxtzmmtVI6A/wmmubQjSyw+nA7BlhAONG8WVCKetzJmBA/X7Yp2aPnNw5jbxzhwcaLkv1g0cXZrtZeYFZ24jab5wNNlwd2BOcJpiUHdwpJAMJ65AiJBdwiLDUR2l5gYnZZ3DYPTCeh+CGu37LsObbg9HIFkTu5he8xzWRLfQ/BT7AuAIDV0LvkLrOE6oh3OFY+kJ1sc/yGB0C3G9P8STzn3XFcqHkOW+SWfGQYXPqfxrlN0sk+Wj7R3seuREicdbAfmMnZ4geNl/7jGn7GZ5e/o5LBEn74y11HaAUxWQAjnergOVovCAPF84IvURvvLYQzz69WsYaLy4qK1l47qWKetnOfzy0cALot0GZMctkHNGW2pnhQNQkkLI98KMVooWd7UaHh7j7qEE264a4Zrb9rBvyzh/O+Rh9E3zjV1DfPhcCXh4v76X3KFxvBP/zr88V3kTKTmQ4eu73+N7uzJcpjXbbZer9SHoyexwqgFlUtpO4UVDD9z9X4KlXJFKFLk8YiMAOXg9937C4rqLN7Fj5xr2XT3CDqPyNId/4mmck+9w4O++wzO5iu4Hz80wnInz92/GeMsPaTvMxwXA0aSOUv470lalnzQtgVXDiwun4ZN7ghee/z0Tjsm5Hxji0s/+mKe+tJ34mp7qiuGRHc3yzo/2s/+x0frL6S+8OsABt8S9u0e5M+WHtLCYIwdMI0nJnvqFAOTa9JWjJWe6Tym1hHB8dmw7zj2Fdfz12zoyNcyVV07y1cQ0jlbESX6af52e5o3fHaSgv8r312u8lrP46Uu9PFlSXLZ1jP29kEoq/u3XgzycWzo4ALFIP/ny5SUBCKY/vmInvxmsTy5RHAUenqKn/xJkadeGOLHUzMPRknNJ4ok782+lBu6h+5Liv7SwtFlBEOPHp7KH9peXUc+YK5J9/5f2c6tn3m5d/HgBKuCDs93n9OssnA4APHIAIXi6etK7rtPVtfV1+xieWJ/xEqpgJF2bq1SOKYex/XLz5fcd5+Ehm9esJ2x/zG03j7L6LnC9cptDa9mOJrUscyeXNGZ3Od5mQlouaI4lUt/zved31hmor2DqxSOEBC1+r18YeJT5fLxt2rlLVvXZ1yZKX7U97znImYq6NYqhSOlTjyy1iuWx/aX3aO/aqxr8w1UO43eHu9hy4jfUrSnK0+TrVI4ph7HMCK5fGH85rJ77JetnrV59u2kX7JPPaJpsbctI/2nujSineJSoOGzAI4uI0StXhT+80Vncl/ZOf7bgGvM4Uveent39CrX/5ql99yhlIo6XhG3+k0NM+2fHXA0qWMaSYQQKN8/XCqP31NyT/xHwK2GNCugWupjc7Ic1W+MGj23SmleqvAHUMTrr/aF+dmxoq1wl3A62FWA8lHSL6DklFL+OyV76hce6jHbPvJGWwca0h8AR8VBPyjDr3cAAAAASUVORK5CYII=" alt="JULS">
+</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+<script>
+    const SENSORS = {
+        rpm:   { label:'RPM',       unit:'rpm',  color:'#ff4d6a' },
+        speed: { label:'Velocidad', unit:'km/h', color:'#00d4ff' },
+        temp:  { label:'Temp',      unit:'°C',   color:'#ff7043' },
+        tp:    { label:'TPS',       unit:'%',    color:'#00e676' },
+        maf:   { label:'MAF',       unit:'g/s',  color:'#9c59f7' },
+        o2:    { label:'O2',        unit:'V',    color:'#00d4ff' },
+    };
+
+    let state = { sensores:{}, dtcs:[], selected:'rpm', history:{}, connected:false };
+    let unsubscribe = null;
+
+    const FB_CONFIG = {
+        apiKey: "AIzaSyA6Su0kjZrGqSv_usb0s16Maxe_QR4FXOA",
+        authDomain: "propartv8-bidireccional.firebaseapp.com",
+        projectId: "propartv8-bidireccional",
+        storageBucket: "propartv8-bidireccional.firebasestorage.app",
+        messagingSenderId: "6983339770",
+        appId: "1:6983339770:web:d9c5edd98a0ffc7377c343"
+    };
+
+    // ── UI ──────────────────────────────────────────────
+    function switchTab(name, el) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(name + 'Panel').classList.add('active');
+        el.classList.add('active');
+    }
+
+    function initSensorGrid() {
+        const grid = document.getElementById('sensorGrid');
+        grid.innerHTML = '';
+        Object.entries(SENSORS).forEach(([key, cfg]) => {
+            const btn = document.createElement('button');
+            btn.className = 'sensor-btn' + (key === state.selected ? ' active' : '');
+            btn.id = 'sbtn_' + key;
+            btn.innerHTML = `${cfg.label}<span class="s-val" id="sval_${key}">---</span>`;
+            btn.onclick = () => selectSensor(key, btn);
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectSensor(key, btn) {
+        state.selected = key;
+        document.querySelectorAll('.sensor-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cfg = SENSORS[key];
+        document.getElementById('sensorLabel').textContent = cfg.label;
+        document.getElementById('sensorUnit').textContent = cfg.unit;
+        document.getElementById('sensorVal').textContent = (state.sensores[key] || 0).toFixed(1);
+        updateChart();
+    }
+
+    function updateChart() {
+        const data = state.history[state.selected] || [];
+        const cfg  = SENSORS[state.selected] || {};
+        const ctx  = document.getElementById('chart').getContext('2d');
+        if (window._chart) window._chart.destroy();
+        window._chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map((_,i) => i),
+                datasets: [{ label: cfg.label, data: data, borderColor: cfg.color,
+                    backgroundColor: cfg.color + '22', borderWidth: 2,
+                    fill: true, tension: 0.4, pointRadius: 0 }]
+            },
+            options: {
+                responsive: true, animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#6880a0' } },
+                    x: { grid: { display: false }, ticks: { display: false } }
+                }
+            }
+        });
+    }
+
+    function setStatus(connected) {
+        state.connected = connected;
+        const el = document.getElementById('status');
+        const txt = document.getElementById('statusTxt');
+        el.classList.toggle('on', connected);
+        txt.textContent = connected ? 'CONECTADO' : 'DESCONECTADO';
+        document.getElementById('cfgEstado').textContent = connected ? 'Conectado ✓' : 'Desconectado';
+    }
+
+    function updateUI(data) {
+        const sensores = data.sensores || {};
+        Object.entries(sensores).forEach(([k, v]) => {
+            state.sensores[k] = parseFloat(v) || 0;
+            if (!state.history[k]) state.history[k] = [];
+            state.history[k].push(parseFloat(v) || 0);
+            if (state.history[k].length > 60) state.history[k].shift();
+            const el = document.getElementById('sval_' + k);
+            if (el) el.textContent = (parseFloat(v) || 0).toFixed(1);
+        });
+
+        document.getElementById('sensorVal').textContent = (state.sensores[state.selected] || 0).toFixed(1);
+        updateChart();
+
+        // DTCs
+        const dtcs = data.dtcs || {};
+        const list = document.getElementById('dtcList');
+        if (dtcs.codigo) {
+            list.innerHTML = `<div class="dtc-item">
+                <div class="dtc-code">${dtcs.codigo}</div>
+                <div class="dtc-desc">${dtcs.descripcion || ''}</div>
+                <div class="dtc-estado ${dtcs.estado==='activo' ? 'dtc-activo':'dtc-inactivo'}">
+                    ● ${dtcs.estado || 'activo'}
+                </div>
+            </div>`;
+        } else {
+            list.innerHTML = '<div class="empty">✅ Sin códigos de falla</div>';
+        }
+
+        // Config
+        const cfg = data.config || {};
+        document.getElementById('cfgDispositivo').textContent = cfg.dispositivo || 'Vgate iCar Pro';
+        document.getElementById('cfgMac').textContent        = cfg.direccion   || 'D2:E0:2F:8D:4E:5A';
+        document.getElementById('cfgSensores').textContent   = cfg.SENSORES_ACTIVOS || Object.keys(sensores).length;
+        document.getElementById('cfgUpdate').textContent     = new Date().toLocaleTimeString();
+    }
+
+    // ── FIREBASE ────────────────────────────────────────
+    function conectar() {
+        const btn = document.getElementById('btnConnect');
+        const msg = document.getElementById('connectMsg');
+        btn.disabled = true;
+        btn.textContent = '🔄 Conectando...';
+        msg.textContent = 'Esperando Firebase...';
+
+        const tryConnect = () => {
+            if (typeof firebase === 'undefined') {
+                setTimeout(tryConnect, 150);
+                return;
+            }
+            msg.textContent = 'Firebase listo, iniciando...';
+            try {
+                if (!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+                const db     = firebase.firestore();
+                const docRef = db.collection('propartv8Bidirecional').doc('default');
+
+                initSensorGrid();
+
+                unsubscribe = docRef.onSnapshot(doc => {
+                    if (!doc.exists) return;
+                    setStatus(true);
+                    updateUI(doc.data());
+                    document.getElementById('splash').classList.add('hidden');
+                }, err => {
+                    console.error(err);
+                    setStatus(false);
+                });
+            } catch (e) {
+                msg.textContent = 'Error: ' + e.message;
+                btn.disabled = false;
+                btn.textContent = '🔌 CONECTAR AHORA';
+            }
+        };
+        setTimeout(tryConnect, 300);
+    }
+
+    function desconectar() {
+        if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+        setStatus(false);
+        state = { sensores:{}, dtcs:[], selected:'rpm', history:{}, connected:false };
+        document.getElementById('splash').classList.remove('hidden');
+        document.getElementById('btnConnect').disabled = false;
+        document.getElementById('btnConnect').textContent = '🔌 CONECTAR AHORA';
+        document.getElementById('connectMsg').textContent = 'Listo para conectar';
+    }
+
+    function toggleConexion() {
+        if (state.connected) desconectar(); else document.getElementById('splash').classList.remove('hidden');
+    }
+
+    function fullscreen() {
+        const el = document.querySelector('.chart-wrap');
+        if (el.requestFullscreen) el.requestFullscreen();
+    }
+
+    function openJULS() {
+        alert('JULS ❤️\nApp dedicada a mi hija');
+    }
+</script>
+</body>
+</html>
