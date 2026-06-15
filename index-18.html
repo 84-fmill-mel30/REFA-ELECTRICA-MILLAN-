@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Refaccionaria de Partes Eléctricas Millán</title>
+<style>
+/* ══════════════════════════════════════
+   RESET & VARIABLES
+══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#1e3c72;--blue:#2a5298;--orange:#f47c20;
+  --green:#27ae60;--red:#e74c3c;--gray:#f4f6f9;
+  --white:#fff;--text:#1a1f2e;--sub:#5a6475;
+  --card:#fff;--border:#e0e4ea;
+}
+body{font-family:Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh;padding-bottom:80px}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:300}
+.header-top{display:flex;align-items:center;justify-content:space-between}
+.header-logo{font-size:1.1rem;font-weight:700;line-height:1.2}
+.header-logo small{display:block;font-size:0.7rem;opacity:0.75;font-weight:400}
+.header-wa{background:#25d366;color:#fff;text-decoration:none;padding:7px 12px;border-radius:8px;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:5px}
+
+/* ══════════════════════════════════════
+   NAV PESTAÑAS
+══════════════════════════════════════ */
+.tabs{background:var(--navy);display:flex;overflow-x:auto;border-top:1px solid rgba(255,255,255,0.1)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:10px 16px;color:rgba(255,255,255,0.65);font-size:0.82rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all 0.2s;user-select:none}
+.tab.active{color:#fff;border-bottom-color:var(--orange)}
+.tab:hover{color:#fff}
+
+/* ══════════════════════════════════════
+   SECCIONES (vistas)
+══════════════════════════════════════ */
+.vista{display:none;padding:16px;max-width:1100px;margin:0 auto}
+.vista.active{display:block}
+
+/* ══════════════════════════════════════
+   CARDS / PANEL
+══════════════════════════════════════ */
+.panel{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:16px}
+.panel-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:14px}
+
+/* ══════════════════════════════════════
+   INICIO
+══════════════════════════════════════ */
+.hero-home{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:16px}
+.hero-home h2{font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.hero-home p{font-size:0.88rem;opacity:0.8;margin-bottom:16px}
+.search-box{display:flex;gap:8px;max-width:600px;margin:0 auto}
+.search-box input{flex:1;padding:10px 14px;border-radius:8px;border:none;font-size:0.95rem;outline:none}
+.btn-voz{background:var(--red);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+.btn-buscar{background:var(--orange);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:700}
+#voiceStatus{margin-top:8px;font-size:0.82rem;color:rgba(255,255,255,0.8);min-height:18px}
+#searchResults{margin-top:12px}
+.result-home{background:rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;margin-bottom:6px;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,0.2)}
+.result-home:hover{background:rgba(255,255,255,0.25)}
+.result-home strong{display:block;font-size:0.9rem}
+.result-home small{font-size:0.78rem;opacity:0.8}
+
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.cat-card{background:var(--card);border-radius:12px;padding:18px 12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.07);cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;border:2px solid transparent}
+.cat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.12);border-color:var(--orange)}
+.cat-icon{font-size:2rem;display:block;margin-bottom:8px}
+.cat-name{font-size:0.8rem;font-weight:700;color:var(--navy)}
+.cat-count{font-size:0.7rem;color:var(--sub)}
+
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.info-card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.info-card h4{font-size:0.88rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.info-card p,.info-card a{font-size:0.82rem;color:var(--sub);line-height:1.6;text-decoration:none}
+.info-card a{color:var(--blue);display:block}
+
+/* ══════════════════════════════════════
+   CATÁLOGO
+══════════════════════════════════════ */
+.cat-filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.cat-pill{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:0.78rem;cursor:pointer;transition:all 0.15s;color:var(--text)}
+.cat-pill.active,.cat-pill:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.productos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.prod-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,0.07);border:2px solid transparent;transition:border-color 0.15s}
+.prod-card:hover{border-color:var(--orange)}
+.prod-codigo{font-size:0.7rem;color:var(--sub);font-weight:700;text-transform:uppercase}
+.prod-desc{font-size:0.88rem;font-weight:700;color:var(--text);margin:4px 0;line-height:1.3}
+.prod-cat{font-size:0.7rem;color:var(--sub);margin-bottom:8px}
+.prod-footer{display:flex;align-items:center;justify-content:space-between}
+.prod-precio{font-size:1.1rem;font-weight:700;color:var(--green)}
+.prod-stock{font-size:0.72rem;color:var(--sub)}
+.btn-add-prod{background:var(--blue);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-add-prod:hover{background:#1a3a6c}
+
+/* ══════════════════════════════════════
+   COBRO
+══════════════════════════════════════ */
+.cobro-layout{display:grid;grid-template-columns:1fr 360px;gap:16px}
+@media(max-width:820px){.cobro-layout{grid-template-columns:1fr}}
+
+.search-row{display:flex;gap:8px;margin-bottom:14px}
+.search-row input{flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:8px;font-size:0.95rem;outline:none;transition:border-color 0.2s}
+.search-row input:focus{border-color:var(--blue)}
+.btn-scan{background:var(--orange);color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+.btn-search{background:var(--blue);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:700}
+
+.scanner-box{display:none;border:2px solid var(--orange);border-radius:12px;overflow:hidden;margin-bottom:14px;position:relative;background:#000}
+.scanner-box video{width:100%;display:block;max-height:240px;object-fit:cover}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scanner-frame{width:180px;height:110px;border:3px solid var(--orange);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,0.45)}
+.scan-status{text-align:center;padding:7px;font-size:0.8rem;color:var(--orange);font-weight:600;background:#fff5ec}
+.btn-close-scan{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.9rem;z-index:10}
+
+.results-list{max-height:360px;overflow-y:auto}
+.result-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:background 0.15s}
+.result-item:hover{background:#f0f4ff;border-color:var(--blue)}
+.result-info .result-codigo{font-size:0.7rem;color:var(--sub);font-weight:700}
+.result-info .result-desc{font-size:0.88rem;font-weight:700}
+.result-info .result-stock{font-size:0.7rem;color:var(--sub)}
+.result-right{text-align:right;flex-shrink:0;margin-left:10px}
+.result-precio{font-size:1rem;font-weight:700;color:var(--green)}
+.btn-add-c{background:var(--blue);color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.78rem;margin-top:4px}
+.no-results{text-align:center;color:var(--sub);padding:20px;font-size:0.88rem}
+
+/* carrito */
+.carrito-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.badge-count{background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;margin-left:6px}
+.carrito-items{max-height:300px;overflow-y:auto;margin-bottom:12px}
+.cart-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #eee}
+.cart-item-info{flex:1;min-width:0}
+.cart-desc{font-size:0.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-cod{font-size:0.68rem;color:var(--sub)}
+.cart-precio{font-size:0.82rem;color:var(--green);font-weight:700}
+.qty-controls{display:flex;align-items:center;gap:4px}
+.qty-btn{background:#eee;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-weight:700}
+.qty-val{font-size:0.85rem;font-weight:700;min-width:20px;text-align:center}
+.btn-del-c{background:none;border:none;color:var(--red);cursor:pointer;font-size:0.95rem;padding:0 2px}
+.carrito-empty{text-align:center;color:var(--sub);padding:28px 12px;font-size:0.88rem}
+
+.totales{border-top:2px solid var(--gray);padding-top:10px;margin-bottom:12px}
+.total-row{display:flex;justify-content:space-between;font-size:0.86rem;margin-bottom:5px}
+.total-row.grande{font-size:1.15rem;font-weight:700;color:var(--navy);margin-top:6px;border-top:1px solid #eee;padding-top:6px}
+
+.desc-row{display:flex;gap:6px;margin-bottom:10px}
+.desc-row input{flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem}
+.desc-row select{padding:8px;border:1px solid var(--border);border-radius:6px;font-size:0.82rem}
+.desc-row button{background:var(--sub);color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:0.8rem}
+
+.metodos-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.metodo-btn{border:2px solid var(--border);background:#fff;border-radius:8px;padding:9px;cursor:pointer;text-align:center;font-size:0.78rem;font-weight:700;transition:all 0.15s;color:var(--text)}
+.metodo-btn.active{border-color:var(--blue);background:#f0f4ff;color:var(--blue)}
+.metodo-btn .micon{font-size:1.3rem;display:block;margin-bottom:2px}
+
+.efectivo-box{display:none;background:#f9fbff;border:1px solid #dde4f0;border-radius:8px;padding:10px;margin-bottom:10px}
+.efectivo-box label{font-size:0.76rem;color:var(--sub);display:block;margin-bottom:4px}
+.efectivo-box input{width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:1rem;font-weight:700}
+.cambio-display{display:flex;justify-content:space-between;margin-top:7px;font-size:0.88rem;font-weight:700}
+
+.btn-cobrar{width:100%;padding:13px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:8px;transition:opacity 0.2s;color:#fff}
+.btn-cobrar:hover{opacity:0.9}
+.btn-cobrar.efe{background:var(--green)}
+.btn-cobrar.mp{background:#009ee3}
+.btn-cobrar.tar{background:var(--navy)}
+.btn-limpiar{width:100%;padding:9px;border:1px solid var(--border);background:transparent;border-radius:8px;cursor:pointer;color:var(--sub);font-size:0.82rem}
+
+/* ══════════════════════════════════════
+   ADMIN
+══════════════════════════════════════ */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.form-group label{display:block;font-size:0.78rem;font-weight:700;color:var(--sub);margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;outline:none;transition:border-color 0.2s}
+.form-group input:focus{border-color:var(--blue)}
+.btn-agregar{background:var(--green);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem}
+.btn-editar{background:var(--blue);color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:0.75rem}
+.btn-eliminar{background:var(--red);color:#fff;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:0.75rem;margin-left:4px}
+.admin-search{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:0.9rem;margin-bottom:14px;outline:none}
+.admin-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.admin-table th{background:var(--navy);color:#fff;padding:10px 8px;text-align:left}
+.admin-table td{padding:9px 8px;border-bottom:1px solid #eee}
+.admin-table tr:hover td{background:#f8f9ff}
+.stock-low{color:var(--red);font-weight:700}
+
+/* ══════════════════════════════════════
+   MODAL TICKET
+══════════════════════════════════════ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:22px;max-width:380px;width:92%;max-height:88vh;overflow-y:auto}
+.modal h2{text-align:center;color:var(--navy);margin-bottom:14px;font-size:1rem}
+.ticket{font-family:'Courier New',monospace;font-size:0.78rem;background:#fafafa;border:1px solid #eee;border-radius:8px;padding:14px;white-space:pre;overflow-x:auto;margin-bottom:14px;line-height:1.5}
+.modal-btns{display:flex;gap:8px;flex-wrap:wrap}
+.modal-btn{flex:1;padding:11px;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.84rem}
+.modal-btn.print{background:var(--blue);color:#fff}
+.modal-btn.bt{background:var(--orange);color:#fff}
+.modal-btn.cerrar{background:#eee;color:var(--text)}
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#333;color:#fff;padding:9px 18px;border-radius:20px;font-size:0.82rem;opacity:0;transition:all 0.3s;z-index:600;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green)}
+.toast.err{background:var(--red)}
+
+/* ══════════════════════════════════════
+   NAV INFERIOR MÓVIL
+══════════════════════════════════════ */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:400;box-shadow:0 -2px 12px rgba(0,0,0,0.08)}
+.bnav-item{flex:1;padding:10px 4px 8px;text-align:center;cursor:pointer;border:none;background:none;color:var(--sub);font-size:0.62rem;font-weight:600;transition:color 0.15s}
+.bnav-item .bicon{font-size:1.4rem;display:block;margin-bottom:2px}
+.bnav-item.active{color:var(--blue)}
+.bnav-item.active .bicon{filter:drop-shadow(0 0 4px rgba(42,82,152,0.4))}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="header-top">
+    <div class="header-logo">
+      🔧 Refaccionaria Millán
+      <small>Partes Eléctricas Automotrices</small>
+    </div>
+    <a class="header-wa" href="https://wa.me/522219567392">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.845L0 24l6.318-1.509A11.933 11.933 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.372l-.36-.214-3.727.976.999-3.64-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</header>
+
+<!-- ══ TABS ESCRITORIO ══ -->
+<div class="tabs" id="tabsTop">
+  <div class="tab active" onclick="irA('inicio')">🏠 Inicio</div>
+  <div class="tab" onclick="irA('catalogo')">📦 Catálogo</div>
+  <div class="tab" onclick="irA('cobro')">🧾 Cobrar</div>
+  <div class="tab" onclick="irA('admin')">⚙️ Admin</div>
+</div>
+
+<!-- ══════════════════════════════════
+     VISTA: INICIO
+══════════════════════════════════════ -->
+<div class="vista active" id="v-inicio">
+
+  <div class="hero-home">
+    <h2>Encuentra tu Refacción Eléctrica</h2>
+    <p>+160 productos en inventario · Alpuyeca, Morelos</p>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Código, marca o descripción..." oninput="buscarInicio()" onkeydown="if(event.key==='Enter')buscarInicio()">
+      <button class="btn-voz" id="voiceBtn">🎤</button>
+      <button class="btn-buscar" onclick="buscarInicio()">Buscar</button>
+    </div>
+    <div id="voiceStatus"></div>
+    <div id="searchResults"></div>
+  </div>
+
+  <h3 style="font-size:0.9rem;color:var(--sub);margin-bottom:10px">Categorías populares</h3>
+  <div class="cats-grid" id="catsGrid"></div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h4>📍 Ubicación</h4>
+      <p>Av. Vicente Guerrero s/n<br>Col. Centro, Alpuyeca<br>Xochitepec, Morelos C.P. 62790</p>
+    </div>
+    <div class="info-card">
+      <h4>📞 Contacto</h4>
+      <a href="tel:7776838196">📞 777-683-8196</a>
+      <a href="tel:2219567392">📞 221-956-7392</a>
+      <a href="mailto:FM095329@gmail.com">✉️ FM095329@gmail.com</a>
+    </div>
+    <div class="info-card">
+      <h4>🕐 Horario</h4>
+      <p>Lun – Sáb: 9:00am – 7:00pm<br>Dom: 9:00am – 2:00pm</p>
+    </div>
+    <div class="info-card">
+      <h4>🚗 Servicio</h4>
+      <p>Atención en mostrador<br>Envíos locales<br>Pedidos por WhatsApp</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     VISTA: CATÁLOGO
+══════════════════════════════════════ -->
+<div class="vista" id="v-catalogo">
+  <div class="panel">
+    <div class="panel-title">📦 Catálogo de Productos</div>
+    <input type="text" class="admin-search" id="catSearch" placeholder="🔍 Buscar producto..." oninput="renderCatalogo()">
+    <div class="cat-filter-row" id="catPills"></div>
+    <div class="productos-grid" id="productosGrid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     VISTA: COBRO
+══════════════════════════════════════ -->
+<div class="vista" id="v-cobro">
+  <div class="cobro-layout">
+
+    <!-- Búsqueda -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">🔍 Agregar Producto</div>
+        <div class="search-row">
+          <input type="text" id="cobroSearch" placeholder="Código o descripción..." oninput="buscarCobro()">
+          <button class="btn-scan" onclick="toggleScanner()" title="Escanear">📷</button>
+          <button class="btn-search" onclick="buscarCobro()">Buscar</button>
+        </div>
+        <div class="scanner-box" id="scannerBox">
+          <button class="btn-close-scan" onclick="cerrarScanner()">✕</button>
+          <video id="scannerVideo" autoplay playsinline muted></video>
+          <div class="scanner-overlay"><div class="scanner-frame"></div></div>
+          <div class="scan-status" id="scanStatus">📷 Apunta el código al recuadro naranja...</div>
+        </div>
+        <div class="results-list" id="cobroResults">
+          <div class="no-results">🔍 Busca o escanea un producto para agregarlo al carrito</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carrito -->
+    <div>
+      <div class="panel">
+        <div class="carrito-header">
+          <div class="panel-title" style="margin-bottom:0">🛒 Carrito <span class="badge-count" id="cartCount">0</span></div>
+          <button onclick="limpiarCarrito()" style="background:none;border:none;color:var(--sub);cursor:pointer;font-size:0.78rem">🗑️ Limpiar</button>
+        </div>
+
+        <div class="carrito-items" id="carritoItems">
+          <div class="carrito-empty">El carrito está vacío</div>
+        </div>
+
+        <div class="desc-row">
+          <input type="number" id="descVal" placeholder="Descuento" min="0" oninput="calcTotales()">
+          <select id="descTipo" onchange="calcTotales()">
+            <option value="pesos">$ Pesos</option>
+            <option value="porciento">%</option>
+          </select>
+          <button onclick="document.getElementById('descVal').value='';calcTotales()">✕</button>
+        </div>
+
+        <div class="totales">
+          <div class="total-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+          <div class="total-row" id="descRow" style="color:var(--red);display:none"><span>Descuento</span><span id="descDisplay">-$0.00</span></div>
+          <div class="total-row grande"><span>TOTAL</span><span id="totalFinal">$0.00</span></div>
+        </div>
+
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.78rem;font-weight:700;color:var(--sub);margin-bottom:6px">💳 Método de pago</div>
+          <div class="metodos-grid">
+            <button class="metodo-btn active" id="mbtn-efectivo" onclick="selMetodo('efectivo')"><span class="micon">💵</span>Efectivo</button>
+            <button class="metodo-btn" id="mbtn-mp" onclick="selMetodo('mp')"><span class="micon">📱</span>Mercado Pago</button>
+            <button class="metodo-btn" id="mbtn-tarjeta" onclick="selMetodo('tarjeta')"><span class="micon">💳</span>Tarjeta</button>
+            <button class="metodo-btn" id="mbtn-transferencia" onclick="selMetodo('transferencia')"><span class="micon">🏦</span>Transferencia</button>
+          </div>
+        </div>
+
+        <div class="efectivo-box" id="efectivoBox">
+          <label>Efectivo recibido del cliente:</label>
+          <input type="number" id="efectivoRec" placeholder="0.00" oninput="calcCambio()">
+          <div class="cambio-display">
+            <span>Cambio:</span>
+            <span id="cambioDisplay" style="color:var(--green)">$0.00</span>
+          </div>
+        </div>
+
+        <button class="btn-cobrar efe" id="btnCobrar" onclick="procesarCobro()">✅ Cobrar en Efectivo</button>
+        <button class="btn-limpiar" onclick="limpiarCarrito()">🗑️ Cancelar venta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     VISTA: ADMIN
+══════════════════════════════════════ -->
+<div class="vista" id="v-admin">
+  <div class="panel">
+    <div class="panel-title">➕ Agregar Producto</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+      <button onclick="toggleScannerAdmin()" id="btnScanAdmin"
+        style="background:var(--orange);color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem">
+        📷 Escanear código de barras
+      </button>
+      <span style="font-size:0.78rem;color:var(--sub)">→ llena el código automático</span>
+    </div>
+
+    <div class="scanner-box" id="scannerBoxAdmin" style="margin-bottom:14px">
+      <button class="btn-close-scan" onclick="cerrarScannerAdmin()">✕</button>
+      <video id="scannerVideoAdmin" autoplay playsinline muted></video>
+      <div class="scanner-overlay"><div class="scanner-frame"></div></div>
+      <div class="scan-status" id="scanStatusAdmin">📷 Apunta el código al recuadro naranja...</div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Código <span style="color:var(--orange);font-size:0.7rem">(se llena al escanear)</span></label>
+        <input id="nCodigo" placeholder="SF492 — o escanea arriba">
+      </div>
+      <div class="form-group"><label>Descripción</label><input id="nDesc" placeholder="SOLENOIDE PARED ACURAT"></div>
+      <div class="form-group"><label>Precio ($)</label><input id="nPrecio" type="number" placeholder="195"></div>
+      <div class="form-group"><label>Stock</label><input id="nStock" type="number" placeholder="5"></div>
+      <div class="form-group"><label>Categoría</label><input id="nCat" placeholder="Solenoides"></div>
+    </div>
+    <button class="btn-agregar" onclick="adminAgregar()">➕ Agregar al catálogo</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">📋 Productos en Inventario <span style="font-size:0.78rem;color:var(--sub)" id="totalProds"></span></div>
+    <input class="admin-search" id="adminSearch" placeholder="🔍 Filtrar productos..." oninput="renderAdmin()">
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead><tr><th>Código</th><th>Descripción</th><th>Precio</th><th>Stock</th><th>Cat.</th><th>Acciones</th></tr></thead>
+        <tbody id="adminBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL TICKET ══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>🧾 Ticket de Venta</h2>
+    <div class="ticket" id="ticketContent"></div>
+    <div class="modal-btns">
+      <button class="modal-btn print" onclick="imprimirTicket()">🖨️ Imprimir</button>
+      <button class="modal-btn bt" onclick="imprimirBluetooth()">📡 Bluetooth</button>
+      <button class="modal-btn cerrar" onclick="cerrarModal()">✓ Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav">
+  <button class="bnav-item active" id="bnav-inicio" onclick="irA('inicio')"><span class="bicon">🏠</span>Inicio</button>
+  <button class="bnav-item" id="bnav-catalogo" onclick="irA('catalogo')"><span class="bicon">📦</span>Catálogo</button>
+  <button class="bnav-item" id="bnav-cobro" onclick="irA('cobro')"><span class="bicon">🧾</span>Cobrar</button>
+  <button class="bnav-item" id="bnav-admin" onclick="irA('admin')"><span class="bicon">⚙️</span>Admin</button>
+</nav>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════
+     BASE DE DATOS PRODUCTOS
+══════════════════════════════════════ -->
+<script>
+const productos = [
+// ── ORIGINALES ──
+{"codigo":"SF492","descripcion":"SOLENOIDE PARED ACURAT","precio":195,"stock":5,"categoria":"Solenoides"},
+{"codigo":"A91020","descripcion":"ANTISULFATANTE CAJA CON 30 PZAS","precio":239.80,"stock":2,"categoria":"Accesorios"},
+{"codigo":"CINTAC","descripcion":"CINTA PLASTICA COOPER X10","precio":101,"stock":2,"categoria":"Accesorios"},
+{"codigo":"SPPS100","descripcion":"SWITCH 75 AMP ARROW SPPS100","precio":136,"stock":5,"categoria":"Switches"},
+{"codigo":"SPPS200","descripcion":"SWITCH LUZ UNIVERSAL ARROW SPPS200","precio":12,"stock":5,"categoria":"Switches"},
+{"codigo":"CVF49","descripcion":"CARBON MARCHA BOSCH VF49","precio":16,"stock":20,"categoria":"Carbones"},
+{"codigo":"F552","descripcion":"FLASHER 552 WAGNER","precio":64,"stock":5,"categoria":"Flashers"},
+{"codigo":"FD1211","descripcion":"FLASHER HD12 TRIDON STAN AUTOMOTIV FHD125","precio":61,"stock":5,"categoria":"Flashers"},
+{"codigo":"P905855","descripcion":"PASTILLA IGNICION VW 2930000","precio":92,"stock":5,"categoria":"Ignicion"},
+{"codigo":"P905865","descripcion":"PASTILLA IGNICION VW JETTA A3 905865 2930600","precio":5,"stock":5,"categoria":"Ignicion"},
+{"codigo":"TZ38C","descripcion":"TERMINAL ZAPATA 3/8 COBRIZADA","precio":89,"stock":20,"categoria":"Terminales"},
+{"codigo":"S82602","descripcion":"SWITCH 2 PASOS ARROW 82602","precio":68,"stock":5,"categoria":"Switches"},
+{"codigo":"S82600","descripcion":"SWITCH 1 PASO ARROW S82600","precio":13,"stock":5,"categoria":"Switches"},
+{"codigo":"EU9004","descripcion":"ENCHUFE UNIDAD FOCO 9004","precio":12,"stock":10,"categoria":"Enchufes"},
+{"codigo":"EUVW","descripcion":"ENCHUFE UNIDAD FOCO H4 VW BUENO","precio":12,"stock":10,"categoria":"Enchufes"},
+{"codigo":"T10P","descripcion":"TERMINAL BATERIA PLACA 4 TORNILLOS T01010","precio":33,"stock":10,"categoria":"Terminales"},
+{"codigo":"T5L","descripcion":"TERMINAL BATERIA PLACA T5L","precio":17.50,"stock":10,"categoria":"Terminales"},
+{"codigo":"JS2011","descripcion":"BOCINA CLAXON VW HELLA","precio":121,"stock":3,"categoria":"Bocinas"},
+{"codigo":"01200","descripcion":"BOCINA CLAXON CARACOL SEGER DOBLE","precio":174,"stock":3,"categoria":"Bocinas"},
+{"codigo":"F90071LED4C","descripcion":"FOCO 9007 LED 4 CARAS ITALIOTURBO JUEGO","precio":253,"stock":2,"categoria":"Focos"},
+{"codigo":"F9005LED4C","descripcion":"FOCO 9005 LED 4 CARAS FOLHID9005-GLA","precio":220,"stock":2,"categoria":"Focos"},
+{"codigo":"F9004LED4C","descripcion":"FOCO 9004 LED 4 CARAS ITALIOTURBO JUEGO","precio":220,"stock":2,"categoria":"Focos"},
+{"codigo":"FHDI7LED4C","descripcion":"FOCO H7 LED 4 CARAS ITALIOTURBO JUEGO","precio":220,"stock":2,"categoria":"Focos"},
+{"codigo":"FH11LED4C","descripcion":"FOCO H11 LED 4 CARAS ITALIOTURBO JUEGO","precio":253,"stock":2,"categoria":"Focos"},
+{"codigo":"FH4LLED4C","descripcion":"FOCO H4 LED 4 CARAS ITALIOTURBO JUEGO","precio":98,"stock":2,"categoria":"Focos"},
+{"codigo":"BM70S82","descripcion":"BULBO MOTOVENT. VW CARIBE 82/68","precio":154,"stock":3,"categoria":"Bulbos"},
+{"codigo":"BM740","descripcion":"BULBO MOTOVENT. GM CHEVY","precio":149,"stock":3,"categoria":"Bulbos"},
+{"codigo":"BM71795","descripcion":"BULBO MOTOVENT. VW COMBI 95/102","precio":39,"stock":5,"categoria":"Bulbos"},
+{"codigo":"BR109","descripcion":"BALERO RODILLO DELCO 130 AMP ECONOM","precio":176,"stock":5,"categoria":"Baleros"},
+{"codigo":"M110881","descripcion":"MARCADOR ACEITE VEETHREE 10151","precio":386,"stock":2,"categoria":"Medidores"},
+{"codigo":"M37011","descripcion":"MARCADOR TEMPERATURA VDO","precio":187,"stock":2,"categoria":"Medidores"},
+{"codigo":"PYANQUI","descripcion":"PALANCA DIRECCIONAL YANQUI","precio":264,"stock":2,"categoria":"Palancas"},
+{"codigo":"M4365900","descripcion":"MOTOR PLACA ELEVADOR NISSAN TSURU GS","precio":114,"stock":2,"categoria":"Motores"},
+{"codigo":"PDFR1070","descripcion":"PORTA DIODO FORD FR1070","precio":132,"stock":2,"categoria":"Porta Diodos"},
+{"codigo":"PDF01AUTOM","descripcion":"PORTA DIODO FORD FR192 AUTOMOTIVE","precio":165,"stock":2,"categoria":"Porta Diodos"},
+{"codigo":"PDIIHR778AUT","descripcion":"PORTA DIODO NISSAN HITACHI IHR 778","precio":75,"stock":2,"categoria":"Porta Diodos"},
+{"codigo":"PASCHEVY","descripcion":"PASTILLA IGNICION CHEVY 2 TIPOS","precio":396,"stock":3,"categoria":"Ignicion"},
+{"codigo":"P70568","descripcion":"PALANCA DIRECCIONAL GROTE CAMION","precio":317,"stock":1,"categoria":"Palancas"},
+{"codigo":"RIH738TP","descripcion":"REGULADOR NISSAN RIH 738 HITACHI","precio":223,"stock":2,"categoria":"Reguladores"},
+{"codigo":"RIH744ASS","descripcion":"REGULADOR NISSAN RIH 744 HITACHI ASSER","precio":116,"stock":2,"categoria":"Reguladores"},
+{"codigo":"RF784TR","descripcion":"REGULADOR FORD F784 NEGRO TRANSPO","precio":135,"stock":3,"categoria":"Reguladores"},
+{"codigo":"RF794TP","descripcion":"REGULADOR FORD F794 TOTAL PARTS","precio":114,"stock":3,"categoria":"Reguladores"},
+{"codigo":"R3258804","descripcion":"REGULADOR GM DELCO D411 CUTLAS","precio":143,"stock":3,"categoria":"Reguladores"},
+{"codigo":"RE140X","descripcion":"REGULADOR GM E-140XR","precio":114,"stock":5,"categoria":"Reguladores"},
+{"codigo":"RE141XR","descripcion":"REGULADOR FORD E-141XR","precio":114,"stock":5,"categoria":"Reguladores"},
+{"codigo":"RIB501","descripcion":"REGULADOR NISSAN TSURU CHUECO IB-501","precio":145,"stock":2,"categoria":"Reguladores"},
+{"codigo":"RD702TP","descripcion":"REGULADOR GM RD702 TOTAL PARTS","precio":126,"stock":5,"categoria":"Reguladores"},
+{"codigo":"RLE5001","descripcion":"REGULADOR NISSAN BARCO BOSCH LE5001","precio":248,"stock":5,"categoria":"Reguladores"},
+{"codigo":"S71025","descripcion":"SOLENOIDE UNIVERSAL ACURAT 71025","precio":182,"stock":5,"categoria":"Solenoides"},
+{"codigo":"FH10","descripcion":"FOCO 3157 HELLA X CAJA DE 10","precio":116,"stock":2,"categoria":"Focos"},
+{"codigo":"F7443AC","descripcion":"FOCO 7443 HELLA X CAJA DE 10","precio":157,"stock":2,"categoria":"Focos"},
+{"codigo":"F9006SH","descripcion":"FOCO 9006 55 HELLA BAJA","precio":47,"stock":3,"categoria":"Focos"},
+{"codigo":"F9005H","descripcion":"FOCO 9005 55 HELLA","precio":49,"stock":3,"categoria":"Focos"},
+{"codigo":"FH13H","descripcion":"FOCO H13 55 HELLA","precio":156,"stock":2,"categoria":"Focos"},
+{"codigo":"FH4H","descripcion":"FOCO H4 55 HELLA","precio":31,"stock":10,"categoria":"Focos"},
+{"codigo":"F9007H","descripcion":"FOCO 9007 55 HELLA","precio":49,"stock":5,"categoria":"Focos"},
+{"codigo":"F9004H","descripcion":"FOCO 9004 55 HELLA","precio":49,"stock":5,"categoria":"Focos"},
+{"codigo":"F67H","descripcion":"FOCO 67 HELLA X CAJA DE 10","precio":33,"stock":5,"categoria":"Focos"},
+{"codigo":"FH3H","descripcion":"FOCO H3 55 HELLA","precio":23,"stock":5,"categoria":"Focos"},
+{"codigo":"FH7H","descripcion":"FOCO H7 55 HELLA","precio":43,"stock":5,"categoria":"Focos"},
+{"codigo":"F158H","descripcion":"FOCO 158 HELLA X CAJA DE 10","precio":24,"stock":5,"categoria":"Focos"},
+{"codigo":"F1034H","descripcion":"FOCO 1034 HELLA X CAJA DE 10","precio":35,"stock":5,"categoria":"Focos"},
+{"codigo":"F1176H","descripcion":"FOCO 1176 HELLA X CAJA DE 10","precio":37,"stock":5,"categoria":"Focos"},
+{"codigo":"F1141H","descripcion":"FOCO 1141 HELLA X CAJA DE 10","precio":35,"stock":5,"categoria":"Focos"},
+{"codigo":"BENDIXZEN","descripcion":"BENDIX ZEN FORD MOTORCRAF 10 DIENTES","precio":114,"stock":1,"categoria":"Bendix"},
+{"codigo":"AUTOBSCH","descripcion":"AUTOMATICO USATECH FORD SISTEMA BOSCH","precio":220,"stock":1,"categoria":"Automaticos"},
+{"codigo":"PCALTER2","descripcion":"PORTA CARBON ALTER FORD 2 GENERACION","precio":24,"stock":1,"categoria":"Porta Carbones"},
+{"codigo":"PCALTER39","descripcion":"PORTA CARBON ALTER CUTLAS 39106","precio":29,"stock":1,"categoria":"Porta Carbones"},
+{"codigo":"PCALTERCAV","descripcion":"PORTA CARBON ALTER DELCO CAVALIER","precio":29,"stock":1,"categoria":"Porta Carbones"},
+{"codigo":"PCALTERFGR","descripcion":"PORTA CARBON ALTER FORD MOTORC GRIS","precio":26,"stock":1,"categoria":"Porta Carbones"},
+{"codigo":"PCALTER21","descripcion":"PORTA CARBON ALTER DELCO 21SI","precio":35,"stock":1,"categoria":"Porta Carbones"},
+{"codigo":"SWCUB","descripcion":"SWITCH LLAVE UNIVERSAL CUB","precio":121,"stock":1,"categoria":"Switches"},
+{"codigo":"MODVW7","descripcion":"MODULO ENCENDIDO VW 7 PINS TEMIC","precio":231,"stock":1,"categoria":"Modulos"},
+{"codigo":"AUTOGM","descripcion":"AUTOMATICO USATECH GM DELCO SUBURBAN","precio":206,"stock":1,"categoria":"Automaticos"},
+{"codigo":"AUTONISS","descripcion":"AUTOMATICO USATECH NISSAN HITACHI","precio":215,"stock":1,"categoria":"Automaticos"},
+{"codigo":"AUTOVW","descripcion":"AUTOMATICO TOTAL PARTS VW SEDAN 11840","precio":248,"stock":1,"categoria":"Automaticos"},
+{"codigo":"AUTOFORD","descripcion":"AUTOMATICO USATECH FORD MOTORCRAF","precio":330,"stock":1,"categoria":"Automaticos"},
+{"codigo":"BGNI3","descripcion":"BOMBA GASOLINA BOSCH NISSAN TSURU III","precio":253,"stock":1,"categoria":"Bombas"},
+{"codigo":"BGTEC","descripcion":"BOMBA GASOLINA TECNOFUEL UNIVERSAL","precio":35,"stock":1,"categoria":"Bombas"},
+{"codigo":"BOT2P","descripcion":"BOTON 2 POLOS MARCHA REFORZADO","precio":0,"stock":1,"categoria":"Botones"},
+// ── SENSORES ──
+{"codigo":"SEN-O2-VW","descripcion":"SENSOR OXIGENO VW JETTA A4/A5 BOSCH","precio":380,"stock":3,"categoria":"Sensores"},
+{"codigo":"SEN-O2-NISS","descripcion":"SENSOR OXIGENO NISSAN TSURU/SENTRA NTK","precio":350,"stock":3,"categoria":"Sensores"},
+{"codigo":"SEN-O2-GM","descripcion":"SENSOR OXIGENO GM CHEVY/CORSA BOSCH","precio":360,"stock":3,"categoria":"Sensores"},
+{"codigo":"SEN-O2-FORD","descripcion":"SENSOR OXIGENO FORD FIESTA/FOCUS BOSCH","precio":375,"stock":3,"categoria":"Sensores"},
+{"codigo":"SEN-TPS-VW","descripcion":"SENSOR TPS MARIPOSA VW JETTA A3/A4","precio":290,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-TPS-NISS","descripcion":"SENSOR TPS MARIPOSA NISSAN TSURU III","precio":275,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-TPS-GM","descripcion":"SENSOR TPS MARIPOSA GM CHEVY MONZA","precio":265,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-MAP-VW","descripcion":"SENSOR MAP PRESION VW JETTA 2.0","precio":320,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-MAP-NISS","descripcion":"SENSOR MAP PRESION NISSAN SENTRA B15","precio":310,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-CIG-VW","descripcion":"SENSOR CIGUENHAL VW JETTA A4/A5","precio":410,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-CIG-NISS","descripcion":"SENSOR CIGUENHAL NISSAN TSURU/SENTRA","precio":390,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-CIG-GM","descripcion":"SENSOR CIGUENHAL GM CHEVY CAVALIER","precio":385,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-CAM-VW","descripcion":"SENSOR ARBOL LEVAS VW JETTA A4","precio":445,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-CAM-NISS","descripcion":"SENSOR ARBOL LEVAS NISSAN ALTIMA","precio":420,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-TEMP-VW","descripcion":"SENSOR TEMPERATURA REFRIGERANTE VW","precio":185,"stock":4,"categoria":"Sensores"},
+{"codigo":"SEN-TEMP-GM","descripcion":"SENSOR TEMPERATURA REFRIGERANTE GM","precio":175,"stock":4,"categoria":"Sensores"},
+{"codigo":"SEN-TEMP-FORD","descripcion":"SENSOR TEMPERATURA REFRIGERANTE FORD","precio":180,"stock":4,"categoria":"Sensores"},
+{"codigo":"SEN-MAF-VW","descripcion":"SENSOR FLUJO AIRE MAF VW JETTA 2.0 BOSCH","precio":680,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-MAF-FORD","descripcion":"SENSOR FLUJO AIRE MAF FORD RANGER BOSCH","precio":650,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-NOC-VW","descripcion":"SENSOR DETONACION KNOCK VW JETTA","precio":310,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-VEL-NISS","descripcion":"SENSOR VELOCIDAD ABS NISSAN TSURU","precio":340,"stock":2,"categoria":"Sensores"},
+{"codigo":"SEN-VEL-VW","descripcion":"SENSOR VELOCIDAD ABS VW JETTA A4","precio":355,"stock":2,"categoria":"Sensores"},
+// ── BOBINAS ──
+{"codigo":"BOB-VW2L","descripcion":"BOBINA ENCENDIDO VW JETTA A4 2.0 BOSCH","precio":560,"stock":2,"categoria":"Bobinas"},
+{"codigo":"BOB-VW18","descripcion":"BOBINA ENCENDIDO VW JETTA A5 1.8T BOSCH","precio":610,"stock":2,"categoria":"Bobinas"},
+{"codigo":"BOB-NISS16","descripcion":"BOBINA ENCENDIDO NISSAN TSURU 1.6 NGK","precio":480,"stock":2,"categoria":"Bobinas"},
+{"codigo":"BOB-GM14","descripcion":"BOBINA ENCENDIDO GM CHEVY 1.4 DELPHI","precio":520,"stock":2,"categoria":"Bobinas"},
+{"codigo":"BOB-FORD16","descripcion":"BOBINA ENCENDIDO FORD FIESTA 1.6 BOSCH","precio":540,"stock":2,"categoria":"Bobinas"},
+{"codigo":"BOB-UNIVERSAL","descripcion":"BOBINA ENCENDIDO UNIVERSAL 12V","precio":240,"stock":5,"categoria":"Bobinas"},
+// ── CABLES BUJIA ──
+{"codigo":"CAB-BUJ-VW","descripcion":"CABLES BUJIA VW JETTA A3/A4 2.0 NGK","precio":310,"stock":3,"categoria":"Cables Bujia"},
+{"codigo":"CAB-BUJ-NISS","descripcion":"CABLES BUJIA NISSAN TSURU III 1.6 NGK","precio":285,"stock":3,"categoria":"Cables Bujia"},
+{"codigo":"CAB-BUJ-GM","descripcion":"CABLES BUJIA GM CHEVY CORSA BERU","precio":295,"stock":3,"categoria":"Cables Bujia"},
+{"codigo":"CAB-BUJ-FORD","descripcion":"CABLES BUJIA FORD FIESTA 1.6 NGK","precio":300,"stock":3,"categoria":"Cables Bujia"},
+// ── MODULOS ──
+{"codigo":"MOD-ENC-VW8","descripcion":"MODULO ENCENDIDO VW JETTA A3 8 PINS","precio":480,"stock":2,"categoria":"Modulos"},
+{"codigo":"MOD-IGN-NISS","descripcion":"MODULO IGNICION NISSAN TSURU III ICM","precio":520,"stock":2,"categoria":"Modulos"},
+{"codigo":"MOD-IAC-VW","descripcion":"MODULO CONTROL RALENTI IAC VW 2.0","precio":395,"stock":2,"categoria":"Modulos"},
+{"codigo":"MOD-IAC-GM","descripcion":"MODULO CONTROL RALENTI IAC GM CHEVY","precio":375,"stock":2,"categoria":"Modulos"},
+{"codigo":"MOD-RELAY-MAIN","descripcion":"RELAY PRINCIPAL COMPUTADORA VW JETTA","precio":145,"stock":5,"categoria":"Modulos"},
+// ── INYECTORES ──
+{"codigo":"INY-VW2L","descripcion":"INYECTOR BOSCH VW JETTA A3/A4 2.0 RECONSTRUIDO","precio":380,"stock":2,"categoria":"Inyectores"},
+{"codigo":"INY-NISS16","descripcion":"INYECTOR NISSAN TSURU 1.6 RECONSTRUIDO","precio":340,"stock":2,"categoria":"Inyectores"},
+{"codigo":"INY-GM14","descripcion":"INYECTOR GM CHEVY 1.4 MULTEC RECONSTRUIDO","precio":350,"stock":2,"categoria":"Inyectores"},
+{"codigo":"INY-FORD16","descripcion":"INYECTOR FORD FIESTA 1.6 RECONSTRUIDO","precio":360,"stock":2,"categoria":"Inyectores"},
+{"codigo":"INY-LIMPIEZA","descripcion":"LIQUIDO LIMPIEZA INYECTORES 250ML","precio":95,"stock":5,"categoria":"Inyectores"},
+{"codigo":"REG-PRES-VW","descripcion":"REGULADOR PRESION COMBUSTIBLE VW JETTA","precio":210,"stock":2,"categoria":"Inyectores"},
+// ── ALTERNADORES ──
+{"codigo":"ALT-VW60","descripcion":"ALTERNADOR VW JETTA A3 60 AMP RECONSTRUIDO","precio":1450,"stock":1,"categoria":"Alternadores"},
+{"codigo":"ALT-VW90","descripcion":"ALTERNADOR VW JETTA A4/A5 90 AMP RECONSTRUIDO","precio":1650,"stock":1,"categoria":"Alternadores"},
+{"codigo":"ALT-NISS60","descripcion":"ALTERNADOR NISSAN TSURU 60 AMP RECONSTRUIDO","precio":1380,"stock":1,"categoria":"Alternadores"},
+{"codigo":"ALT-GM70","descripcion":"ALTERNADOR GM CHEVY 70 AMP RECONSTRUIDO","precio":1420,"stock":1,"categoria":"Alternadores"},
+{"codigo":"ALT-FORD65","descripcion":"ALTERNADOR FORD FIESTA 65 AMP RECONSTRUIDO","precio":1490,"stock":1,"categoria":"Alternadores"},
+// ── ARRANQUE ──
+{"codigo":"MAR-VW","descripcion":"MARCHA ARRANQUE VW JETTA A3/A4 RECONSTRUIDA","precio":1250,"stock":1,"categoria":"Arranque"},
+{"codigo":"MAR-NISS","descripcion":"MARCHA ARRANQUE NISSAN TSURU RECONSTRUIDA","precio":1180,"stock":1,"categoria":"Arranque"},
+{"codigo":"MAR-GM","descripcion":"MARCHA ARRANQUE GM CHEVY CAVALIER RECONSTRUIDA","precio":1220,"stock":1,"categoria":"Arranque"},
+// ── BATERIAS ──
+{"codigo":"BAT-36AH","descripcion":"BATERIA 36 AH LIBRE MANTENIMIENTO","precio":890,"stock":2,"categoria":"Baterias"},
+{"codigo":"BAT-45AH","descripcion":"BATERIA 45 AH LIBRE MANTENIMIENTO","precio":1050,"stock":2,"categoria":"Baterias"},
+{"codigo":"BAT-60AH","descripcion":"BATERIA 60 AH LIBRE MANTENIMIENTO","precio":1280,"stock":2,"categoria":"Baterias"},
+{"codigo":"CARG-BAT","descripcion":"CARGADOR BATERIA 12V 6A AUTOMATICO","precio":450,"stock":2,"categoria":"Baterias"},
+{"codigo":"PASA-CORR","descripcion":"CABLES PASA CORRIENTE 400 AMP 3.5M","precio":320,"stock":3,"categoria":"Baterias"},
+// ── FOCOS LED EXTRA ──
+{"codigo":"FH16LED","descripcion":"FOCO H16 LED ANTINIEBLA PAR","precio":185,"stock":3,"categoria":"Focos"},
+{"codigo":"F880LED","descripcion":"FOCO 880/881 LED ANTINIEBLA PAR","precio":175,"stock":3,"categoria":"Focos"},
+{"codigo":"FLEDINT","descripcion":"FOCO LED INTERIOR 31MM BLANCO 6000K","precio":35,"stock":10,"categoria":"Focos"},
+{"codigo":"FLEDCANBUS","descripcion":"FOCO LED T10 CANBUS SIN ERROR PAR","precio":65,"stock":8,"categoria":"Focos"},
+{"codigo":"KIT-XENON","descripcion":"KIT XENON HID H4 6000K 35W COMPLETO","precio":450,"stock":2,"categoria":"Focos"},
+// ── FUSIBLES Y RELAYS ──
+{"codigo":"FUSIBLES-MX","descripcion":"FUSIBLES MINIATURA SURTIDOS 5-30A CAJA 100PZ","precio":75,"stock":5,"categoria":"Fusibles"},
+{"codigo":"FUSIBLES-STD","descripcion":"FUSIBLES ESTANDAR SURTIDOS 5-30A CAJA 50PZ","precio":55,"stock":5,"categoria":"Fusibles"},
+{"codigo":"FUSIBLES-MAX","descripcion":"FUSIBLES MAXI SURTIDOS 20-80A 10PZ","precio":85,"stock":4,"categoria":"Fusibles"},
+{"codigo":"RELAY-12V","descripcion":"RELAY AUTOMOTRIZ 12V 40A 5 PINES","precio":45,"stock":15,"categoria":"Relays"},
+{"codigo":"RELAY-80A","descripcion":"RELAY CORTE CORRIENTE 80A CON CABLE","precio":95,"stock":5,"categoria":"Relays"},
+{"codigo":"CAJ-RELAYS","descripcion":"CAJA RELAYS FUSIBLES UNIVERSAL 4 CANALES","precio":180,"stock":3,"categoria":"Relays"},
+// ── TERMINALES Y CABLES ──
+{"codigo":"TERM-CRIM","descripcion":"TERMINALES CRIMPAR SURTIDAS 100 PZAS","precio":95,"stock":5,"categoria":"Terminales"},
+{"codigo":"TERM-FUSIBLE","descripcion":"PORTAFUSIBLES INLINE CON CABLE AWG 14","precio":45,"stock":10,"categoria":"Terminales"},
+{"codigo":"ARN-REPARACION","descripcion":"ARNES REPARACION UNIVERSAL 15 CABLES","precio":120,"stock":3,"categoria":"Cables"},
+// ── ELECTRONICA ──
+{"codigo":"OBD2-BT","descripcion":"SCANNER OBD2 BLUETOOTH ELM327 ANDROID","precio":150,"stock":5,"categoria":"Electronica"},
+{"codigo":"OBD2-WIFI","descripcion":"SCANNER OBD2 WIFI ELM327 iOS/ANDROID","precio":180,"stock":3,"categoria":"Electronica"},
+{"codigo":"MULTIMETRO","descripcion":"MULTIMETRO DIGITAL AUTOMOTRIZ","precio":320,"stock":2,"categoria":"Electronica"},
+{"codigo":"PROB-CORR","descripcion":"PROBADOR CORRIENTE LAPIZ 6-24V","precio":65,"stock":8,"categoria":"Electronica"},
+// ── ALARMAS ──
+{"codigo":"ALARMA-BASI","descripcion":"ALARMA UNIVERSAL BASICA 2 CONTROLES","precio":350,"stock":2,"categoria":"Alarmas"},
+{"codigo":"ALARMA-PRO","descripcion":"ALARMA PROFESIONAL CON SENSOR MOVIMIENTO","precio":650,"stock":2,"categoria":"Alarmas"},
+{"codigo":"INMO-CORTE","descripcion":"INMOVILIZADOR CORTE CORRIENTE OCULTO","precio":280,"stock":3,"categoria":"Alarmas"},
+{"codigo":"GPS-TRACKER","descripcion":"RASTREADOR GPS 4G CON APP TIEMPO REAL","precio":890,"stock":2,"categoria":"Alarmas"},
+// ── ACCESORIOS ──
+{"codigo":"CINT-AISL","descripcion":"CINTA AISLANTE 3M SCOTCH 33+ PROFESIONAL","precio":45,"stock":10,"categoria":"Accesorios"},
+{"codigo":"CINT-ARNES","descripcion":"CINTA ARNES AUTOMOTRIZ 19MM X 25M","precio":65,"stock":8,"categoria":"Accesorios"},
+{"codigo":"LIMPIA-CONT","descripcion":"LIMPIA CONTACTOS ELECTRONICO QD 450ML","precio":135,"stock":3,"categoria":"Accesorios"},
+{"codigo":"GRAS-DIEL","descripcion":"GRASA DIELECTRICA SILICON 10G","precio":45,"stock":8,"categoria":"Accesorios"},
+];
+</script>
+
+<!-- ══════════════════════════════════
+     LÓGICA PRINCIPAL
+══════════════════════════════════════ -->
+<script>
+// ── ESTADO ──
+let carrito = [];
+let metodoActual = 'efectivo';
+let catActiva = 'Todas';
+let btDevice = null, btCharacteristic = null;
+let scannerActivo = false, streamActivo = null;
+const BT_SERVICE = '000018f0-0000-1000-8000-00805f9b34fb';
+const BT_CHAR    = '00002af1-0000-1000-8000-00805f9b34fb';
+
+// ── NAVEGACIÓN ──
+function irA(vista){
+  document.querySelectorAll('.vista').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('v-'+vista).classList.add('active');
+  const tabs = document.querySelectorAll('.tab');
+  const map = {inicio:0,catalogo:1,cobro:2,admin:3};
+  if(tabs[map[vista]]) tabs[map[vista]].classList.add('active');
+  const bnav = document.getElementById('bnav-'+vista);
+  if(bnav) bnav.classList.add('active');
+  if(vista==='catalogo') renderCatalogo();
+  if(vista==='admin') renderAdmin();
+  cerrarScanner();
+}
+
+// ════════════════════
+// INICIO
+// ════════════════════
+function buscarInicio(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const div = document.getElementById('searchResults');
+  if(!q){ div.innerHTML=''; return; }
+  const res = productos.filter(p=>
+    p.codigo.toLowerCase().includes(q)||
+    p.descripcion.toLowerCase().includes(q)||
+    p.categoria.toLowerCase().includes(q)
+  ).slice(0,8);
+  if(!res.length){ div.innerHTML='<div style="color:rgba(255,255,255,0.7);padding:8px">No se encontraron productos</div>'; return; }
+  div.innerHTML = res.map(p=>`
+    <div class="result-home" onclick="irACobrarCon('${p.codigo}')">
+      <strong>${p.codigo} — ${p.descripcion}</strong>
+      <small>$${p.precio.toFixed(2)} · Stock: ${p.stock} · ${p.categoria}</small>
+    </div>`).join('');
+}
+
+function irACobrarCon(codigo){
+  irA('cobro');
+  setTimeout(()=>{ agregarAlCarrito(codigo); },200);
+}
+
+function renderCats(){
+  const cats = [...new Set(productos.map(p=>p.categoria))].sort();
+  const iconos = {
+    'Focos':'💡','Reguladores':'⚡','Bobinas':'🔥','Bombas':'💧','Sensores':'📡',
+    'Alternadores':'⚙️','Arranque':'🔑','Baterias':'🔋','Fusibles':'🔌','Relays':'🔀',
+    'Switches':'🔘','Modulos':'🖥️','Inyectores':'💉','Alarmas':'🚨','Electronica':'📟',
+    'Terminales':'🔩','Solenoides':'🧲','Flashers':'💫','Accesorios':'🧰',
+    'Carbones':'⬛','Enchufes':'🔌','Bulbos':'💡','Medidores':'📊','Motores':'⚙️',
+    'Palancas':'🕹️','Bocinas':'📯','Baleros':'⭕','Automaticos':'🔄','Bendix':'⚙️',
+    'Porta Diodos':'🔋','Ignicion':'🔥','Cables Bujia':'🔗','Cables':'🔗',
+    'Porta Carbones':'⬛','Botones':'🔘'
+  };
+  const counts = {};
+  productos.forEach(p=>{ counts[p.categoria]=(counts[p.categoria]||0)+1; });
+  const topCats = cats.slice(0,12);
+  document.getElementById('catsGrid').innerHTML = topCats.map(c=>`
+    <div class="cat-card" onclick="irACat('${c}')">
+      <span class="cat-icon">${iconos[c]||'📦'}</span>
+      <div class="cat-name">${c}</div>
+      <div class="cat-count">${counts[c]} prod.</div>
+    </div>`).join('');
+}
+
+function irACat(cat){
+  catActiva = cat;
+  irA('catalogo');
+}
+
+// ════════════════════
+// CATÁLOGO
+// ════════════════════
+function renderCatalogo(){
+  const q = (document.getElementById('catSearch')||{value:''}).value.toLowerCase();
+  const cats = ['Todas',...new Set(productos.map(p=>p.categoria))].sort((a,b)=>a==='Todas'?-1:a.localeCompare(b));
+  document.getElementById('catPills').innerHTML = cats.map(c=>`
+    <span class="cat-pill ${c===catActiva?'active':''}" onclick="filtrarCat('${c}')">${c}</span>`).join('');
+  let lista = productos;
+  if(catActiva!=='Todas') lista = lista.filter(p=>p.categoria===catActiva);
+  if(q) lista = lista.filter(p=>p.codigo.toLowerCase().includes(q)||p.descripcion.toLowerCase().includes(q)||p.categoria.toLowerCase().includes(q));
+  document.getElementById('productosGrid').innerHTML = lista.map(p=>`
+    <div class="prod-card">
+      <div class="prod-codigo">${p.codigo}</div>
+      <div class="prod-desc">${p.descripcion}</div>
+      <div class="prod-cat">${p.categoria}</div>
+      <div class="prod-footer">
+        <div>
+          <div class="prod-precio">$${p.precio.toFixed(2)}</div>
+          <div class="prod-stock ${p.stock<=2?'stock-low':''}">Stock: ${p.stock} pzas</div>
+        </div>
+        <button class="btn-add-prod" onclick="irACobrarCon('${p.codigo}')">🛒 Agregar</button>
+      </div>
+    </div>`).join('');
+}
+
+function filtrarCat(cat){
+  catActiva = cat;
+  renderCatalogo();
+}
+
+// ════════════════════
+// COBRO — BÚSQUEDA
+// ════════════════════
+function buscarCobro(){
+  const q = document.getElementById('cobroSearch').value.trim().toLowerCase();
+  const lista = document.getElementById('cobroResults');
+  if(!q){ lista.innerHTML='<div class="no-results">🔍 Busca o escanea un producto</div>'; return; }
+  const res = productos.filter(p=>
+    p.codigo.toLowerCase().includes(q)||
+    p.descripcion.toLowerCase().includes(q)||
+    p.categoria.toLowerCase().includes(q)
+  ).slice(0,15);
+  if(!res.length){ lista.innerHTML='<div class="no-results">❌ Sin resultados para "'+q+'"</div>'; return; }
+  lista.innerHTML = res.map(p=>`
+    <div class="result-item" onclick="agregarAlCarrito('${p.codigo}')">
+      <div class="result-info">
+        <div class="result-codigo">${p.codigo} · ${p.categoria}</div>
+        <div class="result-desc">${p.descripcion}</div>
+        <div class="result-stock">Stock: ${p.stock}</div>
+      </div>
+      <div class="result-right">
+        <div class="result-precio">$${p.precio.toFixed(2)}</div>
+        <button class="btn-add-c" onclick="event.stopPropagation();agregarAlCarrito('${p.codigo}')">+ Agregar</button>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════
+// CARRITO
+// ════════════════════
+function agregarAlCarrito(codigo){
+  const prod = productos.find(p=>p.codigo===codigo);
+  if(!prod){ toast('Producto no encontrado','err'); return; }
+  if(prod.precio<=0){ toast('Este producto no tiene precio asignado','err'); return; }
+  const idx = carrito.findIndex(i=>i.codigo===codigo);
+  if(idx>=0){
+    if(carrito[idx].qty>=prod.stock){ toast('Stock insuficiente','err'); return; }
+    carrito[idx].qty++;
+  } else { carrito.push({...prod,qty:1}); }
+  renderCarrito();
+  calcTotales();
+  toast('✓ '+prod.descripcion.substring(0,28)+'...','ok');
+  document.getElementById('cobroSearch').value='';
+  document.getElementById('cobroResults').innerHTML='<div class="no-results">✅ Producto agregado — busca otro o finaliza la venta</div>';
+  cerrarScanner();
+}
+
+function cambiarCantidad(codigo,delta){
+  const idx=carrito.findIndex(i=>i.codigo===codigo);
+  if(idx<0)return;
+  carrito[idx].qty+=delta;
+  if(carrito[idx].qty<=0) carrito.splice(idx,1);
+  renderCarrito(); calcTotales();
+}
+
+function eliminarDelCarrito(codigo){
+  carrito=carrito.filter(i=>i.codigo!==codigo);
+  renderCarrito(); calcTotales();
+}
+
+function limpiarCarrito(){
+  if(carrito.length&&!confirm('¿Cancelar la venta actual?'))return;
+  carrito=[];
+  renderCarrito(); calcTotales();
+}
+
+function renderCarrito(){
+  const c=document.getElementById('carritoItems');
+  document.getElementById('cartCount').textContent=carrito.reduce((s,i)=>s+i.qty,0);
+  if(!carrito.length){ c.innerHTML='<div class="carrito-empty">El carrito está vacío</div>'; return; }
+  c.innerHTML=carrito.map(item=>`
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-desc">${item.descripcion}</div>
+        <div class="cart-cod">${item.codigo}</div>
+        <div class="cart-precio">$${(item.precio*item.qty).toFixed(2)}</div>
+      </div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="cambiarCantidad('${item.codigo}',-1)">−</button>
+        <span class="qty-val">${item.qty}</span>
+        <button class="qty-btn" onclick="cambiarCantidad('${item.codigo}',1)">+</button>
+      </div>
+      <button class="btn-del-c" onclick="eliminarDelCarrito('${item.codigo}')">🗑️</button>
+    </div>`).join('');
+}
+
+// ════════════════════
+// TOTALES
+// ════════════════════
+function calcTotales(){
+  const sub=carrito.reduce((s,i)=>s+(i.precio*i.qty),0);
+  const dv=parseFloat(document.getElementById('descVal').value)||0;
+  const dt=document.getElementById('descTipo').value;
+  let da=dv>0?(dt==='porciento'?sub*(dv/100):dv):0;
+  da=Math.min(da,sub);
+  const total=sub-da;
+  document.getElementById('subtotal').textContent='$'+sub.toFixed(2);
+  const dr=document.getElementById('descRow');
+  if(da>0){dr.style.display='flex';document.getElementById('descDisplay').textContent='-$'+da.toFixed(2);}
+  else dr.style.display='none';
+  document.getElementById('totalFinal').textContent='$'+total.toFixed(2);
+  calcCambio();
+  return{sub,da,total};
+}
+
+function calcCambio(){
+  const total=parseFloat(document.getElementById('totalFinal').textContent.replace('$',''))||0;
+  const rec=parseFloat(document.getElementById('efectivoRec').value)||0;
+  const cambio=Math.max(0,rec-total);
+  const el=document.getElementById('cambioDisplay');
+  el.textContent='$'+cambio.toFixed(2);
+  el.style.color=(rec>=total&&rec>0)?'var(--green)':'var(--red)';
+}
+
+// ════════════════════
+// MÉTODO DE PAGO
+// ════════════════════
+function selMetodo(m){
+  metodoActual=m;
+  ['efectivo','mp','tarjeta','transferencia'].forEach(x=>{
+    document.getElementById('mbtn-'+x).classList.toggle('active',x===m);
+  });
+  document.getElementById('efectivoBox').style.display=m==='efectivo'?'block':'none';
+  const btn=document.getElementById('btnCobrar');
+  const cls={efectivo:'efe',mp:'mp',tarjeta:'tar',transferencia:'efe'};
+  btn.className='btn-cobrar '+(cls[m]||'efe');
+  const labels={efectivo:'✅ Cobrar en Efectivo',mp:'📱 Pagar con Mercado Pago',tarjeta:'💳 Pagar con Tarjeta',transferencia:'🏦 Confirmar Transferencia'};
+  btn.textContent=labels[m];
+}
+
+// ════════════════════
+// COBRO
+// ════════════════════
+function procesarCobro(){
+  if(!carrito.length){toast('El carrito está vacío','err');return;}
+  const{total}=calcTotales();
+  if(metodoActual==='efectivo'){
+    const rec=parseFloat(document.getElementById('efectivoRec').value)||0;
+    if(rec<total){toast('El efectivo recibido es insuficiente','err');return;}
+  }
+  if(metodoActual==='mp'){
+    // ─────────────────────────────────────────────────────────
+    // MERCADO PAGO — PENDIENTE DE CONFIGURAR
+    // Cuando tengas tu cuenta MP, pega aquí tu Public Key
+    // y configura tu preference_id desde Firebase Functions
+    // ─────────────────────────────────────────────────────────
+    const MP_PUBLIC_KEY = 'PENDIENTE_TU_PUBLIC_KEY';
+    toast('Mercado Pago pendiente de configurar','err');
+    return;
+  }
+  mostrarTicket();
+}
+
+// ════════════════════
+// TICKET
+// ════════════════════
+function generarTicket(){
+  const{sub,da,total}=calcTotales();
+  const rec=parseFloat(document.getElementById('efectivoRec').value)||0;
+  const cambio=Math.max(0,rec-total);
+  const ahora=new Date();
+  const fecha=ahora.toLocaleDateString('es-MX');
+  const hora=ahora.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+  const folio='F'+String(Date.now()).slice(-6);
+  const metodos={efectivo:'Efectivo',mp:'Mercado Pago',tarjeta:'Tarjeta',transferencia:'Transferencia'};
+  let t='';
+  t+='================================\n';
+  t+='   REFACCIONARIA MILLÁN\n';
+  t+='   Partes Eléctricas\n';
+  t+='--------------------------------\n';
+  t+=`Fecha: ${fecha}  ${hora}\n`;
+  t+=`Folio: ${folio}\n`;
+  t+='================================\n';
+  carrito.forEach(item=>{
+    const d=item.descripcion.length>22?item.descripcion.substring(0,22)+'.':item.descripcion;
+    t+=`${d}\n`;
+    t+=`  ${item.qty}x$${item.precio.toFixed(2)} = $${(item.precio*item.qty).toFixed(2)}\n`;
+  });
+  t+='--------------------------------\n';
+  t+=`Subtotal:      $${sub.toFixed(2)}\n`;
+  if(da>0) t+=`Descuento:    -$${da.toFixed(2)}\n`;
+  t+=`TOTAL:         $${total.toFixed(2)}\n`;
+  if(metodoActual==='efectivo'&&rec>0){
+    t+=`Recibido:      $${rec.toFixed(2)}\n`;
+    t+=`Cambio:        $${cambio.toFixed(2)}\n`;
+  }
+  t+=`Pago: ${metodos[metodoActual]}\n`;
+  t+='================================\n';
+  t+='  Tel: 777-683-8196\n';
+  t+='  Tel: 221-956-7392\n';
+  t+='  Alpuyeca, Morelos\n';
+  t+='  ¡Gracias por su compra!\n';
+  t+='================================\n';
+  return t;
+}
+
+function mostrarTicket(){
+  document.getElementById('ticketContent').textContent=generarTicket();
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function cerrarModal(){
+  document.getElementById('modalOverlay').classList.remove('show');
+  carrito=[];
+  renderCarrito(); calcTotales();
+  document.getElementById('efectivoRec').value='';
+  document.getElementById('descVal').value='';
+}
+
+function imprimirTicket(){
+  const w=window.open('','_blank','width=380,height=580');
+  w.document.write('<pre style="font-family:monospace;font-size:12px;padding:12px">'+generarTicket()+'</pre>');
+  w.document.close(); w.print();
+}
+
+// ════════════════════
+// BLUETOOTH TÉRMICA
+// ════════════════════
+async function imprimirBluetooth(){
+  toast('Conectando impresora...','ok');
+  try{
+    if(!btDevice||!btDevice.gatt.connected){
+      btDevice=await navigator.bluetooth.requestDevice({filters:[{services:[BT_SERVICE]}],optionalServices:[BT_SERVICE]});
+      const srv=await btDevice.gatt.connect();
+      const svc=await srv.getPrimaryService(BT_SERVICE);
+      btCharacteristic=await svc.getCharacteristic(BT_CHAR);
+      toast('✓ Impresora conectada','ok');
+    }
+    const texto=generarTicket();
+    const enc=new TextEncoder();
+    const ESC=0x1B,GS=0x1D;
+    const init=new Uint8Array([ESC,0x40]);
+    const left=new Uint8Array([ESC,0x61,0x00]);
+    const feed=new Uint8Array([ESC,0x64,0x04]);
+    const cut=new Uint8Array([GS,0x56,0x41,0x10]);
+    const body=enc.encode(texto);
+    const full=new Uint8Array(init.length+left.length+body.length+feed.length+cut.length);
+    let off=0;
+    [init,left,body,feed,cut].forEach(a=>{full.set(a,off);off+=a.length;});
+    for(let i=0;i<full.length;i+=512){
+      await btCharacteristic.writeValue(full.slice(i,i+512));
+      await new Promise(r=>setTimeout(r,80));
+    }
+    toast('✓ Ticket enviado','ok');
+  }catch(e){ toast('Error BT: '+e.message,'err'); }
+}
+
+// ════════════════════
+// ESCÁNER COBRO — BarcodeDetector nativo
+// ════════════════════
+let scanLoop = null;
+let ultimoCodigo = '';
+let ultimoTs = 0;
+
+async function toggleScanner(){
+  if(scannerActivo){ cerrarScanner(); return; }
+
+  const box   = document.getElementById('scannerBox');
+  const video = document.getElementById('scannerVideo');
+  const stat  = document.getElementById('scanStatus');
+
+  if(!('BarcodeDetector' in window)){
+    toast('Usa Chrome en Android para el escáner','err');
+    return;
+  }
+
+  box.style.display = 'block';
+  scannerActivo = true;
+  stat.textContent = '📷 Iniciando cámara...';
+
+  try{
+    streamActivo = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    video.srcObject = streamActivo;
+
+    // Esperar que el video esté listo — robusto para Chrome móvil
+    await new Promise(resolve => {
+      if(video.readyState >= 2){ resolve(); return; }
+      video.addEventListener('canplay', resolve, { once: true });
+    });
+    await video.play();
+
+    stat.textContent = '📷 Apunta el código de barras — detección automática';
+
+    const detector = new BarcodeDetector({
+      formats:['ean_13','ean_8','code_128','code_39','code_93','qr_code','upc_a','upc_e','itf','data_matrix']
+    });
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d', { willReadFrequently: true });
+
+    async function loop(){
+      if(!scannerActivo) return;
+
+      if(video.readyState >= 2 && video.videoWidth > 0){
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        try{
+          const found = await detector.detect(canvas);
+          if(found.length > 0){
+            const cod   = found[0].rawValue;
+            const ahora = Date.now();
+            if(cod !== ultimoCodigo || ahora - ultimoTs > 2000){
+              ultimoCodigo = cod;
+              ultimoTs     = ahora;
+              if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+              stat.textContent = '✅ ' + cod;
+              procesarCodigoEscaneado(cod);
+              return;
+            }
+          }
+        }catch(e){ /* frame sin código */ }
+      }
+      scanLoop = setTimeout(loop, 150);
+    }
+    loop();
+
+  }catch(e){
+    toast('Cámara: ' + e.message, 'err');
+    cerrarScanner();
+  }
+}
+
+function procesarCodigoEscaneado(codigo){
+  cerrarScanner();
+  const exacto = productos.find(p => p.codigo.toUpperCase() === codigo.toUpperCase());
+  if(exacto){
+    agregarAlCarrito(exacto.codigo);
+    toast('✅ ' + exacto.descripcion.substring(0,30), 'ok');
+  } else {
+    document.getElementById('cobroSearch').value = codigo;
+    buscarCobro();
+    toast('🔍 "' + codigo + '" no está en catálogo — busca manualmente', 'ok');
+  }
+}
+
+function cerrarScanner(){
+  scannerActivo = false;
+  ultimoCodigo  = '';
+  if(scanLoop){ clearTimeout(scanLoop); scanLoop = null; }
+  document.getElementById('scannerBox').style.display = 'none';
+  if(streamActivo){ streamActivo.getTracks().forEach(t => t.stop()); streamActivo = null; }
+  document.getElementById('scannerVideo').srcObject = null;
+}
+
+// ════════════════════
+// ESCÁNER ADMIN — dar de alta productos
+// ════════════════════
+let scannerAdminActivo = false;
+let streamAdmin = null;
+let scanLoopAdmin = null;
+
+async function toggleScannerAdmin(){
+  if(scannerAdminActivo){ cerrarScannerAdmin(); return; }
+  const box   = document.getElementById('scannerBoxAdmin');
+  const video = document.getElementById('scannerVideoAdmin');
+  const stat  = document.getElementById('scanStatusAdmin');
+  const btn   = document.getElementById('btnScanAdmin');
+  if(!('BarcodeDetector' in window)){
+    toast('Escáner no disponible — escribe el código manualmente','err');
+    return;
+  }
+  scannerAdminActivo = true;
+  box.style.display = 'block';
+  btn.textContent = '⏹️ Cerrar escáner';
+  stat.textContent = '📷 Apunta el código del producto al recuadro naranja...';
+  try{
+    streamAdmin = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    video.srcObject = streamAdmin;
+    await new Promise(r => video.onloadedmetadata = r);
+    video.play();
+    const detector = new BarcodeDetector({
+      formats:['ean_13','ean_8','code_128','code_39','code_93','qr_code','upc_a','upc_e']
+    });
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d');
+    let ultimo   = '';
+    async function loop(){
+      if(!scannerAdminActivo) return;
+      if(video.readyState === video.HAVE_ENOUGH_DATA){
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        try{
+          const codigos = await detector.detect(canvas);
+          if(codigos.length > 0){
+            const cod = codigos[0].rawValue;
+            if(cod !== ultimo){
+              ultimo = cod;
+              if(navigator.vibrate) navigator.vibrate(120);
+              stat.textContent = '✅ Código: ' + cod;
+              const existe = productos.find(p => p.codigo.toUpperCase() === cod.toUpperCase());
+              if(existe){
+                toast('⚠️ "'+cod+'" ya existe en catálogo','err');
+              }
+              document.getElementById('nCodigo').value = cod;
+              document.getElementById('nDesc').focus();
+              cerrarScannerAdmin();
+              toast('📦 Código listo — completa descripción, precio y stock','ok');
+              return;
+            }
+          }
+        }catch(e){}
+      }
+      scanLoopAdmin = setTimeout(loop, 100);
+    }
+    loop();
+  }catch(e){
+    toast('Sin acceso a cámara: '+e.message,'err');
+    cerrarScannerAdmin();
+  }
+}
+
+function cerrarScannerAdmin(){
+  scannerAdminActivo = false;
+  if(scanLoopAdmin){ clearTimeout(scanLoopAdmin); scanLoopAdmin = null; }
+  const box = document.getElementById('scannerBoxAdmin');
+  if(box) box.style.display = 'none';
+  if(streamAdmin){ streamAdmin.getTracks().forEach(t => t.stop()); streamAdmin = null; }
+  const video = document.getElementById('scannerVideoAdmin');
+  if(video) video.srcObject = null;
+  const btn = document.getElementById('btnScanAdmin');
+  if(btn) btn.textContent = '📷 Escanear código de barras';
+}
+
+// ════════════════════
+// ADMIN
+// ════════════════════
+function renderAdmin(){
+  const q=(document.getElementById('adminSearch').value||'').toLowerCase();
+  let lista=productos;
+  if(q) lista=lista.filter(p=>p.codigo.toLowerCase().includes(q)||p.descripcion.toLowerCase().includes(q)||p.categoria.toLowerCase().includes(q));
+  document.getElementById('totalProds').textContent='('+productos.length+' total · '+lista.length+' mostrando)';
+  document.getElementById('adminBody').innerHTML=lista.map((p,i)=>`
+    <tr>
+      <td><strong>${p.codigo}</strong></td>
+      <td>${p.descripcion}</td>
+      <td>$${p.precio.toFixed(2)}</td>
+      <td class="${p.stock<=2?'stock-low':''}">${p.stock}</td>
+      <td>${p.categoria}</td>
+      <td>
+        <button class="btn-editar" onclick="adminEditar('${p.codigo}')">✏️</button>
+        <button class="btn-eliminar" onclick="adminEliminar('${p.codigo}')">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+
+function adminAgregar(){
+  const c=document.getElementById('nCodigo').value.trim();
+  const d=document.getElementById('nDesc').value.trim();
+  const p=parseFloat(document.getElementById('nPrecio').value);
+  const s=parseInt(document.getElementById('nStock').value);
+  const cat=document.getElementById('nCat').value.trim();
+  if(!c||!d||isNaN(p)||isNaN(s)||!cat){toast('Completa todos los campos','err');return;}
+  if(productos.find(x=>x.codigo===c)){toast('Código ya existe','err');return;}
+  productos.push({codigo:c,descripcion:d,precio:p,stock:s,categoria:cat});
+  ['nCodigo','nDesc','nPrecio','nStock','nCat'].forEach(id=>document.getElementById(id).value='');
+  renderAdmin(); renderCats();
+  toast('✓ Producto agregado','ok');
+}
+
+function adminEditar(codigo){
+  const p=productos.find(x=>x.codigo===codigo);
+  if(!p)return;
+  const np=prompt('Nuevo precio (actual: $'+p.precio+'):',p.precio);
+  const ns=prompt('Nuevo stock (actual: '+p.stock+'):',p.stock);
+  if(np!==null) p.precio=parseFloat(np)||p.precio;
+  if(ns!==null) p.stock=parseInt(ns)||p.stock;
+  renderAdmin(); toast('✓ Producto actualizado','ok');
+}
+
+function adminEliminar(codigo){
+  if(!confirm('¿Eliminar '+codigo+'?'))return;
+  const idx=productos.findIndex(x=>x.codigo===codigo);
+  if(idx>=0){ productos.splice(idx,1); renderAdmin(); toast('Producto eliminado','ok'); }
+}
+
+// ════════════════════
+// VOZ
+// ════════════════════
+let recognition;
+if('webkitSpeechRecognition' in window){
+  recognition=new webkitSpeechRecognition();
+  recognition.lang='es-MX';recognition.continuous=false;recognition.interimResults=false;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const vBtn=document.getElementById('voiceBtn');
+  if(vBtn) vBtn.addEventListener('click',()=>{
+    if(!recognition){toast('Voz no disponible en este navegador','err');return;}
+    document.getElementById('voiceStatus').textContent='🎤 Escuchando...';
+    try{
+      const r=new webkitSpeechRecognition();
+      r.lang='es-MX';r.continuous=false;r.interimResults=false;
+      r.onresult=(e)=>{
+        const t=e.results[0][0].transcript.toLowerCase();
+        document.getElementById('searchInput').value=t;
+        document.getElementById('voiceStatus').textContent='';
+        buscarInicio();
+        if('speechSynthesis'in window){
+          const u=new SpeechSynthesisUtterance('Buscando '+t);
+          u.lang='es-MX';window.speechSynthesis.speak(u);
+        }
+      };
+      r.onerror=()=>{document.getElementById('voiceStatus').textContent='Error. Intenta de nuevo';setTimeout(()=>document.getElementById('voiceStatus').textContent='',3000);};
+      r.start();
+    }catch(e){toast('Error de voz','err');}
+  });
+});
+
+// ════════════════════
+// TOAST
+// ════════════════════
+function toast(msg,tipo){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast show '+(tipo||'');
+  setTimeout(()=>el.className='toast',2500);
+}
+
+// ════════════════════
+// INIT
+// ════════════════════
+renderCats();
+renderCarrito();
+calcTotales();
+selMetodo('efectivo');
+</script>
+</body>
+</html>
